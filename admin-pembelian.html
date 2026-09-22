@@ -76,6 +76,38 @@
       opacity: 0.7;
     }
 
+    .status {
+      margin-top: 15px;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: white;
+      font-size: 14px;
+    }
+
+    button {
+      margin-left: 8px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .success {
+      color: #4ade80;
+      margin-top: 10px;
+    }
+
     .error {
       padding: 20px;
       background: #3f1515;
@@ -132,11 +164,9 @@ async function loadPurchases() {
   const errorBox =
     document.getElementById("error");
 
-
   const {
     data: sessionData
   } = await supabaseClient.auth.getSession();
-
 
   if (!sessionData.session) {
 
@@ -150,22 +180,19 @@ async function loadPurchases() {
     return;
   }
 
-
   const {
     data,
     error
   } = await supabaseClient
     .from("purchases")
     .select(
-      "id, user_id, product_name, price, created_at"
+      "id, user_id, product_name, price, status, created_at"
     )
     .order("created_at", {
       ascending: false
     });
 
-
   loading.style.display = "none";
-
 
   if (error) {
 
@@ -178,7 +205,6 @@ async function loadPurchases() {
     return;
   }
 
-
   if (!data || data.length === 0) {
 
     container.innerHTML = `
@@ -190,6 +216,7 @@ async function loadPurchases() {
     return;
   }
 
+  container.innerHTML = "";
 
   data.forEach(purchase => {
 
@@ -198,12 +225,13 @@ async function loadPurchases() {
 
     item.className = "purchase";
 
-
     const date =
       new Date(
         purchase.created_at
       ).toLocaleString("id-ID");
 
+    const currentStatus =
+      purchase.status || "pending";
 
     item.innerHTML = `
       <h2>${purchase.product_name}</h2>
@@ -220,12 +248,99 @@ async function loadPurchases() {
       <div class="date">
         ${date}
       </div>
-    `;
 
+      <div class="status">
+
+        <b>Status Pesanan:</b>
+
+        <br><br>
+
+        <select id="status-${purchase.id}">
+
+          <option value="pending"
+            ${currentStatus === "pending" ? "selected" : ""}>
+            Pending
+          </option>
+
+          <option value="processing"
+            ${currentStatus === "processing" ? "selected" : ""}>
+            Processing
+          </option>
+
+          <option value="completed"
+            ${currentStatus === "completed" ? "selected" : ""}>
+            Completed
+          </option>
+
+          <option value="cancelled"
+            ${currentStatus === "cancelled" ? "selected" : ""}>
+            Cancelled
+          </option>
+
+        </select>
+
+        <button
+          onclick="updateStatus(${purchase.id})">
+          Simpan Status
+        </button>
+
+        <div
+          id="message-${purchase.id}"
+          class="success">
+        </div>
+
+      </div>
+    `;
 
     container.appendChild(item);
 
   });
+
+}
+
+
+async function updateStatus(purchaseId) {
+
+  const select =
+    document.getElementById(
+      "status-" + purchaseId
+    );
+
+  const message =
+    document.getElementById(
+      "message-" + purchaseId
+    );
+
+  const newStatus =
+    select.value;
+
+  message.textContent =
+    "Menyimpan...";
+
+  const {
+    error
+  } = await supabaseClient.rpc(
+    "admin_update_purchase_status",
+    {
+      p_purchase_id: purchaseId,
+      p_status: newStatus
+    }
+  );
+
+  if (error) {
+
+    message.style.color = "#f87171";
+
+    message.textContent =
+      "Gagal: " + error.message;
+
+    return;
+  }
+
+  message.style.color = "#4ade80";
+
+  message.textContent =
+    "✓ Status berhasil diperbarui";
 
 }
 
