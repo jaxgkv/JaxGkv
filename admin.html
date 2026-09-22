@@ -1,272 +1,153 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>JaxGkv — Admin</title>
-
-  <link rel="stylesheet" href="css/style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JaxGkv Admin</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
 <header class="navbar">
-
-  <div class="logo">
-    Jax<span>Gkv</span>
-  </div>
-
+  <div class="logo">Jax<span>Gkv</span></div>
   <nav>
     <a href="index.html">Beranda</a>
-    <a href="produk.html">Produk</a>
   </nav>
-
 </header>
 
-
 <main class="hero">
-
   <section>
-
-    <p class="badge">
-      JAXGKV • ADMIN
-    </p>
-
-    <h1>
-      Panel <span>Admin</span>
-    </h1>
-
-    <p class="desc">
-      Kelola pengajuan top up pengguna.
-    </p>
-
+    <p class="badge">JAXGKV • ADMIN</p>
+    <h1>Panel <span>Admin</span></h1>
+    <p class="desc">Kelola pengajuan top up pengguna.</p>
   </section>
-
 </main>
 
-
 <section class="cards">
-
   <div class="card">
-
     <h2>Pengajuan Top Up</h2>
-
-    <p id="loading">
-      Memuat data...
-    </p>
-
+    <p id="loading">Memuat data...</p>
     <div id="topupList"></div>
-
   </div>
-
 </section>
-
 
 <footer>
   © 2026 JaxGkv. All rights reserved.
 </footer>
 
-
 <script>
 
-const SUPABASE_URL =
-  "https://evuwahoflentgidcjmsx.supabase.co";
+const supabaseClient = window.supabase.createClient(
+  "https://evuwahoflentgidcjmsx.supabase.co",
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3"
+);
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+async function start() {
 
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-
-async function checkAdmin() {
-
-  const {
-    data: { user },
-    error: userError
-  } =
+  const { data: userData } =
     await supabaseClient.auth.getUser();
 
+  const user = userData.user;
 
-  if (userError || !user) {
-
-    window.location.href =
-      "login.html";
-
-    return false;
+  if (!user) {
+    window.location.href = "login.html";
+    return;
   }
 
-
-  const {
-    data: profile,
-    error: profileError
-  } =
+  const { data: profile } =
     await supabaseClient
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-
-  if (
-    profileError ||
-    !profile ||
-    profile.role !== "admin"
-  ) {
-
+  if (!profile || profile.role !== "admin") {
     alert("Akses admin ditolak.");
-
-    window.location.href =
-      "index.html";
-
-    return false;
+    window.location.href = "index.html";
+    return;
   }
 
-
-  return true;
+  loadTopups();
 }
 
 
 async function loadTopups() {
 
-  const loading =
-    document.getElementById("loading");
-
   const list =
     document.getElementById("topupList");
 
+  const loading =
+    document.getElementById("loading");
 
-  const {
-    data: topups,
-    error
-  } =
+  const { data, error } =
     await supabaseClient
       .from("topup_request")
       .select(
-        "id, user_id, nominal, status, created_at"
+        "id,user_id,nominal,status,created_at"
       )
       .order(
         "created_at",
-        {
-          ascending: false
-        }
+        { ascending: false }
       );
 
-
-  if (loading) {
-    loading.style.display = "none";
-  }
-
+  loading.style.display = "none";
 
   if (error) {
-
-    console.error(error);
-
-    list.innerHTML = `
-      <div class="card">
-
-        <p>
-          Gagal mengambil data top up.
-        </p>
-
-        <p>
-          ${error.message}
-        </p>
-
-      </div>
-    `;
-
+    list.innerHTML =
+      "<p>Gagal mengambil data: " +
+      error.message +
+      "</p>";
     return;
   }
-
-
-  if (!topups || topups.length === 0) {
-
-    list.innerHTML = `
-      <div class="card">
-
-        <p>
-          Belum ada pengajuan top up.
-        </p>
-
-      </div>
-    `;
-
-    return;
-  }
-
 
   list.innerHTML = "";
 
+  if (!data || data.length === 0) {
+    list.innerHTML =
+      "<p>Belum ada pengajuan top up.</p>";
+    return;
+  }
 
-  topups.forEach(function(item) {
+  data.forEach(function(item) {
 
     const div =
       document.createElement("div");
 
-
     div.className = "card";
-
     div.style.marginTop = "15px";
 
-
     const nominal =
-      Number(item.nominal || 0)
+      Number(item.nominal)
         .toLocaleString("id-ID");
 
-
     const tanggal =
-      item.created_at
-        ? new Date(item.created_at)
-            .toLocaleString("id-ID")
-        : "-";
+      new Date(item.created_at)
+        .toLocaleString("id-ID");
 
-
-    let tombol = "";
-
+    let button = "";
 
     if (item.status === "pending") {
 
-      tombol = `
+      button = `
         <button
           class="btn primary"
-          onclick="approveTopup(${item.id})"
-        >
+          onclick="approveTopup(${item.id})">
           Approve Top Up
         </button>
       `;
 
     } else if (item.status === "approved") {
 
-      tombol = `
-        <p>
-          <b>✓ Top Up sudah disetujui</b>
-        </p>
-      `;
-
-    } else {
-
-      tombol = `
-        <p>
-          Status: ${item.status}
-        </p>
+      button = `
+        <p><b>✓ Sudah disetujui</b></p>
       `;
 
     }
 
-
     div.innerHTML = `
-
-      <h3>
-        Top Up #${item.id}
-      </h3>
+      <h3>Top Up #${item.id}</h3>
 
       <p>
         <b>User ID:</b><br>
@@ -288,83 +169,49 @@ async function loadTopups() {
         ${tanggal}
       </p>
 
-      ${tombol}
-
+      ${button}
     `;
 
-
     list.appendChild(div);
-
   });
-
 }
 
 
-async function approveTopup(topupId) {
+async function approveTopup(id) {
 
-  const yakin =
-    confirm(
-      "Yakin ingin menyetujui top up ini?"
-    );
-
-
-  if (!yakin) {
+  if (!confirm(
+    "Yakin ingin menyetujui top up ini?"
+  )) {
     return;
   }
 
-
-  const {
-    data,
-    error
-  } =
+  const { error } =
     await supabaseClient.rpc(
       "approve_topup",
       {
-        p_topup_id: topupId
+        p_topup_id: id
       }
     );
-
 
   if (error) {
 
     alert(
-      "Gagal menyetujui top up:\n" +
+      "Gagal approve:\n" +
       error.message
     );
 
-    console.error(error);
-
     return;
   }
-
 
   alert(
     "Top up berhasil disetujui!"
   );
 
-
-  await loadTopups();
-
+  loadTopups();
 }
 
 
-async function startAdmin() {
-
-  const isAdmin =
-    await checkAdmin();
-
-
-  if (!isAdmin) {
-    return;
-  }
-
-
-  await loadTopups();
-
-}
-
-
-startAdmin();
+start();
 
 </script>
 
