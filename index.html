@@ -1,162 +1,255 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JaxGkv — Beranda</title>
 
-  <link
-    rel="stylesheet"
-    href="css/style.css"
-  >
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 
 <body>
 
-  <header class="navbar">
+<header class="navbar">
 
-    <div class="logo">
-      Jax<span>Gkv</span>
+  <div class="logo">
+    Jax<span>Gkv</span>
+  </div>
+
+  <nav>
+
+    <a href="index.html">Beranda</a>
+
+    <a href="produk.html">Produk</a>
+
+    <span id="guestMenu">
+      <a href="login.html">Login</a>
+      <a class="btn" href="register.html">Daftar</a>
+    </span>
+
+    <span id="userMenu" style="display:none;">
+
+      <span id="userEmail" style="margin-right:10px;"></span>
+
+      <span id="userSaldo" style="margin-right:10px;">
+        Saldo: Rp0
+      </span>
+
+      <a
+        href="topup.html"
+        class="btn primary"
+        style="margin-right:10px;"
+      >
+        Top Up
+      </a>
+
+      <a
+        href="riwayat-topup.html"
+        class="btn secondary"
+        style="margin-right:10px;"
+      >
+        Riwayat
+      </a>
+
+      <button id="logoutBtn" class="btn">
+        Logout
+      </button>
+
+    </span>
+
+  </nav>
+
+</header>
+
+
+<main class="hero">
+
+  <section>
+
+    <p class="badge">
+      JAXGKV • DIGITAL STORE
+    </p>
+
+    <h1>
+      Selamat datang di <span>JaxGkv</span>
+    </h1>
+
+    <p class="desc">
+      Platform digital sederhana untuk menampilkan produk,
+      layanan, dan informasi JaxGkv.
+    </p>
+
+    <div class="actions">
+
+      <a class="btn primary" href="produk.html">
+        Lihat Produk
+      </a>
+
+      <a
+        id="registerButton"
+        class="btn secondary"
+        href="register.html"
+      >
+        Buat Akun
+      </a>
+
+      <a
+        class="btn secondary"
+        href="topup.html"
+      >
+        Top Up Saldo
+      </a>
+
+      <a
+        class="btn secondary"
+        href="riwayat-topup.html"
+      >
+        Riwayat Top Up
+      </a>
+
     </div>
 
-    <nav>
+  </section>
 
-      <a href="index.html">
-        Beranda
-      </a>
-
-      <a href="produk.html">
-        Produk
-      </a>
+</main>
 
 
-      <!-- MENU BELUM LOGIN -->
+<section class="cards">
 
-      <span id="guestMenu">
+  <div class="card">
+    <b>Produk Digital</b>
+    <p>
+      Kelola dan tampilkan produk dengan rapi.
+    </p>
+  </div>
 
-        <a href="login.html">
-          Login
-        </a>
+  <div class="card">
+    <b>Akun Pengguna</b>
+    <p>
+      Sistem login dan register menggunakan Supabase.
+    </p>
+  </div>
 
-        <a
-          class="btn"
-          href="register.html"
-        >
-          Daftar
-        </a>
+  <div class="card">
+    <b>Saldo Pengguna</b>
+    <p>
+      Saldo pengguna tersimpan di database.
+    </p>
+  </div>
 
-      </span>
-
-
-      <!-- MENU SUDAH LOGIN -->
-
-      <span
-        id="userMenu"
-        style="display:none;"
-      >
-
-        <span
-          id="userEmail"
-          style="margin-right:10px;"
-        ></span>
-
-        <span
-          id="userSaldo"
-          style="margin-right:10px;"
-        >
-          Saldo: Rp0
-        </span>
-
-        <a
-          href="topup.html"
-          class="btn primary"
-          style="margin-right:10px;"
-        >
-          Top Up
-        </a>
-
-        <a
-          href="riwayat-topup.html"
-          class="btn secondary"
-          style="margin-right:10px;"
-        >
-          Riwayat
-        </a>
-
-        <button
-          id="logoutBtn"
-          class="btn"
-        >
-          Logout
-        </button>
-
-      </span>
-
-    </nav>
-
-  </header>
+</section>
 
 
-  <!-- HERO -->
-
-  <main class="hero">
-
-    <section>
-
-      <p class="badge">
-        JAXGKV • DIGITAL STORE
-      </p>
+<footer>
+  © 2026 JaxGkv. All rights reserved.
+</footer>
 
 
-      <h1>
-        Selamat datang di
-        <span>JaxGkv</span>
-      </h1>
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
-      <p class="desc">
-        Platform digital sederhana untuk menampilkan produk,
-        layanan, dan informasi JaxGkv.
-      </p>
+async function checkUser() {
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  const guestMenu =
+    document.getElementById("guestMenu");
+
+  const userMenu =
+    document.getElementById("userMenu");
+
+  const userEmail =
+    document.getElementById("userEmail");
+
+  const userSaldo =
+    document.getElementById("userSaldo");
+
+  const registerButton =
+    document.getElementById("registerButton");
 
 
-      <div class="actions">
+  if (session && session.user) {
 
-        <!-- PRODUK -->
+    const user = session.user;
 
-        <a
-          class="btn primary"
-          href="produk.html"
-        >
-          Lihat Produk
-        </a>
+    guestMenu.style.display = "none";
 
+    userMenu.style.display = "inline-flex";
 
-        <!-- DAFTAR -->
+    userEmail.textContent = user.email;
 
-        <a
-          id="registerButton"
-          class="btn secondary"
-          href="register.html"
-        >
-          Buat Akun
-        </a>
+    registerButton.style.display = "none";
 
 
-        <!-- TOP UP -->
+    const {
+      data: profile,
+      error
+    } =
+      await supabaseClient
+        .from("profiles")
+        .select("saldo")
+        .eq("id", user.id)
+        .single();
 
-        <a
-          class="btn secondary"
-          href="topup.html"
-        >
-         
+
+    if (!error && profile) {
+
+      const saldo =
+        Number(profile.saldo || 0);
+
+      userSaldo.textContent =
+        "Saldo: Rp" +
+        saldo.toLocaleString("id-ID");
+
+    }
+
+  } else {
+
+    guestMenu.style.display = "inline";
+
+    userMenu.style.display = "none";
+
+    registerButton.style.display =
+      "inline-block";
+
+  }
+
+}
+
+
+checkUser();
+
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener(
+    "click",
+    async function () {
+
+      await supabaseClient.auth.signOut();
+
+      window.location.href =
+        "login.html";
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
