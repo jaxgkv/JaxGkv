@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JaxGkv — Top Up</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="logo">Jax<span>Gkv</span></div>
+
+    <nav>
+      <a href="index.html">Beranda</a>
+      <a href="produk.html">Produk</a>
+      <a href="topup.html">Top Up</a>
+      <button id="logoutBtn" class="btn">Logout</button>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <section>
+
+      <p class="badge">JAXGKV • TOP UP</p>
+
+      <h1>Top Up <span>Saldo</span></h1>
+
+      <p class="desc">
+        Pilih nominal saldo yang ingin kamu top up.
+      </p>
+
+      <div class="card">
+
+        <label for="nominal">
+          Nominal Top Up
+        </label>
+
+        <select id="nominal">
+          <option value="10000">Rp10.000</option>
+          <option value="25000">Rp25.000</option>
+          <option value="50000">Rp50.000</option>
+          <option value="100000">Rp100.000</option>
+          <option value="250000">Rp250.000</option>
+          <option value="500000">Rp500.000</option>
+        </select>
+
+        <button id="topupBtn" class="btn primary">
+          Ajukan Top Up
+        </button>
+
+        <p id="message"></p>
+
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    © 2026 JaxGkv. All rights reserved.
+  </footer>
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://evuwahoflentgidcjmsx.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    async function checkLogin() {
+
+      const {
+        data: { user }
+      } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        window.location.href = "login.html";
+        return null;
+      }
+
+      return user;
+    }
+
+
+    document
+      .getElementById("topupBtn")
+      .addEventListener("click", async function () {
+
+        const user = await checkLogin();
+
+        if (!user) return;
+
+        const nominal =
+          Number(
+            document.getElementById("nominal").value
+          );
+
+        const message =
+          document.getElementById("message");
+
+        message.textContent =
+          "Mengirim permintaan...";
+
+
+        const { error } =
+          await supabaseClient
+            .from("topup_request")
+            .insert({
+              user_id: user.id,
+              nominal: nominal,
+              status: "pending"
+            });
+
+
+        if (error) {
+
+          message.textContent =
+            "Gagal: " + error.message;
+
+          return;
+        }
+
+
+        message.textContent =
+          "Top up berhasil diajukan! Menunggu persetujuan admin.";
+
+      });
+
+
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", async function () {
+
+        await supabaseClient.auth.signOut();
+
+        window.location.href = "login.html";
+
+      });
+
+
+    checkLogin();
+
+  </script>
+
+</body>
+</html>
