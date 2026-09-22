@@ -86,6 +86,54 @@ const supabaseClient =
   );
 
 
+async function checkAdmin() {
+
+  const {
+    data: { user },
+    error: userError
+  } =
+    await supabaseClient.auth.getUser();
+
+
+  if (userError || !user) {
+
+    window.location.href =
+      "login.html";
+
+    return false;
+  }
+
+
+  const {
+    data: profile,
+    error: profileError
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin"
+  ) {
+
+    alert("Akses admin ditolak.");
+
+    window.location.href =
+      "index.html";
+
+    return false;
+  }
+
+
+  return true;
+}
+
+
 async function loadTopups() {
 
   const loading =
@@ -123,6 +171,7 @@ async function loadTopups() {
 
     list.innerHTML = `
       <div class="card">
+
         <p>
           Gagal mengambil data top up.
         </p>
@@ -130,6 +179,7 @@ async function loadTopups() {
         <p>
           ${error.message}
         </p>
+
       </div>
     `;
 
@@ -141,9 +191,11 @@ async function loadTopups() {
 
     list.innerHTML = `
       <div class="card">
+
         <p>
           Belum ada pengajuan top up.
         </p>
+
       </div>
     `;
 
@@ -177,6 +229,39 @@ async function loadTopups() {
         : "-";
 
 
+    let tombol = "";
+
+
+    if (item.status === "pending") {
+
+      tombol = `
+        <button
+          class="btn primary"
+          onclick="approveTopup(${item.id})"
+        >
+          Approve Top Up
+        </button>
+      `;
+
+    } else if (item.status === "approved") {
+
+      tombol = `
+        <p>
+          <b>✓ Top Up sudah disetujui</b>
+        </p>
+      `;
+
+    } else {
+
+      tombol = `
+        <p>
+          Status: ${item.status}
+        </p>
+      `;
+
+    }
+
+
     div.innerHTML = `
 
       <h3>
@@ -203,6 +288,8 @@ async function loadTopups() {
         ${tanggal}
       </p>
 
+      ${tombol}
+
     `;
 
 
@@ -213,7 +300,71 @@ async function loadTopups() {
 }
 
 
-loadTopups();
+async function approveTopup(topupId) {
+
+  const yakin =
+    confirm(
+      "Yakin ingin menyetujui top up ini?"
+    );
+
+
+  if (!yakin) {
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      "approve_topup",
+      {
+        p_topup_id: topupId
+      }
+    );
+
+
+  if (error) {
+
+    alert(
+      "Gagal menyetujui top up:\n" +
+      error.message
+    );
+
+    console.error(error);
+
+    return;
+  }
+
+
+  alert(
+    "Top up berhasil disetujui!"
+  );
+
+
+  await loadTopups();
+
+}
+
+
+async function startAdmin() {
+
+  const isAdmin =
+    await checkAdmin();
+
+
+  if (!isAdmin) {
+    return;
+  }
+
+
+  await loadTopups();
+
+}
+
+
+startAdmin();
 
 </script>
 
