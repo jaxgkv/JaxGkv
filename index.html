@@ -4,37 +4,189 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JaxGkv — Beranda</title>
+
   <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
+
   <header class="navbar">
     <div class="logo">Jax<span>Gkv</span></div>
+
     <nav>
       <a href="index.html">Beranda</a>
       <a href="produk.html">Produk</a>
-      <a href="login.html">Login</a>
-      <a class="btn" href="register.html">Daftar</a>
+
+      <!-- Saat belum login -->
+      <span id="guestMenu">
+        <a href="login.html">Login</a>
+        <a class="btn" href="register.html">Daftar</a>
+      </span>
+
+      <!-- Saat sudah login -->
+      <span id="userMenu" style="display:none;">
+        <span id="userEmail" style="margin-right:10px;"></span>
+        <button id="logoutBtn" class="btn">Logout</button>
+      </span>
     </nav>
   </header>
+
 
   <main class="hero">
     <section>
       <p class="badge">JAXGKV • DIGITAL STORE</p>
-      <h1>Selamat datang di <span>JaxGkv</span></h1>
-      <p class="desc">Platform digital sederhana untuk menampilkan produk, layanan, dan informasi JaxGkv.</p>
+
+      <h1>
+        Selamat datang di <span>JaxGkv</span>
+      </h1>
+
+      <p class="desc">
+        Platform digital sederhana untuk menampilkan produk,
+        layanan, dan informasi JaxGkv.
+      </p>
+
       <div class="actions">
         <a class="btn primary" href="produk.html">Lihat Produk</a>
-        <a class="btn secondary" href="register.html">Buat Akun</a>
+
+        <a
+          id="registerButton"
+          class="btn secondary"
+          href="register.html"
+        >
+          Buat Akun
+        </a>
       </div>
     </section>
   </main>
 
+
   <section class="cards">
-    <div class="card"><b>Produk Digital</b><p>Kelola dan tampilkan produk dengan rapi.</p></div>
-    <div class="card"><b>Akun Pengguna</b><p>Siapkan sistem login dan register.</p></div>
-    <div class="card"><b>Siap Dikembangkan</b><p>Nanti bisa ditambah saldo, transaksi, dan admin panel.</p></div>
+
+    <div class="card">
+      <b>Produk Digital</b>
+      <p>Kelola dan tampilkan produk dengan rapi.</p>
+    </div>
+
+    <div class="card">
+      <b>Akun Pengguna</b>
+      <p>Sistem login dan register menggunakan Supabase.</p>
+    </div>
+
+    <div class="card">
+      <b>Siap Dikembangkan</b>
+      <p>
+        Nanti bisa ditambah saldo, transaksi,
+        dan admin panel.
+      </p>
+    </div>
+
   </section>
 
-  <footer>© 2026 JaxGkv. All rights reserved.</footer>
+
+  <footer>
+    © 2026 JaxGkv. All rights reserved.
+  </footer>
+
+
+  <script>
+
+    // ==============================
+    // SUPABASE
+    // ==============================
+
+    const SUPABASE_URL =
+      "https://evuwahoflentgidcjmsx.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_G8bm8mavzC6TZgqSKcQ2iQ_goV_yeD_";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    // ==============================
+    // CEK LOGIN
+    // ==============================
+
+    async function checkUser() {
+
+      const {
+        data: { user }
+      } = await supabaseClient.auth.getUser();
+
+
+      const guestMenu =
+        document.getElementById("guestMenu");
+
+      const userMenu =
+        document.getElementById("userMenu");
+
+      const userEmail =
+        document.getElementById("userEmail");
+
+      const registerButton =
+        document.getElementById("registerButton");
+
+
+      if (user) {
+
+        // User sudah login
+
+        guestMenu.style.display = "none";
+
+        userMenu.style.display = "inline-flex";
+
+        userEmail.textContent = user.email;
+
+        registerButton.style.display = "none";
+
+      } else {
+
+        // User belum login
+
+        guestMenu.style.display = "inline";
+
+        userMenu.style.display = "none";
+
+        registerButton.style.display = "inline-block";
+
+      }
+    }
+
+
+    // Jalankan pengecekan
+    checkUser();
+
+
+    // ==============================
+    // LOGOUT
+    // ==============================
+
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", async function () {
+
+        const { error } =
+          await supabaseClient.auth.signOut();
+
+        if (error) {
+
+          alert("Gagal logout: " + error.message);
+
+          return;
+        }
+
+        // Kembali ke halaman login
+        window.location.href = "login.html";
+
+      });
+
+  </script>
+
 </body>
 </html>
