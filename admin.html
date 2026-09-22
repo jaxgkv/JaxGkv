@@ -1,217 +1,586 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JaxGkv Admin</title>
-<link rel="stylesheet" href="css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JaxGkv — Admin</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1120;
+      color: white;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 30px;
+      background: #111827;
+      border-bottom: 1px solid #263244;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #60a5fa;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 18px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 15px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: #374151;
+      font-size: 13px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
+
+    .processing {
+      background: #2563eb;
+    }
+
+    .completed {
+      background: #16a34a;
+    }
+
+    .cancelled {
+      background: #dc2626;
+    }
+
+    .refresh {
+      background: #374151;
+      margin-bottom: 20px;
+    }
+
+    .logout {
+      background: #dc2626;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      background: #172033;
+      margin-bottom: 20px;
+    }
+
+    .empty {
+      color: #9ca3af;
+      text-align: center;
+      padding: 30px;
+    }
+  </style>
 </head>
 
 <body>
 
 <header class="navbar">
-  <div class="logo">Jax<span>Gkv</span></div>
+
+  <div class="logo">
+    Jax<span>Gkv</span>
+  </div>
+
   <nav>
     <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+    <a href="topup.html">Top Up</a>
+    <a href="riwayat-topup.html">Riwayat</a>
+    <button class="logout" onclick="logout()">Logout</button>
   </nav>
+
 </header>
 
-<main class="hero">
-  <section>
-    <p class="badge">JAXGKV • ADMIN</p>
-    <h1>Panel <span>Admin</span></h1>
-    <p class="desc">Kelola pengajuan top up pengguna.</p>
+
+<main class="container">
+
+  <h1>Panel Admin</h1>
+
+  <div id="message" class="message">
+    Memeriksa akses admin...
+  </div>
+
+  <button class="refresh" onclick="loadPurchases()">
+    🔄 Refresh Purchase
+  </button>
+
+  <section id="purchases">
+    <div class="empty">
+      Memuat data purchase...
+    </div>
   </section>
+
 </main>
 
-<section class="cards">
-  <div class="card">
-    <h2>Pengajuan Top Up</h2>
-    <p id="loading">Memuat data...</p>
-    <div id="topupList"></div>
-  </div>
-</section>
-
-<footer>
-  © 2026 JaxGkv. All rights reserved.
-</footer>
 
 <script>
 
-const supabaseClient = window.supabase.createClient(
-  "https://evuwahoflentgidcjmsx.supabase.co",
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3"
-);
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
 
-async function start() {
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-  const { data: userData } =
-    await supabaseClient.auth.getUser();
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
-  const user = userData.user;
 
-  if (!user) {
+// ===============================
+// CHECK ADMIN
+// ===============================
+
+async function checkAdmin() {
+
+  const {
+    data: {
+      session
+    }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+
     window.location.href = "login.html";
+
     return;
+
   }
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-  if (!profile || profile.role !== "admin") {
-    alert("Akses admin ditolak.");
-    window.location.href = "index.html";
-    return;
-  }
-
-  loadTopups();
-}
-
-
-async function loadTopups() {
-
-  const list =
-    document.getElementById("topupList");
-
-  const loading =
-    document.getElementById("loading");
-
-  const { data, error } =
-    await supabaseClient
-      .from("topup_request")
-      .select(
-        "id,user_id,nominal,status,created_at"
-      )
-      .order(
-        "created_at",
-        { ascending: false }
-      );
-
-  loading.style.display = "none";
+  const {
+    data: profile,
+    error
+  } = await supabaseClient
+    .from("profiles")
+    .select("id, email, role")
+    .eq("id", session.user.id)
+    .single();
 
   if (error) {
-    list.innerHTML =
-      "<p>Gagal mengambil data: " +
-      error.message +
-      "</p>";
+
+    document.getElementById("message").textContent =
+      "Gagal memeriksa akun: " + error.message;
+
     return;
+
   }
 
-  list.innerHTML = "";
+  if (profile.role !== "admin") {
 
-  if (!data || data.length === 0) {
-    list.innerHTML =
-      "<p>Belum ada pengajuan top up.</p>";
+    document.getElementById("message").textContent =
+      "Akses ditolak. Halaman ini hanya untuk admin.";
+
+    document.getElementById("purchases").innerHTML = "";
+
     return;
+
   }
 
-  data.forEach(function(item) {
+  document.getElementById("message").textContent =
+    "Login sebagai admin: " + profile.email;
 
-    const div =
-      document.createElement("div");
+  loadPurchases();
 
-    div.className = "card";
-    div.style.marginTop = "15px";
-
-    const nominal =
-      Number(item.nominal)
-        .toLocaleString("id-ID");
-
-    const tanggal =
-      new Date(item.created_at)
-        .toLocaleString("id-ID");
-
-    let button = "";
-
-    if (item.status === "pending") {
-
-      button = `
-        <button
-          class="btn primary"
-          onclick="approveTopup(${item.id})">
-          Approve Top Up
-        </button>
-      `;
-
-    } else if (item.status === "approved") {
-
-      button = `
-        <p><b>✓ Sudah disetujui</b></p>
-      `;
-
-    }
-
-    div.innerHTML = `
-      <h3>Top Up #${item.id}</h3>
-
-      <p>
-        <b>User ID:</b><br>
-        ${item.user_id}
-      </p>
-
-      <p>
-        <b>Nominal:</b>
-        Rp${nominal}
-      </p>
-
-      <p>
-        <b>Status:</b>
-        ${item.status}
-      </p>
-
-      <p>
-        <b>Tanggal:</b>
-        ${tanggal}
-      </p>
-
-      ${button}
-    `;
-
-    list.appendChild(div);
-  });
 }
 
 
-async function approveTopup(id) {
+// ===============================
+// LOAD PURCHASE
+// ===============================
 
-  if (!confirm(
-    "Yakin ingin menyetujui top up ini?"
-  )) {
+async function loadPurchases() {
+
+  const container =
+    document.getElementById("purchases");
+
+  container.innerHTML =
+    '<div class="empty">Memuat purchase...</div>';
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("purchases")
+    .select(`
+      id,
+      user_id,
+      product_id,
+      product_name,
+      price,
+      status,
+      created_at
+    `)
+    .order("created_at", {
+      ascending: false
+    });
+
+
+  if (error) {
+
+    container.innerHTML = `
+      <div class="empty">
+        Gagal memuat purchase:<br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+
     return;
+
   }
 
-  const { error } =
-    await supabaseClient.rpc(
-      "approve_topup",
-      {
-        p_topup_id: id
-      }
+
+  if (!data || data.length === 0) {
+
+    container.innerHTML = `
+      <div class="empty">
+        Belum ada purchase.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML = "";
+
+
+  data.forEach(purchase => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "card";
+
+
+    const date =
+      new Date(purchase.created_at)
+        .toLocaleString("id-ID");
+
+
+    const price =
+      Number(purchase.price || 0)
+        .toLocaleString("id-ID");
+
+
+    card.innerHTML = `
+
+      <h2>
+        ${escapeHtml(
+          purchase.product_name || "Produk"
+        )}
+      </h2>
+
+      <div class="row">
+
+        <div>
+          <div class="label">
+            Purchase ID
+          </div>
+
+          <div class="value">
+            #${purchase.id}
+          </div>
+        </div>
+
+
+        <div>
+          <div class="label">
+            User ID
+          </div>
+
+          <div class="value">
+            ${escapeHtml(purchase.user_id)}
+          </div>
+        </div>
+
+
+        <div>
+          <div class="label">
+            Product ID
+          </div>
+
+          <div class="value">
+            ${purchase.product_id}
+          </div>
+        </div>
+
+
+        <div>
+          <div class="label">
+            Harga
+          </div>
+
+          <div class="value">
+            Rp${price}
+          </div>
+        </div>
+
+
+        <div>
+          <div class="label">
+            Waktu
+          </div>
+
+          <div class="value">
+            ${date}
+          </div>
+        </div>
+
+      </div>
+
+
+      <div style="margin-top:15px">
+
+        <div class="label">
+          Status
+        </div>
+
+        <div
+          class="status"
+          id="status-${purchase.id}"
+        >
+          ${escapeHtml(
+            purchase.status || "pending"
+          )}
+        </div>
+
+      </div>
+
+
+      <div class="buttons">
+
+        <button
+          class="processing"
+          onclick="updateStatus(${purchase.id}, 'processing')"
+        >
+          Processing
+        </button>
+
+
+        <button
+          class="completed"
+          onclick="updateStatus(${purchase.id}, 'completed')"
+        >
+          Completed
+        </button>
+
+
+        <button
+          class="cancelled"
+          onclick="updateStatus(${purchase.id}, 'cancelled')"
+        >
+          Cancelled
+        </button>
+
+      </div>
+
+    `;
+
+
+    container.appendChild(card);
+
+  });
+
+}
+
+
+// ===============================
+// UPDATE STATUS
+// ===============================
+
+async function updateStatus(
+  purchaseId,
+  newStatus
+) {
+
+  const allowed = [
+    "pending",
+    "processing",
+    "completed",
+    "cancelled"
+  ];
+
+
+  if (!allowed.includes(newStatus)) {
+
+    alert("Status tidak valid.");
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      "Ubah status purchase #" +
+      purchaseId +
+      " menjadi " +
+      newStatus +
+      "?"
     );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_update_purchase_status",
+    {
+      p_purchase_id: purchaseId,
+      p_status: newStatus
+    }
+  );
+
 
   if (error) {
 
     alert(
-      "Gagal approve:\n" +
+      "Gagal mengubah status:\n" +
       error.message
     );
 
     return;
+
   }
 
+
+  if (data && data.success === false) {
+
+    alert(
+      data.message ||
+      "Gagal mengubah status."
+    );
+
+    return;
+
+  }
+
+
   alert(
-    "Top up berhasil disetujui!"
+    "Status purchase #" +
+    purchaseId +
+    " berhasil diubah menjadi " +
+    newStatus
   );
 
-  loadTopups();
+
+  loadPurchases();
+
 }
 
 
-start();
+// ===============================
+// LOGOUT
+// ===============================
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href = "login.html";
+
+}
+
+
+// ===============================
+// ESCAPE HTML
+// ===============================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+// ===============================
+// START
+// ===============================
+
+checkAdmin();
 
 </script>
 
