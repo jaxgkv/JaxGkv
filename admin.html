@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JaxGkv — Admin</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<header class="navbar">
+
+  <div class="logo">
+    Jax<span>Gkv</span>
+  </div>
+
+  <nav>
+    <a href="index.html">Beranda</a>
+  </nav>
+
+</header>
+
+
+<main class="hero">
+
+  <section>
+
+    <p class="badge">
+      JAXGKV • ADMIN
+    </p>
+
+    <h1>
+      Panel <span>Admin</span>
+    </h1>
+
+    <p class="desc">
+      Kelola pengajuan top up pengguna.
+    </p>
+
+  </section>
+
+</main>
+
+
+<section class="cards">
+
+  <div class="card">
+
+    <h2>Pengajuan Top Up</h2>
+
+    <div id="loading">
+      Memuat data...
+    </div>
+
+    <div id="topupList"></div>
+
+  </div>
+
+</section>
+
+
+<footer>
+  © 2026 JaxGkv. All rights reserved.
+</footer>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4
