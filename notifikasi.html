@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JaxGkv — Notifikasi</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    .notifications {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .notification {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+
+    .notification.unread {
+      border-left: 4px solid #3b82f6;
+    }
+
+    .message {
+      font-size: 16px;
+    }
+
+    .date {
+      margin-top: 8px;
+      opacity: 0.6;
+      font-size: 13px;
+    }
+
+    .empty,
+    .loading {
+      text-align: center;
+      margin: 50px 20px;
+    }
+
+    .error {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #3f1515;
+      border: 1px solid #ef4444;
+      border-radius: 12px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 9px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #3b82f6;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">Jax<span>Gkv</span></div>
+
+  <nav>
+    <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+    <a href="riwayat-pembelian.html">Riwayat Pembelian</a>
+    <a href="notifikasi.html">Notifikasi</a>
+  </nav>
+</header>
+
+<main>
+
+  <h1 style="text-align:center; margin-top:40px;">
+    Notifikasi
+  </h1>
+
+  <div id="loading" class="loading">
+    Memuat notifikasi...
+  </div>
+
+  <div id="error" class="error" style="display:none;"></div>
+
+  <section id="notifications" class="notifications"></section>
+
+</main>
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+async function loadNotifications() {
+
+  const loading =
+    document.getElementById("loading");
+
+  const container =
+    document.getElementById("notifications");
+
+  const errorBox =
+    document.getElementById("error");
+
+
+  const {
+    data: sessionData
+  } = await supabaseClient.auth.getSession();
+
+
+  if (!sessionData.session) {
+
+    loading.style.display = "none";
+
+    container.innerHTML = `
+      <div class="empty">
+        Silakan login terlebih dahulu.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const userId =
+    sessionData.session.user.id;
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("notifications")
+    .select(
+      "id, message, is_read, created_at"
+    )
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: false
+    });
+
+
+  loading.style.display = "none";
+
+
+  if (error) {
+
+    errorBox.style.display = "block";
+
+    errorBox.innerHTML =
+      "<strong>Gagal memuat notifikasi.</strong><br><br>" +
+      error.message;
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    container.innerHTML = `
+      <div class="empty">
+        Belum ada notifikasi.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML = "";
+
+
+  data.forEach(notification => {
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "notification" +
+      (!notification.is_read
+        ? " unread"
+        : "");
+
+
+    const tanggal =
+      new Date(notification.created_at)
+        .toLocaleString("id-ID");
+
+
+    item.innerHTML = `
+      <div class="message">
+        ${notification.is_read ? "🔔" : "🔵"}
+        ${notification.message}
+      </div>
+
+      <div class="date">
+        ${tanggal}
+      </div>
+
+      ${
+        !notification.is_read
+        ? `
+          <button
+            onclick="markAsRead(${notification.id})">
+            Tandai sudah dibaca
+          </button>
+        `
+        : ""
+      }
+    `;
+
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+async function markAsRead(id) {
+
+  const {
+    error
+  } = await supabaseClient
+    .from("notifications")
+    .update({
+      is_read: true
+    })
+    .eq("id", id);
+
+
+  if (error) {
+
+    alert(
+      "Gagal menandai notifikasi:\n" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  loadNotifications();
+
+}
+
+
+loadNotifications();
+
+</script>
+
+</body>
+</html>
