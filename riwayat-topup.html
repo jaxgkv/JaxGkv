@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>JaxGkv — Riwayat Top Up</title>
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+</head>
+
+
+<body>
+
+  <header class="navbar">
+
+    <div class="logo">
+      Jax<span>Gkv</span>
+    </div>
+
+    <nav>
+
+      <a href="index.html">
+        Beranda
+      </a>
+
+      <a href="produk.html">
+        Produk
+      </a>
+
+      <a href="topup.html">
+        Top Up
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <main class="hero">
+
+    <section>
+
+      <p class="badge">
+        JAXGKV • RIWAYAT
+      </p>
+
+      <h1>
+        Riwayat <span>Top Up</span>
+      </h1>
+
+      <p class="desc">
+        Lihat semua pengajuan top up akun kamu.
+      </p>
+
+
+      <div class="card">
+
+        <div id="loading">
+          Memuat riwayat...
+        </div>
+
+        <div id="history"></div>
+
+        <p id="empty" style="display:none;">
+          Belum ada pengajuan top up.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+    © 2026 JaxGkv. All rights reserved.
+  </footer>
+
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://evuwahoflentgidcjmsx.supabase.co";
+
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    async function loadHistory() {
+
+      const {
+        data: { user },
+        error: userError
+      } =
+        await supabaseClient.auth.getUser();
+
+
+      if (userError || !user) {
+
+        window.location.href =
+          "login.html";
+
+        return;
+
+      }
+
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+
+          .from("topup_request")
+
+          .select(
+            "id, nominal, status, created_at"
+          )
+
+          .eq(
+            "user_id",
+            user.id
+          )
+
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+      document
+        .getElementById("loading")
+        .style.display = "none";
+
+
+      if (error) {
+
+        document
+          .getElementById("history")
+          .innerHTML =
+          "<p>Gagal memuat riwayat: " +
+          error.message +
+          "</p>";
+
+        return;
+
+      }
+
+
+      if (!data || data.length === 0) {
+
+        document
+          .getElementById("empty")
+          .style.display = "block";
+
+        return;
+
+      }
+
+
+      const history =
+        document.getElementById("history");
+
+
+      data.forEach(function(item) {
+
+        const nominal =
+          Number(
+            item.nominal || 0
+          );
+
+
+        const tanggal =
+          new Date(
+            item.created_at
+          ).toLocaleString(
+            "id-ID"
+          );
+
+
+        const div =
+          document.createElement("div");
+
+
+        div.className =
+          "card";
+
+
+        div.style.marginBottom =
+          "15px";
+
+
+        div.innerHTML = `
+
+          <b>
+            Top Up Rp${nominal.toLocaleString("id-ID")}
+          </b>
+
+          <p>
+            Tanggal: ${tanggal}
+          </p>
+
+          <p>
+            Status:
+            <strong>
+              ${item.status}
+            </strong>
+          </p>
+
+        `;
+
+
+        history.appendChild(div);
+
+      });
+
+    }
+
+
+    loadHistory();
+
+  </script>
+
+</body>
+
+</html>
