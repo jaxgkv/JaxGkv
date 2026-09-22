@@ -3,60 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>JaxGkv — Beranda</title>
 
   <link rel="stylesheet" href="css/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
   <header class="navbar">
-    <div class="logo">Jax<span>Gkv</span></div>
+
+    <div class="logo">
+      Jax<span>Gkv</span>
+    </div>
 
     <nav>
-      <a href="index.html">Beranda</a>
-      <a href="produk.html">Produk</a>
 
+      <a href="index.html">
+        Beranda
+      </a>
+
+      <a href="produk.html">
+        Produk
+      </a>
+
+      <!-- MENU SAAT BELUM LOGIN -->
       <span id="guestMenu">
-        <a href="login.html">Login</a>
-        <a class="btn" href="register.html">Daftar</a>
+
+        <a href="login.html">
+          Login
+        </a>
+
+        <a
+          class="btn"
+          href="register.html"
+        >
+          Daftar
+        </a>
+
       </span>
 
-      <span id="userMenu" style="display:none;">
-        <span id="userEmail" style="margin-right:10px;"></span>
 
-        <span id="userSaldo" style="margin-right:10px;">
+      <!-- MENU SAAT SUDAH LOGIN -->
+      <span
+        id="userMenu"
+        style="display:none;"
+      >
+
+        <span
+          id="userEmail"
+          style="margin-right:10px;"
+        ></span>
+
+
+        <span
+          id="userSaldo"
+          style="margin-right:10px;"
+        >
           Saldo: Rp0
         </span>
 
-        <button id="logoutBtn" class="btn">
+
+        <!-- TOMBOL TOP UP -->
+        <a
+          href="topup.html"
+          class="btn primary"
+          style="margin-right:10px;"
+        >
+          Top Up
+        </a>
+
+
+        <button
+          id="logoutBtn"
+          class="btn"
+        >
           Logout
         </button>
+
       </span>
+
     </nav>
+
   </header>
 
+
+  <!-- HERO -->
+
   <main class="hero">
+
     <section>
 
-      <p class="badge">JAXGKV • DIGITAL STORE</p>
+      <p class="badge">
+        JAXGKV • DIGITAL STORE
+      </p>
+
 
       <h1>
-        Selamat datang di <span>JaxGkv</span>
+        Selamat datang di
+        <span>JaxGkv</span>
       </h1>
+
 
       <p class="desc">
         Platform digital sederhana untuk menampilkan produk,
         layanan, dan informasi JaxGkv.
       </p>
 
+
       <div class="actions">
 
-        <a class="btn primary" href="produk.html">
+        <a
+          class="btn primary"
+          href="produk.html"
+        >
           Lihat Produk
         </a>
 
+
+        <!-- TOMBOL UNTUK USER BELUM LOGIN -->
         <a
           id="registerButton"
           class="btn secondary"
@@ -65,45 +132,87 @@
           Buat Akun
         </a>
 
+
+        <!-- TOMBOL TOP UP DI AREA UTAMA -->
+        <a
+          id="topupButton"
+          class="btn secondary"
+          href="topup.html"
+          style="display:none;"
+        >
+          Top Up Saldo
+        </a>
+
       </div>
 
     </section>
+
   </main>
+
+
+  <!-- CARDS -->
 
   <section class="cards">
 
     <div class="card">
-      <b>Produk Digital</b>
-      <p>Kelola dan tampilkan produk dengan rapi.</p>
+
+      <b>
+        Produk Digital
+      </b>
+
+      <p>
+        Kelola dan tampilkan produk dengan rapi.
+      </p>
+
     </div>
 
-    <div class="card">
-      <b>Akun Pengguna</b>
-      <p>Sistem login dan register menggunakan Supabase.</p>
-    </div>
 
     <div class="card">
-      <b>Saldo Pengguna</b>
-      <p>Saldo pengguna tersimpan di database.</p>
+
+      <b>
+        Akun Pengguna
+      </b>
+
+      <p>
+        Sistem login dan register menggunakan Supabase.
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <b>
+        Saldo Pengguna
+      </b>
+
+      <p>
+        Saldo pengguna tersimpan di database.
+      </p>
+
     </div>
 
   </section>
 
+
+  <!-- FOOTER -->
+
   <footer>
+
     © 2026 JaxGkv. All rights reserved.
+
   </footer>
 
-  <script>
 
-    // ==============================
-    // SUPABASE
-    // ==============================
+  <script>
 
     const SUPABASE_URL =
       "https://evuwahoflentgidcjmsx.supabase.co";
 
+
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
 
     const supabaseClient =
       window.supabase.createClient(
@@ -112,81 +221,100 @@
       );
 
 
-    // ==============================
-    // CEK LOGIN + SALDO
-    // ==============================
-
     async function checkUser() {
 
       const {
         data: { user },
         error: userError
-      } = await supabaseClient.auth.getUser();
+      } =
+        await supabaseClient.auth.getUser();
+
 
       const guestMenu =
         document.getElementById("guestMenu");
 
+
       const userMenu =
         document.getElementById("userMenu");
+
 
       const userEmail =
         document.getElementById("userEmail");
 
+
       const userSaldo =
         document.getElementById("userSaldo");
+
 
       const registerButton =
         document.getElementById("registerButton");
 
 
-      // Kalau gagal mengambil user
+      const topupButton =
+        document.getElementById("topupButton");
+
+
+      /*
+       * CEK ERROR LOGIN
+       */
+
       if (userError) {
 
-        alert(
-          "Error login: " +
+        console.error(
+          "Error login:",
           userError.message
         );
 
         return;
+
       }
 
 
+      /*
+       * JIKA USER SUDAH LOGIN
+       */
+
       if (user) {
 
-        // ==============================
-        // USER SUDAH LOGIN
-        // ==============================
+        guestMenu.style.display =
+          "none";
 
-        guestMenu.style.display = "none";
 
-        userMenu.style.display = "inline-flex";
+        userMenu.style.display =
+          "inline-flex";
+
 
         userEmail.textContent =
           user.email;
+
 
         registerButton.style.display =
           "none";
 
 
-        // ==============================
-        // AMBIL SALDO
-        // ==============================
+        topupButton.style.display =
+          "inline-block";
+
+
+        /*
+         * AMBIL SALDO USER
+         */
 
         const {
           data: profile,
           error: profileError
-        } = await supabaseClient
-          .from("profiles")
-          .select("saldo")
-          .eq("id", user.id)
-          .single();
+        } =
+          await supabaseClient
+            .from("profiles")
+            .select("saldo")
+            .eq("id", user.id)
+            .single();
 
 
-        // Tampilkan error database
         if (profileError) {
 
-          alert(
-            "Error saldo: " +
+          console.error(
+            "Error saldo:",
             profileError.message
           );
 
@@ -195,11 +323,13 @@
 
         }
 
-        // Kalau profile ditemukan
         else if (profile) {
 
           const saldo =
-            Number(profile.saldo || 0);
+            Number(
+              profile.saldo || 0
+            );
+
 
           userSaldo.textContent =
             "Saldo: Rp" +
@@ -207,34 +337,45 @@
 
         }
 
+      }
 
-      } else {
 
-        // ==============================
-        // USER BELUM LOGIN
-        // ==============================
+      /*
+       * JIKA USER BELUM LOGIN
+       */
+
+      else {
 
         guestMenu.style.display =
           "inline";
 
+
         userMenu.style.display =
           "none";
 
+
         registerButton.style.display =
           "inline-block";
+
+
+        topupButton.style.display =
+          "none";
 
       }
 
     }
 
 
-    // Jalankan pengecekan
+    /*
+     * JALANKAN CEK USER
+     */
+
     checkUser();
 
 
-    // ==============================
-    // LOGOUT
-    // ==============================
+    /*
+     * LOGOUT
+     */
 
     document
       .getElementById("logoutBtn")
@@ -245,6 +386,7 @@
           const { error } =
             await supabaseClient.auth.signOut();
 
+
           if (error) {
 
             alert(
@@ -253,7 +395,9 @@
             );
 
             return;
+
           }
+
 
           window.location.href =
             "login.html";
