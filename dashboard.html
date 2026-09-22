@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    nav {
+      background: #111827;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 12px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .welcome {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card .icon {
+      font-size: 30px;
+    }
+
+    .card h3 {
+      margin: 10px 0 5px;
+    }
+
+    .value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .menu {
+      margin-top: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .menu a {
+      display: block;
+      background: white;
+      padding: 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #111827;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-weight: bold;
+    }
+
+    .menu a:hover {
+      background: #f0f2f5;
+    }
+
+    .logout {
+      cursor: pointer;
+      color: #fca5a5;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div><strong>JaxGkv</strong></div>
+
+  <div>
+    <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="notifikasi.html">🔔 Notifikasi</a>
+    <span class="logout" onclick="logout()">Logout</span>
+  </div>
+</nav>
+
+<div class="container">
+
+  <h1>Dashboard</h1>
+  <div class="welcome" id="welcome">
+    Memuat data...
+  </div>
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="icon">💰</div>
+      <h3>Saldo</h3>
+      <div class="value" id="saldo">Rp0</div>
+    </div>
+
+    <div class="card">
+      <div class="icon">🛒</div>
+      <h3>Total Pembelian</h3>
+      <div class="value" id="pembelian">0</div>
+    </div>
+
+    <div class="card">
+      <div class="icon">💳</div>
+      <h3>Total Top Up</h3>
+      <div class="value" id="topup">0</div>
+    </div>
+
+    <div class="card">
+      <div class="icon">🔔</div>
+      <h3>Belum Dibaca</h3>
+      <div class="value" id="notifikasi">0</div>
+    </div>
+
+  </div>
+
+  <div class="menu">
+
+    <a href="produk.html">
+      🛍️ Lihat Produk
+    </a>
+
+    <a href="topup.html">
+      💳 Top Up Saldo
+    </a>
+
+    <a href="riwayat-pembelian.html">
+      📦 Riwayat Pembelian
+    </a>
+
+    <a href="riwayat-topup.html">
+      💰 Riwayat Top Up
+    </a>
+
+    <a href="notifikasi.html">
+      🔔 Notifikasi
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL =
+    "https://evuwahoflentgidcjmsx.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  function formatRupiah(value) {
+    return "Rp" + Number(value || 0).toLocaleString("id-ID");
+  }
+
+  async function loadDashboard() {
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+    if (
+      sessionError ||
+      !sessionData.session
+    ) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const user =
+      sessionData.session.user;
+
+    document.getElementById("welcome").textContent =
+      "Login sebagai " + user.email;
+
+    // Ambil saldo
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from("profiles")
+      .select("saldo")
+      .eq("id", user.id)
+      .single();
+
+    if (!profileError) {
+      document.getElementById("saldo").textContent =
+        formatRupiah(profile.saldo);
+    }
+
+    // Hitung pembelian
+    const {
+      count: purchaseCount
+    } = await supabaseClient
+      .from("purchases")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("user_id", user.id);
+
+    document.getElementById("pembelian").textContent =
+      purchaseCount || 0;
+
+    // Hitung top up
+    const {
+      count: topupCount
+    } = await supabaseClient
+      .from("topup_request")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("user_id", user.id);
+
+    document.getElementById("topup").textContent =
+      topupCount || 0;
+
+    // Hitung notifikasi belum dibaca
+    const {
+      count: notificationCount
+    } = await supabaseClient
+      .from("notifications")
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
+
+    document.getElementById("notifikasi").textContent =
+      notificationCount || 0;
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  }
+
+  loadDashboard();
+</script>
+
+</body>
+</html>
