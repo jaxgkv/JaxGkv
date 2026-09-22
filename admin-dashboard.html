@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .header {
+      background: #111;
+      color: white;
+      padding: 22px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+    }
+
+    .header p {
+      margin: 0;
+      opacity: .8;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 19px;
+    }
+
+    .card p {
+      color: #666;
+      margin: 0;
+    }
+
+    .logout {
+      margin-top: 20px;
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 10px;
+      background: #dc2626;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Dashboard Admin</h1>
+    <p id="email">Memuat...</p>
+  </div>
+
+  <div class="grid">
+
+    <div class="card" onclick="location.href='admin.html'">
+      <div class="icon">💰</div>
+      <h2>Kelola Top Up</h2>
+      <p>Lihat dan approve permintaan top up.</p>
+    </div>
+
+    <div class="card" onclick="location.href='admin-pembelian.html'">
+      <div class="icon">🛒</div>
+      <h2>Kelola Pembelian</h2>
+      <p>Lihat riwayat pembelian pengguna.</p>
+    </div>
+
+    <div class="card" onclick="location.href='admin-produk.html'">
+      <div class="icon">📦</div>
+      <h2>Kelola Produk</h2>
+      <p>Tambah, edit, dan hapus produk.</p>
+    </div>
+
+    <div class="card" onclick="location.href='index.html'">
+      <div class="icon">🏠</div>
+      <h2>Website Utama</h2>
+      <p>Kembali ke halaman utama JaxGkv.</p>
+    </div>
+
+  </div>
+
+  <button class="logout" onclick="logout()">
+    Logout Admin
+  </button>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+async function cekAdmin() {
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if (!session) {
+    location.href = "login.html";
+    return;
+  }
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+  if (!profile || profile.role !== "admin") {
+    alert("Halaman ini khusus admin.");
+    location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("email").textContent =
+    session.user.email;
+}
+
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  location.href = "login.html";
+}
+
+
+cekAdmin();
+
+</script>
+
+</body>
+</html>
