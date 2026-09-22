@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JaxGkv — Admin Pembelian</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1120;
+      color: white;
+      margin: 0;
+    }
+
+    .navbar {
+      padding: 18px 25px;
+      background: #111827;
+      border-bottom: 1px solid #263244;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #3b82f6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .loading,
+    .empty {
+      text-align: center;
+      margin: 50px 0;
+    }
+
+    .purchase {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .purchase h2 {
+      margin-top: 0;
+    }
+
+    .price {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .user {
+      font-size: 13px;
+      opacity: 0.7;
+      word-break: break-all;
+    }
+
+    .date {
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+
+    .error {
+      padding: 20px;
+      background: #3f1515;
+      border: 1px solid #ef4444;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">
+    Jax<span>Gkv</span> — Admin
+  </div>
+</header>
+
+<main class="container">
+
+  <h1>Semua Pembelian</h1>
+
+  <div id="loading" class="loading">
+    Memuat pembelian...
+  </div>
+
+  <div id="error" class="error" style="display:none;"></div>
+
+  <section id="purchases"></section>
+
+</main>
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+async function loadPurchases() {
+
+  const loading =
+    document.getElementById("loading");
+
+  const container =
+    document.getElementById("purchases");
+
+  const errorBox =
+    document.getElementById("error");
+
+
+  const {
+    data: sessionData
+  } = await supabaseClient.auth.getSession();
+
+
+  if (!sessionData.session) {
+
+    loading.style.display = "none";
+
+    errorBox.style.display = "block";
+
+    errorBox.textContent =
+      "Silakan login sebagai admin.";
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("purchases")
+    .select(
+      "id, user_id, product_name, price, created_at"
+    )
+    .order("created_at", {
+      ascending: false
+    });
+
+
+  loading.style.display = "none";
+
+
+  if (error) {
+
+    errorBox.style.display = "block";
+
+    errorBox.textContent =
+      "Gagal memuat pembelian: " +
+      error.message;
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    container.innerHTML = `
+      <div class="empty">
+        Belum ada pembelian.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  data.forEach(purchase => {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "purchase";
+
+
+    const date =
+      new Date(
+        purchase.created_at
+      ).toLocaleString("id-ID");
+
+
+    item.innerHTML = `
+      <h2>${purchase.product_name}</h2>
+
+      <div class="price">
+        Rp${Number(purchase.price)
+          .toLocaleString("id-ID")}
+      </div>
+
+      <div class="user">
+        User ID: ${purchase.user_id}
+      </div>
+
+      <div class="date">
+        ${date}
+      </div>
+    `;
+
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+loadPurchases();
+
+</script>
+
+</body>
+</html>
