@@ -57,7 +57,6 @@
           style="margin-right:10px;"
         ></span>
 
-
         <span
           id="userSaldo"
           style="margin-right:10px;"
@@ -65,8 +64,6 @@
           Saldo: Rp0
         </span>
 
-
-        <!-- TOMBOL TOP UP -->
         <a
           href="topup.html"
           class="btn primary"
@@ -74,7 +71,6 @@
         >
           Top Up
         </a>
-
 
         <button
           id="logoutBtn"
@@ -100,12 +96,10 @@
         JAXGKV • DIGITAL STORE
       </p>
 
-
       <h1>
         Selamat datang di
         <span>JaxGkv</span>
       </h1>
-
 
       <p class="desc">
         Platform digital sederhana untuk menampilkan produk,
@@ -115,6 +109,8 @@
 
       <div class="actions">
 
+        <!-- PRODUK -->
+
         <a
           class="btn primary"
           href="produk.html"
@@ -123,289 +119,9 @@
         </a>
 
 
-        <!-- TOMBOL UNTUK USER BELUM LOGIN -->
+        <!-- DAFTAR -->
+
         <a
           id="registerButton"
           class="btn secondary"
           href="register.html"
-        >
-          Buat Akun
-        </a>
-
-
-        <!-- TOMBOL TOP UP DI AREA UTAMA -->
-        <a
-          id="topupButton"
-          class="btn secondary"
-          href="topup.html"
-          style="display:none;"
-        >
-          Top Up Saldo
-        </a>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- CARDS -->
-
-  <section class="cards">
-
-    <div class="card">
-
-      <b>
-        Produk Digital
-      </b>
-
-      <p>
-        Kelola dan tampilkan produk dengan rapi.
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <b>
-        Akun Pengguna
-      </b>
-
-      <p>
-        Sistem login dan register menggunakan Supabase.
-      </p>
-
-    </div>
-
-
-    <div class="card">
-
-      <b>
-        Saldo Pengguna
-      </b>
-
-      <p>
-        Saldo pengguna tersimpan di database.
-      </p>
-
-    </div>
-
-  </section>
-
-
-  <!-- FOOTER -->
-
-  <footer>
-
-    © 2026 JaxGkv. All rights reserved.
-
-  </footer>
-
-
-  <script>
-
-    const SUPABASE_URL =
-      "https://evuwahoflentgidcjmsx.supabase.co";
-
-
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
-
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
-
-
-    async function checkUser() {
-
-      const {
-        data: { user },
-        error: userError
-      } =
-        await supabaseClient.auth.getUser();
-
-
-      const guestMenu =
-        document.getElementById("guestMenu");
-
-
-      const userMenu =
-        document.getElementById("userMenu");
-
-
-      const userEmail =
-        document.getElementById("userEmail");
-
-
-      const userSaldo =
-        document.getElementById("userSaldo");
-
-
-      const registerButton =
-        document.getElementById("registerButton");
-
-
-      const topupButton =
-        document.getElementById("topupButton");
-
-
-      /*
-       * CEK ERROR LOGIN
-       */
-
-      if (userError) {
-
-        console.error(
-          "Error login:",
-          userError.message
-        );
-
-        return;
-
-      }
-
-
-      /*
-       * JIKA USER SUDAH LOGIN
-       */
-
-      if (user) {
-
-        guestMenu.style.display =
-          "none";
-
-
-        userMenu.style.display =
-          "inline-flex";
-
-
-        userEmail.textContent =
-          user.email;
-
-
-        registerButton.style.display =
-          "none";
-
-
-        topupButton.style.display =
-          "inline-block";
-
-
-        /*
-         * AMBIL SALDO USER
-         */
-
-        const {
-          data: profile,
-          error: profileError
-        } =
-          await supabaseClient
-            .from("profiles")
-            .select("saldo")
-            .eq("id", user.id)
-            .single();
-
-
-        if (profileError) {
-
-          console.error(
-            "Error saldo:",
-            profileError.message
-          );
-
-          userSaldo.textContent =
-            "Saldo: Rp0";
-
-        }
-
-        else if (profile) {
-
-          const saldo =
-            Number(
-              profile.saldo || 0
-            );
-
-
-          userSaldo.textContent =
-            "Saldo: Rp" +
-            saldo.toLocaleString("id-ID");
-
-        }
-
-      }
-
-
-      /*
-       * JIKA USER BELUM LOGIN
-       */
-
-      else {
-
-        guestMenu.style.display =
-          "inline";
-
-
-        userMenu.style.display =
-          "none";
-
-
-        registerButton.style.display =
-          "inline-block";
-
-
-        topupButton.style.display =
-          "none";
-
-      }
-
-    }
-
-
-    /*
-     * JALANKAN CEK USER
-     */
-
-    checkUser();
-
-
-    /*
-     * LOGOUT
-     */
-
-    document
-      .getElementById("logoutBtn")
-      .addEventListener(
-        "click",
-        async function () {
-
-          const { error } =
-            await supabaseClient.auth.signOut();
-
-
-          if (error) {
-
-            alert(
-              "Gagal logout: " +
-              error.message
-            );
-
-            return;
-
-          }
-
-
-          window.location.href =
-            "login.html";
-
-        }
-      );
-
-  </script>
-
-</body>
-</html>
