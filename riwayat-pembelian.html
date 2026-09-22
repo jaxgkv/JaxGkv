@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>JaxGkv — Riwayat Pembelian</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    .history {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .purchase {
+      background: #111827;
+      border: 1px solid #263244;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+
+    .purchase h2 {
+      margin-top: 0;
+    }
+
+    .price {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .date {
+      opacity: 0.7;
+      margin-top: 8px;
+    }
+
+    .loading,
+    .empty {
+      text-align: center;
+      margin: 50px 20px;
+    }
+
+    .error {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #3f1515;
+      border: 1px solid #ef4444;
+      border-radius: 12px;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="navbar">
+  <div class="logo">Jax<span>Gkv</span></div>
+
+  <nav>
+    <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+    <a href="topup.html">Top Up</a>
+    <a href="riwayat-topup.html">Riwayat Top Up</a>
+    <a href="riwayat-pembelian.html">Riwayat Pembelian</a>
+  </nav>
+</header>
+
+<main>
+
+  <h1 style="text-align:center; margin-top:40px;">
+    Riwayat Pembelian
+  </h1>
+
+  <div id="loading" class="loading">
+    Memuat riwayat...
+  </div>
+
+  <div id="error" class="error" style="display:none;"></div>
+
+  <section id="history" class="history"></section>
+
+</main>
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+async function loadHistory() {
+
+  const loading = document.getElementById("loading");
+  const history = document.getElementById("history");
+  const errorBox = document.getElementById("error");
+
+  const {
+    data: sessionData
+  } = await supabaseClient.auth.getSession();
+
+  if (!sessionData.session) {
+
+    loading.style.display = "none";
+
+    history.innerHTML = `
+      <div class="empty">
+        Silakan login terlebih dahulu.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const userId = sessionData.session.user.id;
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("purchases")
+    .select("id, product_name, price, created_at")
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: false
+    });
+
+
+  loading.style.display = "none";
+
+
+  if (error) {
+
+    errorBox.style.display = "block";
+
+    errorBox.innerHTML =
+      "<strong>Gagal memuat riwayat.</strong><br><br>" +
+      error.message;
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    history.innerHTML = `
+      <div class="empty">
+        Belum ada pembelian.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  data.forEach(purchase => {
+
+    const item = document.createElement("div");
+
+    item.className = "purchase";
+
+    const tanggal =
+      new Date(purchase.created_at)
+        .toLocaleString("id-ID");
+
+    item.innerHTML = `
+      <h2>${purchase.product_name}</h2>
+
+      <div class="price">
+        Rp${Number(purchase.price)
+          .toLocaleString("id-ID")}
+      </div>
+
+      <div class="date">
+        ${tanggal}
+      </div>
+    `;
+
+    history.appendChild(item);
+
+  });
+
+}
+
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
