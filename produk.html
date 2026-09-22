@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>JaxGkv — Produk</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -11,7 +12,7 @@
   <style>
     .products {
       max-width: 1100px;
-      margin: 50px auto;
+      margin: 40px auto;
       padding: 20px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -39,6 +40,27 @@
       text-align: center;
       margin: 50px;
     }
+
+    .error {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #3f1515;
+      border: 1px solid #ef4444;
+      border-radius: 12px;
+      color: white;
+    }
+
+    .buy-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #2563eb;
+      color: white;
+    }
   </style>
 </head>
 
@@ -56,6 +78,7 @@
 </header>
 
 <main>
+
   <h1 style="text-align:center; margin-top:40px;">
     Produk JaxGkv
   </h1>
@@ -64,11 +87,16 @@
     Memuat produk...
   </div>
 
+  <div id="error" class="error" style="display:none;"></div>
+
   <section id="products" class="products"></section>
+
 </main>
 
 <script>
-const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
@@ -78,31 +106,49 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
 
+
 async function loadProducts() {
 
   const loading = document.getElementById("loading");
   const container = document.getElementById("products");
+  const errorBox = document.getElementById("error");
 
   const { data, error } = await supabaseClient
     .from("products")
-    .select("*")
+    .select("id, name, price")
     .order("id", { ascending: true });
-
-  if (error) {
-    loading.textContent = "Gagal memuat produk: " + error.message;
-    return;
-  }
 
   loading.style.display = "none";
 
-  if (!data || data.length === 0) {
-    container.innerHTML = "<p>Tidak ada produk.</p>";
+  if (error) {
+
+    errorBox.style.display = "block";
+
+    errorBox.innerHTML = `
+      <strong>Gagal memuat produk.</strong>
+      <br><br>
+      ${error.message}
+    `;
+
     return;
   }
+
+  if (!data || data.length === 0) {
+
+    container.innerHTML = `
+      <p style="text-align:center;">
+        Tidak ada produk.
+      </p>
+    `;
+
+    return;
+  }
+
 
   data.forEach(product => {
 
     const card = document.createElement("div");
+
     card.className = "product-card";
 
     card.innerHTML = `
@@ -112,20 +158,32 @@ async function loadProducts() {
         Rp${Number(product.price).toLocaleString("id-ID")}
       </div>
 
-      <button class="btn primary" onclick="beli(${product.id})">
+      <button
+        class="buy-btn"
+        onclick="beli(${product.id})">
         Beli
       </button>
     `;
 
     container.appendChild(card);
+
   });
+
 }
+
 
 function beli(id) {
-  alert("Fitur pembelian belum dibuat. Kita lanjutkan setelah produk berhasil tampil.");
+
+  alert(
+    "Produk ID " + id +
+    " dipilih. Sistem pembelian akan kita buat setelah ini."
+  );
+
 }
 
+
 loadProducts();
+
 </script>
 
 </body>
