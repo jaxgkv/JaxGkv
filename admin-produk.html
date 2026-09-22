@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Produk - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      margin: 6px 0 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 6px;
+    }
+
+    .add {
+      background: #111;
+      color: white;
+      width: 100%;
+    }
+
+    .edit {
+      background: #2563eb;
+      color: white;
+    }
+
+    .delete {
+      background: #dc2626;
+      color: white;
+    }
+
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .price {
+      margin: 6px 0 12px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .back {
+      background: #ddd;
+      color: #111;
+    }
+
+    .empty {
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="topbar">
+    <h1>Admin Produk</h1>
+    <button class="back" onclick="location.href='admin.html'">
+      ← Admin
+    </button>
+  </div>
+
+  <div class="box">
+    <h2>Tambah Produk</h2>
+
+    <input
+      type="text"
+      id="nama"
+      placeholder="Nama produk"
+    >
+
+    <input
+      type="number"
+      id="harga"
+      placeholder="Harga"
+      min="1"
+    >
+
+    <button class="add" onclick="tambahProduk()">
+      + Tambah Produk
+    </button>
+  </div>
+
+  <div class="box">
+    <h2>Daftar Produk</h2>
+    <div id="produkList">Memuat produk...</div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+async function cekAdmin() {
+
+  const {
+    data: { session },
+    error
+  } = await supabaseClient.auth.getSession();
+
+  if (error || !session) {
+    alert("Silakan login terlebih dahulu.");
+    location.href = "login.html";
+    return false;
+  }
+
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+  if (!profile || profile.role !== "admin") {
+    alert("Halaman ini khusus admin.");
+    location.href = "index.html";
+    return false;
+  }
+
+  return true;
+}
+
+
+function formatRupiah(nominal) {
+
+  return "Rp" +
+    Number(nominal).toLocaleString("id-ID");
+
+}
+
+
+async function loadProducts() {
+
+  const list =
+    document.getElementById("produkList");
+
+  list.innerHTML = "Memuat produk...";
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("products")
+    .select("id, name, price")
+    .order("id", { ascending: true });
+
+  if (error) {
+    list.innerHTML =
+      "<p>Gagal memuat produk.</p>";
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    list.innerHTML =
+      "<p class='empty'>Belum ada produk.</p>";
+    return;
+  }
+
+  list.innerHTML = "";
+
+  data.forEach(product => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "product";
+
+    div.innerHTML = `
+      <div class="product-name">
+        ${escapeHtml(product.name)}
+      </div>
+
+      <div class="price">
+        ${formatRupiah(product.price)}
+      </div>
+
+      <button
+        class="edit"
+        onclick="editProduk(
+          ${product.id},
+          '${escapeJs(product.name)}',
+          ${product.price}
+        )">
+        ✏️ Edit
+      </button>
+
+      <button
+        class="delete"
+        onclick="hapusProduk(${product.id})">
+        🗑️ Hapus
+      </button>
+    `;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+async function tambahProduk() {
+
+  const nama =
+    document.getElementById("nama")
+      .value.trim();
+
+  const harga =
+    Number(
+      document.getElementById("harga").value
+    );
+
+  if (!nama) {
+    alert("Nama produk wajib diisi.");
+    return;
+  }
+
+  if (!harga || harga <= 0) {
+    alert("Harga harus lebih dari 0.");
+    return;
+  }
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_add_product",
+    {
+      p_name: nama,
+      p_price: harga
+    }
+  );
+
+  if (error) {
+    alert("Gagal: " + error.message);
+    console.error(error);
+    return;
+  }
+
+  if (!data || !data.success) {
+    alert(
+      data?.message ||
+      "Gagal menambahkan produk."
+    );
+    return;
+  }
+
+  alert("Produk berhasil ditambahkan.");
+
+  document.getElementById("nama").value = "";
+  document.getElementById("harga").value = "";
+
+  loadProducts();
+}
+
+
+async function editProduk(
+  id,
+  namaLama,
+  hargaLama
+) {
+
+  const namaBaru =
+    prompt(
+      "Nama produk:",
+      namaLama
+    );
+
+  if (namaBaru === null) {
+    return;
+  }
+
+  const hargaBaru =
+    prompt(
+      "Harga produk:",
+      hargaLama
+    );
+
+  if (hargaBaru === null) {
+    return;
+  }
+
+  const harga =
+    Number(hargaBaru);
+
+  if (!namaBaru.trim()) {
+    alert("Nama produk tidak boleh kosong.");
+    return;
+  }
+
+  if (!harga || harga <= 0) {
+    alert("Harga tidak valid.");
+    return;
+  }
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_update_product",
+    {
+      p_id: id,
+      p_name: namaBaru.trim(),
+      p_price: harga
+    }
+  );
+
+  if (error) {
+    alert("Gagal: " + error.message);
+    console.error(error);
+    return;
+  }
+
+  if (!data || !data.success) {
+    alert(
+      data?.message ||
+      "Gagal mengubah produk."
+    );
+    return;
+  }
+
+  alert("Produk berhasil diubah.");
+
+  loadProducts();
+}
+
+
+async function hapusProduk(id) {
+
+  const yakin =
+    confirm(
+      "Yakin ingin menghapus produk ini?"
+    );
+
+  if (!yakin) {
+    return;
+  }
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_delete_product",
+    {
+      p_id: id
+    }
+  );
+
+  if (error) {
+    alert("Gagal: " + error.message);
+    console.error(error);
+    return;
+  }
+
+  if (!data || !data.success) {
+    alert(
+      data?.message ||
+      "Gagal menghapus produk."
+    );
+    return;
+  }
+
+  alert("Produk berhasil dihapus.");
+
+  loadProducts();
+}
+
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+function escapeJs(text) {
+
+  return String(text)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
+
+}
+
+
+(async function() {
+
+  const isAdmin =
+    await cekAdmin();
+
+  if (!isAdmin) {
+    return;
+  }
+
+  loadProducts();
+
+})();
+</script>
+
+</body>
+</html>
