@@ -6,7 +6,6 @@
   <title>JaxGkv — Beranda</title>
 
   <link rel="stylesheet" href="css/style.css">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -19,15 +18,12 @@
       <a href="index.html">Beranda</a>
       <a href="produk.html">Produk</a>
 
-      <!-- Saat belum login -->
       <span id="guestMenu">
         <a href="login.html">Login</a>
         <a class="btn" href="register.html">Daftar</a>
       </span>
 
-      <!-- Saat sudah login -->
       <span id="userMenu" style="display:none;">
-
         <span id="userEmail" style="margin-right:10px;"></span>
 
         <span id="userSaldo" style="margin-right:10px;">
@@ -37,18 +33,14 @@
         <button id="logoutBtn" class="btn">
           Logout
         </button>
-
       </span>
     </nav>
   </header>
 
-
   <main class="hero">
     <section>
 
-      <p class="badge">
-        JAXGKV • DIGITAL STORE
-      </p>
+      <p class="badge">JAXGKV • DIGITAL STORE</p>
 
       <h1>
         Selamat datang di <span>JaxGkv</span>
@@ -78,37 +70,28 @@
     </section>
   </main>
 
-
   <section class="cards">
 
     <div class="card">
       <b>Produk Digital</b>
-      <p>
-        Kelola dan tampilkan produk dengan rapi.
-      </p>
+      <p>Kelola dan tampilkan produk dengan rapi.</p>
     </div>
 
     <div class="card">
       <b>Akun Pengguna</b>
-      <p>
-        Sistem login dan register menggunakan Supabase.
-      </p>
+      <p>Sistem login dan register menggunakan Supabase.</p>
     </div>
 
     <div class="card">
       <b>Saldo Pengguna</b>
-      <p>
-        Saldo pengguna tersimpan secara aman di database.
-      </p>
+      <p>Saldo pengguna tersimpan di database.</p>
     </div>
 
   </section>
 
-
   <footer>
     © 2026 JaxGkv. All rights reserved.
   </footer>
-
 
   <script>
 
@@ -136,9 +119,9 @@
     async function checkUser() {
 
       const {
-        data: { user }
+        data: { user },
+        error: userError
       } = await supabaseClient.auth.getUser();
-
 
       const guestMenu =
         document.getElementById("guestMenu");
@@ -154,6 +137,18 @@
 
       const registerButton =
         document.getElementById("registerButton");
+
+
+      // Kalau gagal mengambil user
+      if (userError) {
+
+        alert(
+          "Error login: " +
+          userError.message
+        );
+
+        return;
+      }
 
 
       if (user) {
@@ -187,7 +182,21 @@
           .single();
 
 
-        if (!profileError && profile) {
+        // Tampilkan error database
+        if (profileError) {
+
+          alert(
+            "Error saldo: " +
+            profileError.message
+          );
+
+          userSaldo.textContent =
+            "Saldo: Rp0";
+
+        }
+
+        // Kalau profile ditemukan
+        else if (profile) {
 
           const saldo =
             Number(profile.saldo || 0);
@@ -195,11 +204,6 @@
           userSaldo.textContent =
             "Saldo: Rp" +
             saldo.toLocaleString("id-ID");
-
-        } else {
-
-          userSaldo.textContent =
-            "Saldo: Rp0";
 
         }
 
@@ -241,7 +245,6 @@
           const { error } =
             await supabaseClient.auth.signOut();
 
-
           if (error) {
 
             alert(
@@ -252,8 +255,6 @@
             return;
           }
 
-
-          // Kembali ke halaman login
           window.location.href =
             "login.html";
 
