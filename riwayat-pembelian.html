@@ -38,6 +38,11 @@
       margin-top: 8px;
     }
 
+    .status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
     .loading,
     .empty {
       text-align: center;
@@ -100,15 +105,44 @@ const supabaseClient = window.supabase.createClient(
 );
 
 
+function statusText(status) {
+
+  if (status === "pending") {
+    return "🕐 Pending";
+  }
+
+  if (status === "processing") {
+    return "⚙️ Processing";
+  }
+
+  if (status === "completed") {
+    return "✅ Completed";
+  }
+
+  if (status === "cancelled") {
+    return "❌ Cancelled";
+  }
+
+  return "🕐 Pending";
+}
+
+
 async function loadHistory() {
 
-  const loading = document.getElementById("loading");
-  const history = document.getElementById("history");
-  const errorBox = document.getElementById("error");
+  const loading =
+    document.getElementById("loading");
+
+  const history =
+    document.getElementById("history");
+
+  const errorBox =
+    document.getElementById("error");
+
 
   const {
     data: sessionData
   } = await supabaseClient.auth.getSession();
+
 
   if (!sessionData.session) {
 
@@ -124,7 +158,8 @@ async function loadHistory() {
   }
 
 
-  const userId = sessionData.session.user.id;
+  const userId =
+    sessionData.session.user.id;
 
 
   const {
@@ -132,7 +167,9 @@ async function loadHistory() {
     error
   } = await supabaseClient
     .from("purchases")
-    .select("id, product_name, price, created_at")
+    .select(
+      "id, product_name, price, status, created_at"
+    )
     .eq("user_id", userId)
     .order("created_at", {
       ascending: false
@@ -166,15 +203,25 @@ async function loadHistory() {
   }
 
 
+  history.innerHTML = "";
+
+
   data.forEach(purchase => {
 
-    const item = document.createElement("div");
+    const item =
+      document.createElement("div");
 
     item.className = "purchase";
+
 
     const tanggal =
       new Date(purchase.created_at)
         .toLocaleString("id-ID");
+
+
+    const status =
+      purchase.status || "pending";
+
 
     item.innerHTML = `
       <h2>${purchase.product_name}</h2>
@@ -184,10 +231,16 @@ async function loadHistory() {
           .toLocaleString("id-ID")}
       </div>
 
+      <div class="status">
+        Status Pesanan:
+        ${statusText(status)}
+      </div>
+
       <div class="date">
         ${tanggal}
       </div>
     `;
+
 
     history.appendChild(item);
 
