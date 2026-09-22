@@ -1,11 +1,132 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Produk — JaxGkv</title><link rel="stylesheet" href="css/style.css"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JaxGkv — Produk</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    .products {
+      max-width: 1100px;
+      margin: 50px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      padding: 25px;
+      border-radius: 15px;
+      background: #111827;
+      border: 1px solid #263244;
+    }
+
+    .product-card h2 {
+      margin-top: 0;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .loading {
+      text-align: center;
+      margin: 50px;
+    }
+  </style>
+</head>
+
 <body>
-<header class="navbar"><div class="logo">Jax<span>Gkv</span></div><nav><a href="index.html">Beranda</a><a href="produk.html">Produk</a><a href="login.html">Login</a><a class="btn" href="register.html">Daftar</a></nav></header>
-<main class="page"><h1>Produk JaxGkv</h1><div class="product-grid">
-<div class="product"><div class="thumb">PRODUK #1</div><h3>Produk Digital</h3><p>Rp2.000</p><button>Beli</button></div>
-<div class="product"><div class="thumb">PRODUK #2</div><h3>Produk Digital</h3><p>Rp5.000</p><button>Beli</button></div>
-<div class="product"><div class="thumb">PRODUK #3</div><h3>Produk Digital</h3><p>Rp10.000</p><button>Beli</button></div>
-</div></main>
-</body></html>
+
+<header class="navbar">
+  <div class="logo">Jax<span>Gkv</span></div>
+
+  <nav>
+    <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+    <a href="topup.html">Top Up</a>
+    <a href="riwayat-topup.html">Riwayat</a>
+  </nav>
+</header>
+
+<main>
+  <h1 style="text-align:center; margin-top:40px;">
+    Produk JaxGkv
+  </h1>
+
+  <div id="loading" class="loading">
+    Memuat produk...
+  </div>
+
+  <section id="products" class="products"></section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+async function loadProducts() {
+
+  const loading = document.getElementById("loading");
+  const container = document.getElementById("products");
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    loading.textContent = "Gagal memuat produk: " + error.message;
+    return;
+  }
+
+  loading.style.display = "none";
+
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>Tidak ada produk.</p>";
+    return;
+  }
+
+  data.forEach(product => {
+
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    card.innerHTML = `
+      <h2>${product.name}</h2>
+
+      <div class="price">
+        Rp${Number(product.price).toLocaleString("id-ID")}
+      </div>
+
+      <button class="btn primary" onclick="beli(${product.id})">
+        Beli
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function beli(id) {
+  alert("Fitur pembelian belum dibuat. Kita lanjutkan setelah produk berhasil tampil.");
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>
