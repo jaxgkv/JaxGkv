@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Pesanan - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+    }
+
+    nav {
+      background: #111827;
+      padding: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    nav a,
+    nav button {
+      color: white;
+      text-decoration: none;
+      background: #374151;
+      border: none;
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .order-id {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .date {
+      color: #6b7280;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 15px 0;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .product {
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .detail {
+      color: #4b5563;
+      margin: 4px 0;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 7px;
+    }
+
+    .pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .total {
+      text-align: right;
+      font-size: 20px;
+      font-weight: bold;
+      border-top: 2px solid #e5e7eb;
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+
+    .loading,
+    .error {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">🏠 Beranda</a>
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="produk.html">🛍️ Produk</a>
+  <a href="keranjang.html">🛒 Keranjang</a>
+  <a href="topup.html">💰 Top Up</a>
+  <a href="riwayat-pembelian.html">🧾 Riwayat Pembelian</a>
+  <a href="notifikasi.html">🔔 Notifikasi</a>
+  <a href="profil.html">👤 Profil</a>
+  <button onclick="logout()">Logout</button>
+</nav>
+
+<div class="container">
+
+  <div id="loading" class="loading">
+    Memuat detail pesanan...
+  </div>
+
+  <div id="content"></div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+function formatRupiah(value) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatDate(date) {
+  return new Date(date).toLocaleString("id-ID", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+function statusHTML(status) {
+
+  if (status === "processing") {
+    return `
+      <span class="status processing">
+        ⚙️ Processing
+      </span>
+    `;
+  }
+
+  if (status === "completed") {
+    return `
+      <span class="status completed">
+        ✅ Completed
+      </span>
+    `;
+  }
+
+  if (status === "cancelled") {
+    return `
+      <span class="status cancelled">
+        ❌ Cancelled
+      </span>
+    `;
+  }
+
+  return `
+    <span class="status pending">
+      🕐 Pending
+    </span>
+  `;
+}
+
+async function loadDetail() {
+
+  const loading =
+    document.getElementById("loading");
+
+  const content =
+    document.getElementById("content");
+
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  if (
+    sessionError ||
+    !sessionData.session
+  ) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const user =
+    sessionData.session.user;
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  const orderCode =
+    params.get("order");
+
+  if (!orderCode) {
+
+    loading.style.display = "none";
+
+    content.innerHTML = `
+      <div class="card error">
+        ❌ Order ID tidak ditemukan.
+      </div>
+    `;
+
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient
+      .from("purchases")
+      .select(`
+        id,
+        order_code,
+        product_name,
+        price,
+        quantity,
+        status,
+        created_at
+      `)
+      .eq("user_id", user.id)
+      .eq("order_code", orderCode)
+      .order("created_at", {
+        ascending: true
+      });
+
+  loading.style.display = "none";
+
+  if (error) {
+
+    content.innerHTML = `
+      <div class="card error">
+        ❌ Gagal memuat pesanan.
+        <br><br>
+        ${error.message}
+      </div>
+    `;
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    content.innerHTML = `
+      <div class="card error">
+        ❌ Pesanan tidak ditemukan.
+      </div>
+    `;
+
+    return;
+  }
+
+  let total = 0;
+
+  data.forEach(item => {
+
+    total +=
+      Number(item.price) *
+      Number(item.quantity || 1);
+
+  });
+
+  const first =
+    data[0];
+
+  let itemsHTML = "";
+
+  data.forEach(item => {
+
+    const quantity =
+      Number(item.quantity || 1);
+
+    const subtotal =
+      Number(item.price) * quantity;
+
+    itemsHTML += `
+      <div class="item">
+
+        <div class="product">
+          ${item.product_name}
+        </div>
+
+        <div class="detail">
+          Harga: ${formatRupiah(item.price)}
+        </div>
+
+        <div class="detail">
+          Jumlah: ${quantity}
+        </div>
+
+        <div class="detail">
+          Subtotal: ${formatRupiah(subtotal)}
+        </div>
+
+        ${statusHTML(item.status)}
+
+      </div>
+    `;
+  });
+
+  content.innerHTML = `
+
+    <div class="card">
+
+      <div class="order-id">
+        📦 ${orderCode}
+      </div>
+
+      <div class="date">
+        Dibuat: ${formatDate(first.created_at)}
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h2>🛍️ Produk Pesanan</h2>
+
+      ${itemsHTML}
+
+      <div class="total">
+        Total Pesanan:
+        ${formatRupiah(total)}
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <a href="riwayat-pembelian.html">
+        ← Kembali ke Riwayat Pembelian
+      </a>
+
+    </div>
+  `;
+}
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href =
+    "login.html";
+}
+
+loadDetail();
+</script>
+
+</body>
+</html>
