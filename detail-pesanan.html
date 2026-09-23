@@ -8,10 +8,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f5f6fa;
       margin: 0;
+      color: #111827;
     }
 
     nav {
@@ -31,6 +36,7 @@
       padding: 9px 12px;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 14px;
     }
 
     .container {
@@ -51,6 +57,7 @@
       font-size: 22px;
       font-weight: bold;
       color: #2563eb;
+      word-break: break-word;
     }
 
     .date {
@@ -77,6 +84,7 @@
     .detail {
       color: #4b5563;
       margin: 4px 0;
+      font-size: 14px;
     }
 
     .status {
@@ -115,6 +123,27 @@
       border-top: 2px solid #e5e7eb;
       padding-top: 15px;
       margin-top: 10px;
+    }
+
+    .back-button {
+      display: inline-block;
+      background: #111827;
+      color: white;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 7px;
+    }
+
+    .video-button {
+      display: inline-block;
+      margin-top: 10px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 9px 13px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: bold;
     }
 
     .loading,
@@ -166,20 +195,37 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
+
 function formatRupiah(value) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0
-  }).format(value);
+  }).format(Number(value) || 0);
 }
 
+
 function formatDate(date) {
+  if (!date) {
+    return "-";
+  }
+
   return new Date(date).toLocaleString("id-ID", {
     dateStyle: "medium",
     timeStyle: "short"
   });
 }
+
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 
 function statusHTML(status) {
 
@@ -214,6 +260,7 @@ function statusHTML(status) {
   `;
 }
 
+
 async function loadDetail() {
 
   const loading =
@@ -222,8 +269,13 @@ async function loadDetail() {
   const content =
     document.getElementById("content");
 
-  const { data: sessionData, error: sessionError } =
+
+  const {
+    data: sessionData,
+    error: sessionError
+  } =
     await supabaseClient.auth.getSession();
+
 
   if (
     sessionError ||
@@ -233,47 +285,123 @@ async function loadDetail() {
     return;
   }
 
+
   const user =
     sessionData.session.user;
 
+
   const params =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  /*
+   * Prioritas:
+   * 1. purchase = ID purchases
+   * 2. order = order_code lama
+   */
+
+  const purchaseId =
+    params.get("purchase");
 
   const orderCode =
     params.get("order");
 
-  if (!orderCode) {
+
+  let data = null;
+  let error = null;
+
+
+  // =========================================
+  // CARI BERDASARKAN PURCHASE ID
+  // =========================================
+
+  if (purchaseId) {
+
+    const result =
+      await supabaseClient
+        .from("purchases")
+        .select(`
+          id,
+          user_id,
+          order_code,
+          product_id,
+          product_name,
+          price,
+          quantity,
+          status,
+          created_at
+        `)
+        .eq("id", purchaseId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+    data =
+      result.data
+        ? [result.data]
+        : [];
+
+    error =
+      result.error;
+  }
+
+
+  // =========================================
+  // KALAU TIDAK ADA PURCHASE ID,
+  // CARI BERDASARKAN ORDER CODE
+  // =========================================
+
+  else if (orderCode) {
+
+    const result =
+      await supabaseClient
+        .from("purchases")
+        .select(`
+          id,
+          user_id,
+          order_code,
+          product_id,
+          product_name,
+          price,
+          quantity,
+          status,
+          created_at
+        `)
+        .eq("user_id", user.id)
+        .eq("order_code", orderCode)
+        .order("created_at", {
+          ascending: true
+        });
+
+    data =
+      result.data;
+
+    error =
+      result.error;
+  }
+
+
+  // =========================================
+  // TIDAK ADA PARAMETER
+  // =========================================
+
+  else {
 
     loading.style.display = "none";
 
     content.innerHTML = `
       <div class="card error">
-        ❌ Order ID tidak ditemukan.
+        ❌ ID pesanan tidak ditemukan.
       </div>
     `;
 
     return;
   }
 
-  const { data, error } =
-    await supabaseClient
-      .from("purchases")
-      .select(`
-        id,
-        order_code,
-        product_name,
-        price,
-        quantity,
-        status,
-        created_at
-      `)
-      .eq("user_id", user.id)
-      .eq("order_code", orderCode)
-      .order("created_at", {
-        ascending: true
-      });
 
   loading.style.display = "none";
+
 
   if (error) {
 
@@ -281,12 +409,13 @@ async function loadDetail() {
       <div class="card error">
         ❌ Gagal memuat pesanan.
         <br><br>
-        ${error.message}
+        ${escapeHtml(error.message)}
       </div>
     `;
 
     return;
   }
+
 
   if (!data || data.length === 0) {
 
@@ -299,20 +428,40 @@ async function loadDetail() {
     return;
   }
 
+
+  // =========================================
+  // HITUNG TOTAL
+  // =========================================
+
   let total = 0;
 
   data.forEach(item => {
 
     total +=
-      Number(item.price) *
+      Number(item.price || 0) *
       Number(item.quantity || 1);
 
   });
 
+
   const first =
     data[0];
 
+
+  /*
+   * Kalau order_code kosong,
+   * tampilkan ID purchase sebagai nomor pesanan.
+   */
+
+  const displayOrderCode =
+    first.order_code &&
+    first.order_code.trim()
+      ? first.order_code
+      : "PURCHASE-" + first.id;
+
+
   let itemsHTML = "";
+
 
   data.forEach(item => {
 
@@ -320,46 +469,75 @@ async function loadDetail() {
       Number(item.quantity || 1);
 
     const subtotal =
-      Number(item.price) * quantity;
+      Number(item.price || 0) *
+      quantity;
+
+
+    let videoHTML = "";
+
+
+    if (
+      item.status === "completed" &&
+      item.product_id
+    ) {
+
+      videoHTML = `
+        <a
+          class="video-button"
+          href="video.html?id=${encodeURIComponent(item.product_id)}"
+        >
+          🎬 Tonton Video
+        </a>
+      `;
+    }
+
 
     itemsHTML += `
       <div class="item">
 
         <div class="product">
-          ${item.product_name}
+          ${escapeHtml(item.product_name)}
         </div>
 
         <div class="detail">
-          Harga: ${formatRupiah(item.price)}
+          Harga:
+          ${formatRupiah(item.price)}
         </div>
 
         <div class="detail">
-          Jumlah: ${quantity}
+          Jumlah:
+          ${quantity}
         </div>
 
         <div class="detail">
-          Subtotal: ${formatRupiah(subtotal)}
+          Subtotal:
+          ${formatRupiah(subtotal)}
         </div>
 
         ${statusHTML(item.status)}
 
+        ${videoHTML}
+
       </div>
     `;
   });
+
 
   content.innerHTML = `
 
     <div class="card">
 
       <div class="order-id">
-        📦 ${orderCode}
+        📦 ${escapeHtml(displayOrderCode)}
       </div>
 
       <div class="date">
-        Dibuat: ${formatDate(first.created_at)}
+        Dibuat:
+        ${formatDate(first.created_at)}
       </div>
 
     </div>
+
 
     <div class="card">
 
@@ -374,15 +552,20 @@ async function loadDetail() {
 
     </div>
 
+
     <div class="card">
 
-      <a href="riwayat-pembelian.html">
+      <a
+        class="back-button"
+        href="riwayat-pembelian.html"
+      >
         ← Kembali ke Riwayat Pembelian
       </a>
 
     </div>
   `;
 }
+
 
 async function logout() {
 
@@ -391,6 +574,7 @@ async function logout() {
   window.location.href =
     "login.html";
 }
+
 
 loadDetail();
 </script>
