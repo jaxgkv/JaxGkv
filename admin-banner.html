@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Banner - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 25px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      margin-bottom: 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .banner-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .banner-item img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    #message {
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎨 Admin Banner</h1>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Tambah Banner</h2>
+
+    <div id="message"></div>
+
+    <label>Judul</label>
+    <input id="title" type="text" placeholder="Contoh: Promo Terbaru">
+
+    <label>Deskripsi</label>
+    <textarea id="description" placeholder="Deskripsi banner"></textarea>
+
+    <label>URL Gambar</label>
+    <input id="image_url" type="text" placeholder="https://...">
+
+    <label>URL Tujuan</label>
+    <input id="link_url" type="text" placeholder="https://... atau produk.html">
+
+    <button class="btn-primary" onclick="addBanner()">
+      Tambah Banner
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Daftar Banner</h2>
+
+    <button class="btn-secondary" onclick="loadBanners()">
+      🔄 Refresh
+    </button>
+
+    <br><br>
+
+    <div id="bannerList">
+      Memuat banner...
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function checkAdmin() {
+    const {
+      data: { user },
+      error
+    } = await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+      alert("Silakan login terlebih dahulu.");
+      location.href = "login.html";
+      return false;
+    }
+
+    const { data: profile, error: profileError } =
+      await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if (profileError || !profile || profile.role !== "admin") {
+      alert("Akses hanya untuk admin.");
+      location.href = "dashboard.html";
+      return false;
+    }
+
+    return true;
+  }
+
+  async function loadBanners() {
+    const list = document.getElementById("bannerList");
+
+    list.innerHTML = "Memuat banner...";
+
+    const { data, error } = await supabaseClient
+      .from("banners")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      list.innerHTML =
+        `<p style="color:red">Gagal memuat banner: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      list.innerHTML = "<p>Belum ada banner.</p>";
+      return;
+    }
+
+    list.innerHTML = data.map(banner => `
+      <div class="banner-item">
+
+        ${
+          banner.image_url
+            ? `<img src="${escapeAttribute(banner.image_url)}"
+                    alt="${escapeAttribute(banner.title)}"
+                    onerror="this.style.display='none'">`
+            : ""
+        }
+
+        <span class="status ${banner.is_active ? "active" : "inactive"}">
+          ${banner.is_active ? "AKTIF" : "NONAKTIF"}
+        </span>
+
+        <h3>${escapeHtml(banner.title)}</h3>
+
+        <p>${escapeHtml(banner.description)}</p>
+
+        ${
+          banner.link_url
+            ? `<p>
+                🔗 ${escapeHtml(banner.link_url)}
+              </p>`
+            : ""
+        }
+
+        <div class="actions">
+          <button
+            class="${banner.is_active ? "btn-secondary" : "btn-primary"}"
+            onclick="toggleBanner(${banner.id}, ${banner.is_active})">
+            ${banner.is_active ? "Nonaktifkan" : "Aktifkan"}
+          </button>
+
+          <button
+            class="btn-danger"
+            onclick="deleteBanner(${banner.id})">
+            Hapus
+          </button>
+        </div>
+
+      </div>
+    `).join("");
+  }
+
+  async function addBanner() {
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const image_url = document.getElementById("image_url").value.trim();
+    const link_url = document.getElementById("link_url").value.trim();
+    const message = document.getElementById("message");
+
+    if (!title) {
+      message.style.color = "red";
+      message.textContent = "Judul banner wajib diisi.";
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("banners")
+      .insert({
+        title,
+        description,
+        image_url,
+        link_url,
+        is_active: true
+      });
+
+    if (error) {
+      message.style.color = "red";
+      message.textContent = "Gagal menambah banner: " + error.message;
+      return;
+    }
+
+    message.style.color = "green";
+    message.textContent = "Banner berhasil ditambahkan.";
+
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("image_url").value = "";
+    document.getElementById("link_url").value = "";
+
+    loadBanners();
+  }
+
+  async function toggleBanner(id, currentStatus) {
+    const { error } = await supabaseClient
+      .from("banners")
+      .update({
+        is_active: !currentStatus
+      })
+      .eq("id", id);
+
+    if (error) {
+      alert("Gagal mengubah status: " + error.message);
+      return;
+    }
+
+    loadBanners();
+  }
+
+  async function deleteBanner(id) {
+    if (!confirm("Yakin ingin menghapus banner ini?")) {
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from("banners")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      alert("Gagal menghapus banner: " + error.message);
+      return;
+    }
+
+    loadBanners();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeAttribute(value) {
+    return escapeHtml(value);
+  }
+
+  (async function init() {
+    const allowed = await checkAdmin();
+
+    if (allowed) {
+      await loadBanners();
+    }
+  })();
+</script>
+
+</body>
+</html>
