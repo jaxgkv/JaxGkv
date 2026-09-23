@@ -243,12 +243,6 @@
       font-size: 12px;
       margin-top: 30px;
     }
-
-    .divider {
-      height: 1px;
-      background: #292929;
-      margin: 20px 0;
-    }
   </style>
 </head>
 
@@ -278,13 +272,16 @@
     </div>
 
     <label>Nama Produk</label>
+
     <input
       id="productName"
       type="text"
       placeholder="Contoh: Vid 1"
     >
 
+
     <label>Harga</label>
+
     <input
       id="productPrice"
       type="number"
@@ -292,20 +289,26 @@
       placeholder="Contoh: 20000"
     >
 
+
     <label>Deskripsi</label>
+
     <textarea
       id="productDescription"
       placeholder="Deskripsi produk..."
     ></textarea>
 
+
     <label>Kategori</label>
+
     <input
       id="productCategory"
       type="text"
       placeholder="Contoh: Video"
     >
 
+
     <label>Stok</label>
+
     <input
       id="productStock"
       type="number"
@@ -313,12 +316,15 @@
       value="1"
     >
 
+
     <label>URL Gambar / Thumbnail</label>
+
     <input
       id="productImage"
       type="text"
       placeholder="https://..."
     >
+
 
     <label>Video Produk</label>
 
@@ -330,7 +336,9 @@
 
     <div class="file-info">
       Video akan diupload otomatis ke Storage bucket "No 1".
+      Batas file mengikuti batas Storage Supabase.
     </div>
+
 
     <button
       type="button"
@@ -454,7 +462,8 @@ async function checkAdmin() {
 
   if (error || !user) {
 
-    window.location.href = "login.html";
+    window.location.href =
+      "login.html";
 
     return false;
 
@@ -557,18 +566,19 @@ async function uploadVideo(file) {
 
   const {
     error
-  } = await supabaseClient
-    .storage
-    .from("No 1")
-    .upload(
-      path,
-      file,
-      {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type
-      }
-    );
+  } =
+    await supabaseClient
+      .storage
+      .from("No 1")
+      .upload(
+        path,
+        file,
+        {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        }
+      );
 
 
   if (error) {
@@ -648,6 +658,8 @@ async function addProduct() {
       .files[0];
 
 
+  /* VALIDASI NAMA */
+
   if (!name) {
 
     showMessage(
@@ -659,6 +671,8 @@ async function addProduct() {
 
   }
 
+
+  /* VALIDASI HARGA */
 
   if (
     !Number.isFinite(price) ||
@@ -674,6 +688,22 @@ async function addProduct() {
 
   }
 
+
+  /* VALIDASI KATEGORI */
+
+  if (!category) {
+
+    showMessage(
+      "Kategori wajib diisi.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  /* VALIDASI STOK */
 
   if (
     !Number.isFinite(stock) ||
@@ -701,7 +731,9 @@ async function addProduct() {
     let videoPath = null;
 
 
-    /* UPLOAD VIDEO */
+    /* =================================================
+       UPLOAD VIDEO
+    ================================================= */
 
     if (videoFile) {
 
@@ -717,7 +749,9 @@ async function addProduct() {
     }
 
 
-    /* INSERT PRODUCT */
+    /* =================================================
+       SIMPAN PRODUK
+    ================================================= */
 
     button.textContent =
       "Menyimpan produk...";
@@ -725,29 +759,33 @@ async function addProduct() {
 
     const {
       error
-    } = await supabaseClient
-      .from("products")
-      .insert({
+    } =
+      await supabaseClient
+        .from("products")
+        .insert({
 
-        name: name,
+          name:
+            name,
 
-        price: price,
+          price:
+            price,
 
-        description:
-          description || null,
+          description:
+            description || null,
 
-        category:
-          category || null,
+          category:
+            category,
 
-        image_url:
-          imageUrl || null,
+          image_url:
+            imageUrl || null,
 
-        stock: stock,
+          stock:
+            stock,
 
-        video_url:
-          videoPath
+          video_url:
+            videoPath
 
-      });
+        });
 
 
     if (error) {
@@ -759,6 +797,10 @@ async function addProduct() {
 
     }
 
+
+    /* =================================================
+       BERHASIL
+    ================================================= */
 
     showMessage(
       "✅ Produk berhasil ditambahkan.",
@@ -809,7 +851,11 @@ async function addProduct() {
 
   catch (error) {
 
-    console.error(error);
+    console.error(
+      "Add product error:",
+      error
+    );
+
 
     showMessage(
       error.message,
@@ -842,7 +888,9 @@ async function loadProducts() {
   container.innerHTML = `
 
     <div class="loading">
+
       Memuat produk...
+
     </div>
 
   `;
@@ -851,24 +899,25 @@ async function loadProducts() {
   const {
     data,
     error
-  } = await supabaseClient
-    .from("products")
-    .select(`
-      id,
-      name,
-      price,
-      description,
-      category,
-      image_url,
-      stock,
-      video_url
-    `)
-    .order(
-      "id",
-      {
-        ascending: false
-      }
-    );
+  } =
+    await supabaseClient
+      .from("products")
+      .select(`
+        id,
+        name,
+        price,
+        description,
+        category,
+        image_url,
+        stock,
+        video_url
+      `)
+      .order(
+        "id",
+        {
+          ascending: false
+        }
+      );
 
 
   if (error) {
@@ -930,6 +979,8 @@ async function loadProducts() {
         "product";
 
 
+      /* THUMBNAIL */
+
       let imageHTML = "";
 
 
@@ -945,13 +996,17 @@ async function loadProducts() {
             alt="${escapeHTML(
               product.name
             )}"
-            onerror="this.style.display='none'"
+            onerror="
+              this.style.display='none'
+            "
           >
 
         `;
 
       }
 
+
+      /* VIDEO STATUS */
 
       const videoStatus =
         product.video_url
@@ -1068,7 +1123,11 @@ async function loadProducts() {
           <button
             type="button"
             class="danger"
-            onclick="deleteProduct(${product.id})"
+            onclick="
+              deleteProduct(
+                ${product.id}
+              )
+            "
           >
 
             🗑️ Hapus
@@ -1110,10 +1169,11 @@ async function deleteProduct(id) {
 
   const {
     error
-  } = await supabaseClient
-    .from("products")
-    .delete()
-    .eq("id", id);
+  } =
+    await supabaseClient
+      .from("products")
+      .delete()
+      .eq("id", id);
 
 
   if (error) {
@@ -1166,15 +1226,16 @@ async function loadRequests() {
   const {
     data,
     error
-  } = await supabaseClient
-    .from("topup_request")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
+  } =
+    await supabaseClient
+      .from("topup_request")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
 
 
   if (error) {
@@ -1270,10 +1331,12 @@ async function loadRequests() {
 
           <button
             type="button"
-            onclick="approveTopup(
-              ${req.id},
-              this
-            )"
+            onclick="
+              approveTopup(
+                ${req.id},
+                this
+              )
+            "
           >
 
             Approve Top Up
@@ -1440,13 +1503,14 @@ async function approveTopup(
 
   const {
     error
-  } = await supabaseClient
-    .rpc(
-      "approve_topup",
-      {
-        request_id: id
-      }
-    );
+  } =
+    await supabaseClient
+      .rpc(
+        "approve_topup",
+        {
+          request_id: id
+        }
+      );
 
 
   if (error) {
