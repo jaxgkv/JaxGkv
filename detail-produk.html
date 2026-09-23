@@ -27,6 +27,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     nav a {
@@ -151,6 +153,9 @@
       color: white;
       font-size: 15px;
       font-weight: bold;
+      text-decoration: none;
+      text-align: center;
+      display: block;
     }
 
     .btn-cart {
@@ -159,6 +164,11 @@
 
     .btn-buy {
       background: #16a34a;
+    }
+
+    .btn-video {
+      background: #7c3aed;
+      margin-top: 10px;
     }
 
     .btn:disabled {
@@ -190,6 +200,15 @@
       color: #991b1b;
     }
 
+    .video-status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 9px;
+      background: #f3f4f6;
+      color: #555;
+      font-size: 14px;
+    }
+
     @media (max-width: 600px) {
       .actions {
         grid-template-columns: 1fr;
@@ -204,312 +223,847 @@
 
 <body>
 
-  <nav>
-    <strong>JaxGkv</strong>
+<nav>
+  <strong>JaxGkv</strong>
 
-    <div>
-      <a href="produk.html">Produk</a>
-      <a href="keranjang.html">🛒 Keranjang</a>
-      <a href="dashboard.html">Dashboard</a>
+  <div>
+    <a href="produk.html">Produk</a>
+    <a href="keranjang.html">🛒 Keranjang</a>
+    <a href="dashboard.html">Dashboard</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <a href="produk.html" class="back">
+    ← Kembali ke Produk
+  </a>
+
+  <div class="card" id="productCard">
+    <div style="text-align:center;">
+      Memuat produk...
     </div>
-  </nav>
-
-  <div class="container">
-
-    <a href="produk.html" class="back">← Kembali ke Produk</a>
-
-    <div class="card" id="productCard">
-      <div style="text-align:center;">
-        Memuat produk...
-      </div>
-    </div>
-
   </div>
 
+</div>
+
 <script>
-const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
-const SUPABASE_KEY = "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
 
-const params = new URLSearchParams(window.location.search);
-const productId = params.get("id");
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+const productId =
+  params.get("id");
+
 
 let product = null;
 
+let currentUser = null;
+
+let alreadyPurchased = false;
+
+
+// =================================
+// FORMAT RUPIAH
+// =================================
+
 function rupiah(value) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0
-  }).format(value);
+
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
+    }
+  ).format(value);
+
 }
 
-function showMessage(text, type) {
-  const message = document.getElementById("message");
+
+// =================================
+// ESCAPE HTML
+// =================================
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text ?? "";
+
+  return div.innerHTML;
+
+}
+
+
+// =================================
+// MESSAGE
+// =================================
+
+function showMessage(
+  text,
+  type
+) {
+
+  const message =
+    document.getElementById(
+      "message"
+    );
 
   if (!message) return;
 
-  message.textContent = text;
-  message.className = "message " + type;
-  message.style.display = "block";
+  message.textContent =
+    text;
+
+  message.className =
+    "message " + type;
+
+  message.style.display =
+    "block";
+
 }
 
-function renderProduct() {
-  const card = document.getElementById("productCard");
 
-  if (!product) {
-    card.innerHTML = `
-      <h2>Produk tidak ditemukan</h2>
-      <p>Produk yang kamu cari tidak tersedia.</p>
-    `;
+// =================================
+// CEK USER
+// =================================
+
+async function cekLogin() {
+
+  const {
+    data: {
+      user
+    }
+  } =
+    await supabaseClient.auth.getUser();
+
+  currentUser =
+    user || null;
+
+  return currentUser;
+
+}
+
+
+// =================================
+// CEK SUDAH BELI
+// =================================
+
+async function cekPembelian() {
+
+  alreadyPurchased =
+    false;
+
+  if (!currentUser) {
     return;
   }
 
-  const stock = Number(product.stock || 0);
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("orders")
+      .select("id")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .eq(
+        "product_id",
+        product.id
+      )
+      .eq(
+        "status",
+        "paid"
+      )
+      .limit(1);
+
+  if (error) {
+
+    console.error(
+      "Gagal cek order:",
+      error
+    );
+
+    return;
+  }
+
+  alreadyPurchased =
+    data &&
+    data.length > 0;
+
+}
+
+
+// =================================
+// RENDER PRODUK
+// =================================
+
+function renderProduct() {
+
+  const card =
+    document.getElementById(
+      "productCard"
+    );
+
+
+  if (!product) {
+
+    card.innerHTML = `
+      <h2>Produk tidak ditemukan</h2>
+
+      <p>
+        Produk yang kamu cari tidak tersedia.
+      </p>
+    `;
+
+    return;
+  }
+
+
+  const stock =
+    Number(
+      product.stock || 0
+    );
+
 
   let imageHTML = "";
 
-  if (product.image_url && product.image_url.trim() !== "") {
+
+  if (
+    product.image_url &&
+    product.image_url.trim() !== ""
+  ) {
+
     imageHTML = `
+
       <img
-        src="${product.image_url}"
+        src="${escapeHtml(
+          product.image_url
+        )}"
         class="product-image"
-        alt="${product.name}"
-        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        alt="${escapeHtml(
+          product.name
+        )}"
+        onerror="
+          this.style.display='none';
+          this.nextElementSibling.style.display='flex';
+        "
       >
 
-      <div class="no-image" style="display:none;">
+      <div
+        class="no-image"
+        style="display:none;">
+
         🛍️
+
       </div>
+
     `;
+
   } else {
+
     imageHTML = `
+
       <div class="no-image">
         🛍️
       </div>
+
     `;
+
   }
 
+
+  let videoHTML = "";
+
+
+  if (alreadyPurchased) {
+
+    videoHTML = `
+
+      <div class="video-status">
+
+        ✅ Kamu sudah membeli produk ini.
+
+      </div>
+
+      <a
+        class="btn btn-video"
+        href="video.html?id=${encodeURIComponent(
+          product.id
+        )}">
+
+        🎬 Tonton Video
+
+      </a>
+
+    `;
+
+  } else {
+
+    videoHTML = `
+
+      <div class="video-status">
+
+        🔒 Video akan tersedia setelah pembelian berhasil.
+
+      </div>
+
+    `;
+
+  }
+
+
   card.innerHTML = `
+
     ${imageHTML}
 
     <span class="category">
-      🏷️ ${product.category || "Umum"}
+
+      🏷️ ${escapeHtml(
+        product.category ||
+        "Umum"
+      )}
+
     </span>
 
-    <h1>${product.name}</h1>
+
+    <h1>
+      ${escapeHtml(
+        product.name
+      )}
+    </h1>
+
 
     <div class="price">
-      ${rupiah(product.price)}
+
+      ${rupiah(
+        product.price
+      )}
+
     </div>
+
 
     <div class="description">
-      ${product.description || "Tidak ada deskripsi."}
+
+      ${escapeHtml(
+        product.description ||
+        "Tidak ada deskripsi."
+      )}
+
     </div>
 
-    <div class="stock ${stock > 0 ? "available" : "empty"}">
-      ${stock > 0 ? "✅ Stok tersedia: " + stock : "❌ Stok habis"}
+
+    <div
+      class="stock ${
+        stock > 0
+          ? "available"
+          : "empty"
+      }">
+
+      ${
+        stock > 0
+          ? "✅ Stok tersedia: " + stock
+          : "❌ Stok habis"
+      }
+
     </div>
 
-    <div class="quantity-box">
-      <button onclick="ubahJumlah(-1)">−</button>
 
-      <input
-        type="number"
-        id="quantity"
-        value="1"
-        min="1"
-        max="${stock}"
-        ${stock <= 0 ? "disabled" : ""}
-      >
+    ${
+      !alreadyPurchased
+        ? `
 
-      <button onclick="ubahJumlah(1)">+</button>
+          <div class="quantity-box">
+
+            <button
+              onclick="ubahJumlah(-1)">
+
+              −
+
+            </button>
+
+
+            <input
+              type="number"
+              id="quantity"
+              value="1"
+              min="1"
+              max="${stock}"
+              ${stock <= 0 ? "disabled" : ""}
+            >
+
+
+            <button
+              onclick="ubahJumlah(1)">
+
+              +
+
+            </button>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              class="btn btn-cart"
+              onclick="tambahKeranjang()"
+              ${
+                stock <= 0
+                  ? "disabled"
+                  : ""
+              }>
+
+              🛒 Tambah ke Keranjang
+
+            </button>
+
+
+            <button
+              class="btn btn-buy"
+              onclick="beliSekarang()"
+              ${
+                stock <= 0
+                  ? "disabled"
+                  : ""
+              }>
+
+              ⚡ Beli Sekarang
+
+            </button>
+
+          </div>
+
+        `
+        : ""
+    }
+
+
+    ${videoHTML}
+
+
+    <div
+      id="message"
+      class="message">
+
     </div>
 
-    <div class="actions">
-      <button
-        class="btn btn-cart"
-        onclick="tambahKeranjang()"
-        ${stock <= 0 ? "disabled" : ""}
-      >
-        🛒 Tambah ke Keranjang
-      </button>
-
-      <button
-        class="btn btn-buy"
-        onclick="beliSekarang()"
-        ${stock <= 0 ? "disabled" : ""}
-      >
-        ⚡ Beli Sekarang
-      </button>
-    </div>
-
-    <div id="message" class="message"></div>
   `;
+
 }
 
-function ubahJumlah(perubahan) {
-  const input = document.getElementById("quantity");
 
-  if (!input || !product) return;
+// =================================
+// UBAH JUMLAH
+// =================================
 
-  let jumlah = Number(input.value || 1);
-  jumlah += perubahan;
+function ubahJumlah(
+  perubahan
+) {
 
-  const max = Number(product.stock || 1);
+  const input =
+    document.getElementById(
+      "quantity"
+    );
 
-  if (jumlah < 1) jumlah = 1;
-  if (jumlah > max) jumlah = max;
+  if (
+    !input ||
+    !product
+  ) {
+    return;
+  }
 
-  input.value = jumlah;
+
+  let jumlah =
+    Number(
+      input.value || 1
+    );
+
+
+  jumlah +=
+    perubahan;
+
+
+  const max =
+    Number(
+      product.stock || 1
+    );
+
+
+  if (jumlah < 1) {
+    jumlah = 1;
+  }
+
+
+  if (jumlah > max) {
+    jumlah = max;
+  }
+
+
+  input.value =
+    jumlah;
+
 }
 
-async function cekLogin() {
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
 
-  return user;
-}
+// =================================
+// TAMBAH KERANJANG
+// =================================
 
 async function tambahKeranjang() {
-  const user = await cekLogin();
+
+  const user =
+    await cekLogin();
+
 
   if (!user) {
-    alert("Silakan login terlebih dahulu.");
-    window.location.href = "login.html";
+
+    alert(
+      "Silakan login terlebih dahulu."
+    );
+
+    window.location.href =
+      "login.html";
+
     return;
   }
 
-  const quantity = Number(
-    document.getElementById("quantity").value
-  );
 
-  if (!quantity || quantity < 1) {
-    showMessage("Jumlah tidak valid.", "error");
+  const input =
+    document.getElementById(
+      "quantity"
+    );
+
+
+  const quantity =
+    Number(
+      input.value
+    );
+
+
+  if (
+    !quantity ||
+    quantity < 1
+  ) {
+
+    showMessage(
+      "Jumlah tidak valid.",
+      "error"
+    );
+
     return;
   }
 
-  if (quantity > Number(product.stock)) {
-    showMessage("Jumlah melebihi stok.", "error");
+
+  if (
+    quantity >
+    Number(product.stock)
+  ) {
+
+    showMessage(
+      "Jumlah melebihi stok.",
+      "error"
+    );
+
     return;
   }
 
-  const { error } = await supabaseClient.rpc(
-    "add_to_cart",
-    {
-      p_product_id: product.id,
-      p_quantity: quantity
-    }
-  );
+
+  const {
+    error
+  } =
+    await supabaseClient.rpc(
+      "add_to_cart",
+      {
+        p_product_id:
+          product.id,
+
+        p_quantity:
+          quantity
+      }
+    );
+
 
   if (error) {
-    showMessage(error.message, "error");
+
+    showMessage(
+      error.message,
+      "error"
+    );
+
     return;
   }
+
 
   showMessage(
     "Produk berhasil ditambahkan ke keranjang.",
     "success"
   );
+
 }
+
+
+// =================================
+// BELI SEKARANG
+// =================================
 
 async function beliSekarang() {
-  const user = await cekLogin();
+
+  const user =
+    await cekLogin();
+
 
   if (!user) {
-    alert("Silakan login terlebih dahulu.");
-    window.location.href = "login.html";
+
+    alert(
+      "Silakan login terlebih dahulu."
+    );
+
+    window.location.href =
+      "login.html";
+
     return;
   }
 
-  const quantity = Number(
-    document.getElementById("quantity").value
-  );
 
-  if (!quantity || quantity < 1) {
-    showMessage("Jumlah tidak valid.", "error");
+  const input =
+    document.getElementById(
+      "quantity"
+    );
+
+
+  const quantity =
+    Number(
+      input.value
+    );
+
+
+  if (
+    !quantity ||
+    quantity < 1
+  ) {
+
+    showMessage(
+      "Jumlah tidak valid.",
+      "error"
+    );
+
     return;
   }
 
-  if (quantity > Number(product.stock)) {
-    showMessage("Jumlah melebihi stok.", "error");
+
+  if (
+    quantity >
+    Number(product.stock)
+  ) {
+
+    showMessage(
+      "Jumlah melebihi stok.",
+      "error"
+    );
+
     return;
   }
 
-  /*
-    CATATAN:
-    RPC buy_product saat ini belum kita upgrade
-    untuk pengurangan stok.
 
-    Jadi sementara tombol ini diarahkan ke keranjang
-    supaya checkout aman setelah RPC diperbaiki.
-  */
+  const total =
+    Number(product.price) *
+    quantity;
 
-  const { error } = await supabaseClient.rpc(
-    "add_to_cart",
-    {
-      p_product_id: product.id,
-      p_quantity: quantity
-    }
-  );
+
+  const yakin =
+    confirm(
+      "Yakin ingin membeli " +
+      quantity +
+      " produk dengan total " +
+      rupiah(total) +
+      "?"
+    );
+
+
+  if (!yakin) {
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      "buy_product",
+      {
+        p_product_id:
+          product.id,
+
+        p_quantity:
+          quantity
+      }
+    );
+
 
   if (error) {
-    showMessage(error.message, "error");
+
+    showMessage(
+      "Pembelian gagal: " +
+      error.message,
+      "error"
+    );
+
     return;
   }
 
-  window.location.href = "keranjang.html";
+
+  if (
+    data &&
+    data.success === false
+  ) {
+
+    showMessage(
+      data.message ||
+      "Pembelian gagal.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  alert(
+    "✅ Pembelian berhasil!"
+  );
+
+
+  // Langsung arahkan ke video produk
+  window.location.href =
+    "video.html?id=" +
+    encodeURIComponent(
+      product.id
+    );
+
 }
+
+
+// =================================
+// LOAD PRODUCT
+// =================================
 
 async function loadProduct() {
-  const card = document.getElementById("productCard");
+
+  const card =
+    document.getElementById(
+      "productCard"
+    );
+
 
   if (!productId) {
+
     card.innerHTML = `
-      <h2>Produk tidak ditemukan</h2>
-      <p>ID produk tidak ada di URL.</p>
+
+      <h2>
+        Produk tidak ditemukan
+      </h2>
+
+      <p>
+        ID produk tidak ada di URL.
+      </p>
+
     `;
+
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("products")
-    .select(`
-      id,
-      name,
-      price,
-      description,
-      category,
-      image_url,
-      stock
-    `)
-    .eq("id", productId)
-    .single();
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("products")
+      .select(`
+        id,
+        name,
+        price,
+        description,
+        category,
+        image_url,
+        stock,
+        video_url
+      `)
+      .eq(
+        "id",
+        productId
+      )
+      .single();
+
 
   if (error) {
+
     console.error(error);
 
+
     card.innerHTML = `
-      <h2>Gagal memuat produk</h2>
-      <p>${error.message}</p>
+
+      <h2>
+        Gagal memuat produk
+      </h2>
+
+      <p>
+        ${escapeHtml(
+          error.message
+        )}
+      </p>
+
     `;
 
     return;
   }
 
-  product = data;
 
-  document.title = product.name + " - JaxGkv";
+  product =
+    data;
+
+
+  document.title =
+    product.name +
+    " - JaxGkv";
+
+
+  await cekLogin();
+
+  await cekPembelian();
 
   renderProduct();
+
 }
 
+
+// =================================
+// START
+// =================================
+
 loadProduct();
+
 </script>
 
 </body>
