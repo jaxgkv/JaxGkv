@@ -92,6 +92,16 @@
       color: white;
     }
 
+    .btn-success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #d97706;
+      color: white;
+    }
+
     .banner-item {
       border: 1px solid #e5e7eb;
       border-radius: 10px;
@@ -137,6 +147,31 @@
       margin-bottom: 15px;
       font-weight: bold;
     }
+
+    .edit-form {
+      display: none;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .edit-form.show {
+      display: block;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      margin: 0;
+    }
   </style>
 </head>
 
@@ -148,32 +183,57 @@
 
 <div class="container">
 
+  <!-- TAMBAH BANNER -->
   <div class="card">
     <h2>Tambah Banner</h2>
 
     <div id="message"></div>
 
     <label>Judul</label>
-    <input id="title" type="text" placeholder="Contoh: Promo Terbaru">
+    <input
+      id="title"
+      type="text"
+      placeholder="Contoh: Promo Terbaru"
+    >
 
     <label>Deskripsi</label>
-    <textarea id="description" placeholder="Deskripsi banner"></textarea>
+    <textarea
+      id="description"
+      placeholder="Deskripsi banner"
+    ></textarea>
 
     <label>URL Gambar</label>
-    <input id="image_url" type="text" placeholder="https://...">
+    <input
+      id="image_url"
+      type="text"
+      placeholder="https://..."
+    >
 
     <label>URL Tujuan</label>
-    <input id="link_url" type="text" placeholder="https://... atau produk.html">
+    <input
+      id="link_url"
+      type="text"
+      placeholder="https://... atau produk.html"
+    >
 
-    <button class="btn-primary" onclick="addBanner()">
+    <button
+      class="btn-primary"
+      onclick="addBanner()"
+    >
       Tambah Banner
     </button>
   </div>
 
+
+  <!-- DAFTAR BANNER -->
   <div class="card">
+
     <h2>Daftar Banner</h2>
 
-    <button class="btn-secondary" onclick="loadBanners()">
+    <button
+      class="btn-secondary"
+      onclick="loadBanners()"
+    >
       🔄 Refresh
     </button>
 
@@ -182,207 +242,772 @@
     <div id="bannerList">
       Memuat banner...
     </div>
+
   </div>
 
 </div>
 
-<script>
-  const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-  const supabaseClient = window.supabase.createClient(
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+
+const supabaseClient =
+  window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
 
-  async function checkAdmin() {
-    const {
-      data: { user },
-      error
-    } = await supabaseClient.auth.getUser();
 
-    if (error || !user) {
-      alert("Silakan login terlebih dahulu.");
-      location.href = "login.html";
-      return false;
-    }
+// ===============================
+// CEK ADMIN
+// ===============================
 
-    const { data: profile, error: profileError } =
-      await supabaseClient
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+async function checkAdmin() {
 
-    if (profileError || !profile || profile.role !== "admin") {
-      alert("Akses hanya untuk admin.");
-      location.href = "dashboard.html";
-      return false;
-    }
+  const {
+    data: { user },
+    error
+  } = await supabaseClient.auth.getUser();
 
-    return true;
+
+  if (error || !user) {
+
+    alert("Silakan login terlebih dahulu.");
+
+    location.href =
+      "login.html";
+
+    return false;
   }
 
-  async function loadBanners() {
-    const list = document.getElementById("bannerList");
 
-    list.innerHTML = "Memuat banner...";
+  const {
+    data: profile,
+    error: profileError
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-    const { data, error } = await supabaseClient
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin"
+  ) {
+
+    alert("Akses hanya untuk admin.");
+
+    location.href =
+      "dashboard.html";
+
+    return false;
+  }
+
+
+  return true;
+}
+
+
+// ===============================
+// LOAD BANNER
+// ===============================
+
+async function loadBanners() {
+
+  const list =
+    document.getElementById(
+      "bannerList"
+    );
+
+
+  list.innerHTML =
+    "Memuat banner...";
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
       .from("banners")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", {
+        ascending: false
+      });
 
-    if (error) {
-      list.innerHTML =
-        `<p style="color:red">Gagal memuat banner: ${escapeHtml(error.message)}</p>`;
-      return;
-    }
 
-    if (!data || data.length === 0) {
-      list.innerHTML = "<p>Belum ada banner.</p>";
-      return;
-    }
+  if (error) {
 
-    list.innerHTML = data.map(banner => `
-      <div class="banner-item">
+    list.innerHTML =
+      `<p style="color:red">
+        Gagal memuat banner:
+        ${escapeHtml(error.message)}
+      </p>`;
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML =
+      "<p>Belum ada banner.</p>";
+
+    return;
+  }
+
+
+  list.innerHTML =
+    data.map(banner => `
+
+      <div
+        class="banner-item"
+        id="banner-${banner.id}"
+      >
 
         ${
           banner.image_url
-            ? `<img src="${escapeAttribute(banner.image_url)}"
-                    alt="${escapeAttribute(banner.title)}"
-                    onerror="this.style.display='none'">`
+            ? `
+              <img
+                src="${escapeAttribute(banner.image_url)}"
+                alt="${escapeAttribute(banner.title)}"
+                onerror="this.style.display='none'"
+              >
+            `
             : ""
         }
 
-        <span class="status ${banner.is_active ? "active" : "inactive"}">
-          ${banner.is_active ? "AKTIF" : "NONAKTIF"}
+
+        <span
+          class="status ${
+            banner.is_active
+              ? "active"
+              : "inactive"
+          }"
+        >
+          ${
+            banner.is_active
+              ? "AKTIF"
+              : "NONAKTIF"
+          }
         </span>
 
-        <h3>${escapeHtml(banner.title)}</h3>
 
-        <p>${escapeHtml(banner.description)}</p>
+        <h3>
+          ${escapeHtml(banner.title)}
+        </h3>
+
+
+        <p>
+          ${escapeHtml(
+            banner.description
+          )}
+        </p>
+
 
         ${
           banner.link_url
-            ? `<p>
-                🔗 ${escapeHtml(banner.link_url)}
-              </p>`
+            ? `
+              <p>
+                🔗
+                ${escapeHtml(
+                  banner.link_url
+                )}
+              </p>
+            `
             : ""
         }
 
+
         <div class="actions">
+
           <button
-            class="${banner.is_active ? "btn-secondary" : "btn-primary"}"
-            onclick="toggleBanner(${banner.id}, ${banner.is_active})">
-            ${banner.is_active ? "Nonaktifkan" : "Aktifkan"}
+            class="btn-warning"
+            onclick="showEditForm(
+              ${banner.id},
+              '${escapeJs(banner.title)}',
+              '${escapeJs(banner.description)}',
+              '${escapeJs(banner.image_url)}',
+              '${escapeJs(banner.link_url)}',
+              ${banner.is_active}
+            )"
+          >
+            ✏️ Edit
           </button>
+
+
+          <button
+            class="${
+              banner.is_active
+                ? "btn-secondary"
+                : "btn-success"
+            }"
+            onclick="toggleBanner(
+              ${banner.id},
+              ${banner.is_active}
+            )"
+          >
+            ${
+              banner.is_active
+                ? "Nonaktifkan"
+                : "Aktifkan"
+            }
+          </button>
+
 
           <button
             class="btn-danger"
-            onclick="deleteBanner(${banner.id})">
-            Hapus
+            onclick="deleteBanner(
+              ${banner.id}
+            )"
+          >
+            🗑️ Hapus
           </button>
+
+        </div>
+
+
+        <!-- FORM EDIT -->
+
+        <div
+          id="edit-${banner.id}"
+          class="edit-form"
+        >
+
+          <h3>
+            ✏️ Edit Banner
+          </h3>
+
+
+          <label>Judul</label>
+
+          <input
+            id="edit-title-${banner.id}"
+            type="text"
+          >
+
+
+          <label>Deskripsi</label>
+
+          <textarea
+            id="edit-description-${banner.id}"
+          ></textarea>
+
+
+          <label>URL Gambar</label>
+
+          <input
+            id="edit-image-${banner.id}"
+            type="text"
+          >
+
+
+          <label>URL Tujuan</label>
+
+          <input
+            id="edit-link-${banner.id}"
+            type="text"
+          >
+
+
+          <div class="checkbox-row">
+
+            <input
+              id="edit-active-${banner.id}"
+              type="checkbox"
+            >
+
+            <label>
+              Banner aktif
+            </label>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              class="btn-success"
+              onclick="saveBanner(
+                ${banner.id}
+              )"
+            >
+              💾 Simpan
+            </button>
+
+
+            <button
+              class="btn-secondary"
+              onclick="hideEditForm(
+                ${banner.id}
+              )"
+            >
+              Batal
+            </button>
+
+          </div>
+
         </div>
 
       </div>
+
     `).join("");
+}
+
+
+// ===============================
+// TAMBAH BANNER
+// ===============================
+
+async function addBanner() {
+
+  const title =
+    document
+      .getElementById("title")
+      .value
+      .trim();
+
+
+  const description =
+    document
+      .getElementById("description")
+      .value
+      .trim();
+
+
+  const image_url =
+    document
+      .getElementById("image_url")
+      .value
+      .trim();
+
+
+  const link_url =
+    document
+      .getElementById("link_url")
+      .value
+      .trim();
+
+
+  const message =
+    document.getElementById(
+      "message"
+    );
+
+
+  if (!title) {
+
+    message.style.color =
+      "red";
+
+    message.textContent =
+      "Judul banner wajib diisi.";
+
+    return;
   }
 
-  async function addBanner() {
-    const title = document.getElementById("title").value.trim();
-    const description = document.getElementById("description").value.trim();
-    const image_url = document.getElementById("image_url").value.trim();
-    const link_url = document.getElementById("link_url").value.trim();
-    const message = document.getElementById("message");
 
-    if (!title) {
-      message.style.color = "red";
-      message.textContent = "Judul banner wajib diisi.";
-      return;
-    }
-
-    const { error } = await supabaseClient
+  const {
+    error
+  } =
+    await supabaseClient
       .from("banners")
       .insert({
+
         title,
+
         description,
+
         image_url,
+
         link_url,
+
         is_active: true
+
       });
 
-    if (error) {
-      message.style.color = "red";
-      message.textContent = "Gagal menambah banner: " + error.message;
-      return;
-    }
 
-    message.style.color = "green";
-    message.textContent = "Banner berhasil ditambahkan.";
+  if (error) {
 
-    document.getElementById("title").value = "";
-    document.getElementById("description").value = "";
-    document.getElementById("image_url").value = "";
-    document.getElementById("link_url").value = "";
+    message.style.color =
+      "red";
 
-    loadBanners();
+    message.textContent =
+      "Gagal menambah banner: " +
+      error.message;
+
+    return;
   }
 
-  async function toggleBanner(id, currentStatus) {
-    const { error } = await supabaseClient
+
+  message.style.color =
+    "green";
+
+  message.textContent =
+    "Banner berhasil ditambahkan.";
+
+
+  document.getElementById(
+    "title"
+  ).value = "";
+
+
+  document.getElementById(
+    "description"
+  ).value = "";
+
+
+  document.getElementById(
+    "image_url"
+  ).value = "";
+
+
+  document.getElementById(
+    "link_url"
+  ).value = "";
+
+
+  loadBanners();
+}
+
+
+// ===============================
+// TAMPILKAN FORM EDIT
+// ===============================
+
+function showEditForm(
+  id,
+  title,
+  description,
+  imageUrl,
+  linkUrl,
+  isActive
+) {
+
+  const form =
+    document.getElementById(
+      "edit-" + id
+    );
+
+
+  document.getElementById(
+    "edit-title-" + id
+  ).value = title;
+
+
+  document.getElementById(
+    "edit-description-" + id
+  ).value = description;
+
+
+  document.getElementById(
+    "edit-image-" + id
+  ).value = imageUrl;
+
+
+  document.getElementById(
+    "edit-link-" + id
+  ).value = linkUrl;
+
+
+  document.getElementById(
+    "edit-active-" + id
+  ).checked = isActive;
+
+
+  form.classList.add("show");
+}
+
+
+// ===============================
+// SEMBUNYIKAN FORM EDIT
+// ===============================
+
+function hideEditForm(id) {
+
+  const form =
+    document.getElementById(
+      "edit-" + id
+    );
+
+
+  form.classList.remove(
+    "show"
+  );
+}
+
+
+// ===============================
+// SIMPAN EDIT
+// ===============================
+
+async function saveBanner(id) {
+
+  const title =
+    document
+      .getElementById(
+        "edit-title-" + id
+      )
+      .value
+      .trim();
+
+
+  const description =
+    document
+      .getElementById(
+        "edit-description-" + id
+      )
+      .value
+      .trim();
+
+
+  const image_url =
+    document
+      .getElementById(
+        "edit-image-" + id
+      )
+      .value
+      .trim();
+
+
+  const link_url =
+    document
+      .getElementById(
+        "edit-link-" + id
+      )
+      .value
+      .trim();
+
+
+  const is_active =
+    document
+      .getElementById(
+        "edit-active-" + id
+      )
+      .checked;
+
+
+  if (!title) {
+
+    alert(
+      "Judul banner wajib diisi."
+    );
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      "admin_update_banner",
+      {
+        p_id: id,
+        p_title: title,
+        p_description: description,
+        p_image_url: image_url,
+        p_link_url: link_url,
+        p_is_active: is_active
+      }
+    );
+
+
+  if (error) {
+
+    alert(
+      "Gagal mengubah banner: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  if (
+    !data ||
+    data.success !== true
+  ) {
+
+    alert(
+      "Perubahan banner gagal."
+    );
+
+    return;
+  }
+
+
+  alert(
+    "Banner berhasil diperbarui."
+  );
+
+
+  loadBanners();
+}
+
+
+// ===============================
+// AKTIF / NONAKTIF
+// ===============================
+
+async function toggleBanner(
+  id,
+  currentStatus
+) {
+
+  const {
+    error
+  } =
+    await supabaseClient
       .from("banners")
       .update({
-        is_active: !currentStatus
+        is_active:
+          !currentStatus
       })
       .eq("id", id);
 
-    if (error) {
-      alert("Gagal mengubah status: " + error.message);
-      return;
-    }
 
-    loadBanners();
+  if (error) {
+
+    alert(
+      "Gagal mengubah status: " +
+      error.message
+    );
+
+    return;
   }
 
-  async function deleteBanner(id) {
-    if (!confirm("Yakin ingin menghapus banner ini?")) {
-      return;
-    }
 
-    const { error } = await supabaseClient
+  loadBanners();
+}
+
+
+// ===============================
+// HAPUS
+// ===============================
+
+async function deleteBanner(id) {
+
+  if (
+    !confirm(
+      "Yakin ingin menghapus banner ini?"
+    )
+  ) {
+
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
       .from("banners")
       .delete()
       .eq("id", id);
 
-    if (error) {
-      alert("Gagal menghapus banner: " + error.message);
-      return;
-    }
 
-    loadBanners();
+  if (error) {
+
+    alert(
+      "Gagal menghapus banner: " +
+      error.message
+    );
+
+    return;
   }
 
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+
+  loadBanners();
+}
+
+
+// ===============================
+// ESCAPE
+// ===============================
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+}
+
+
+function escapeAttribute(value) {
+
+  return escapeHtml(value);
+}
+
+
+function escapeJs(value) {
+
+  return String(value ?? "")
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    )
+    .replace(
+      /\r/g,
+      "\\r"
+    )
+    .replace(
+      /\n/g,
+      "\\n"
+    );
+}
+
+
+// ===============================
+// START
+// ===============================
+
+(async function init() {
+
+  const allowed =
+    await checkAdmin();
+
+
+  if (allowed) {
+
+    await loadBanners();
+
   }
 
-  function escapeAttribute(value) {
-    return escapeHtml(value);
-  }
+})();
 
-  (async function init() {
-    const allowed = await checkAdmin();
-
-    if (allowed) {
-      await loadBanners();
-    }
-  })();
 </script>
 
 </body>
