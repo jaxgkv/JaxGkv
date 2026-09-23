@@ -8,6 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -23,13 +27,33 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+    }
+
+    nav .brand {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    nav .links {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     nav a {
       color: white;
       text-decoration: none;
-      margin-left: 12px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .logout {
+      cursor: pointer;
+      color: #fca5a5;
     }
 
     .container {
@@ -44,7 +68,45 @@
 
     .welcome {
       color: #666;
+      margin-bottom: 20px;
+    }
+
+    .profile-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       margin-bottom: 25px;
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .profile-row:last-child {
+      border-bottom: none;
+    }
+
+    .profile-label {
+      color: #666;
+    }
+
+    .profile-value {
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .role-user {
+      color: #2563eb;
+    }
+
+    .role-admin {
+      color: #dc2626;
     }
 
     .cards {
@@ -95,9 +157,62 @@
       background: #f0f2f5;
     }
 
-    .logout {
-      cursor: pointer;
-      color: #fca5a5;
+    .admin-menu {
+      display: none;
+      margin-top: 25px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .admin-menu h2 {
+      margin-top: 0;
+    }
+
+    .admin-menu a {
+      display: inline-block;
+      margin: 5px 10px 5px 0;
+      padding: 10px 15px;
+      background: #111827;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        align-items: flex-start;
+      }
+
+      nav .links {
+        width: 100%;
+      }
+
+      .profile-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .profile-value {
+        text-align: left;
+      }
     }
   </style>
 </head>
@@ -105,12 +220,13 @@
 <body>
 
 <nav>
-  <div><strong>JaxGkv</strong></div>
+  <div class="brand">JaxGkv</div>
 
-  <div>
+  <div class="links">
     <a href="index.html">Beranda</a>
-    <a href="produk.html">Produk</a>
     <a href="dashboard.html">Dashboard</a>
+    <a href="produk.html">Produk</a>
+    <a href="topup.html">Top Up</a>
     <a href="notifikasi.html">🔔 Notifikasi</a>
     <span class="logout" onclick="logout()">Logout</span>
   </div>
@@ -119,65 +235,124 @@
 <div class="container">
 
   <h1>Dashboard</h1>
+
   <div class="welcome" id="welcome">
     Memuat data...
   </div>
 
-  <div class="cards">
+  <div id="errorBox" class="error"></div>
 
-    <div class="card">
-      <div class="icon">💰</div>
-      <h3>Saldo</h3>
-      <div class="value" id="saldo">Rp0</div>
-    </div>
-
-    <div class="card">
-      <div class="icon">🛒</div>
-      <h3>Total Pembelian</h3>
-      <div class="value" id="pembelian">0</div>
-    </div>
-
-    <div class="card">
-      <div class="icon">💳</div>
-      <h3>Total Top Up</h3>
-      <div class="value" id="topup">0</div>
-    </div>
-
-    <div class="card">
-      <div class="icon">🔔</div>
-      <h3>Belum Dibaca</h3>
-      <div class="value" id="notifikasi">0</div>
-    </div>
-
+  <div id="loading" class="loading">
+    Memuat dashboard...
   </div>
 
-  <div class="menu">
+  <div id="dashboardContent" style="display:none;">
 
-    <a href="produk.html">
-      🛍️ Lihat Produk
-    </a>
+    <!-- INFORMASI AKUN -->
+    <div class="profile-card">
 
-    <a href="topup.html">
-      💳 Top Up Saldo
-    </a>
+      <h2>👤 Informasi Akun</h2>
 
-    <a href="riwayat-pembelian.html">
-      📦 Riwayat Pembelian
-    </a>
+      <div class="profile-row">
+        <span class="profile-label">Email</span>
+        <span class="profile-value" id="userEmail">-</span>
+      </div>
 
-    <a href="riwayat-topup.html">
-      💰 Riwayat Top Up
-    </a>
+      <div class="profile-row">
+        <span class="profile-label">Role</span>
+        <span class="profile-value" id="userRole">-</span>
+      </div>
 
-    <a href="notifikasi.html">
-      🔔 Notifikasi
-    </a>
+      <div class="profile-row">
+        <span class="profile-label">Saldo</span>
+        <span class="profile-value" id="profileSaldo">Rp0</span>
+      </div>
+
+    </div>
+
+    <!-- STATISTIK -->
+    <div class="cards">
+
+      <div class="card">
+        <div class="icon">💰</div>
+        <h3>Saldo</h3>
+        <div class="value" id="saldo">Rp0</div>
+      </div>
+
+      <div class="card">
+        <div class="icon">🛒</div>
+        <h3>Total Pembelian</h3>
+        <div class="value" id="pembelian">0</div>
+      </div>
+
+      <div class="card">
+        <div class="icon">💳</div>
+        <h3>Total Top Up</h3>
+        <div class="value" id="topup">0</div>
+      </div>
+
+      <div class="card">
+        <div class="icon">🔔</div>
+        <h3>Belum Dibaca</h3>
+        <div class="value" id="notifikasi">0</div>
+      </div>
+
+    </div>
+
+    <!-- MENU CEPAT -->
+    <div class="menu">
+
+      <a href="produk.html">
+        🛍️ Lihat Produk
+      </a>
+
+      <a href="topup.html">
+        💳 Top Up Saldo
+      </a>
+
+      <a href="riwayat-pembelian.html">
+        📦 Riwayat Pembelian
+      </a>
+
+      <a href="riwayat-topup.html">
+        💰 Riwayat Top Up
+      </a>
+
+      <a href="notifikasi.html">
+        🔔 Notifikasi
+      </a>
+
+    </div>
+
+    <!-- MENU ADMIN -->
+    <div class="admin-menu" id="adminMenu">
+
+      <h2>🛡️ Panel Admin</h2>
+
+      <a href="admin-dashboard.html">
+        Dashboard Admin
+      </a>
+
+      <a href="admin.html">
+        Kelola Top Up
+      </a>
+
+      <a href="admin-pembelian.html">
+        Kelola Pembelian
+      </a>
+
+      <a href="admin-produk.html">
+        Kelola Produk
+      </a>
+
+    </div>
 
   </div>
 
 </div>
 
 <script>
+
   const SUPABASE_URL =
     "https://evuwahoflentgidcjmsx.supabase.co";
 
@@ -190,96 +365,278 @@
       SUPABASE_KEY
     );
 
+
   function formatRupiah(value) {
-    return "Rp" + Number(value || 0).toLocaleString("id-ID");
+
+    return "Rp" +
+      Number(value || 0)
+        .toLocaleString("id-ID");
+
   }
+
+
+  function showError(message) {
+
+    const errorBox =
+      document.getElementById("errorBox");
+
+    errorBox.textContent = message;
+    errorBox.style.display = "block";
+
+  }
+
 
   async function loadDashboard() {
 
-    const {
-      data: sessionData,
-      error: sessionError
-    } = await supabaseClient.auth.getSession();
+    try {
 
-    if (
-      sessionError ||
-      !sessionData.session
-    ) {
-      window.location.href = "login.html";
-      return;
+      const {
+        data: sessionData,
+        error: sessionError
+      } = await supabaseClient.auth.getSession();
+
+
+      if (
+        sessionError ||
+        !sessionData.session
+      ) {
+
+        window.location.href =
+          "login.html";
+
+        return;
+
+      }
+
+
+      const user =
+        sessionData.session.user;
+
+
+      /*
+       * TAMPILKAN EMAIL
+       */
+
+      document.getElementById(
+        "userEmail"
+      ).textContent = user.email || "-";
+
+      document.getElementById(
+        "welcome"
+      ).textContent =
+        "Selamat datang, " +
+        (user.email || "User");
+
+
+      /*
+       * AMBIL PROFILE
+       */
+
+      const {
+        data: profile,
+        error: profileError
+      } = await supabaseClient
+        .from("profiles")
+        .select("saldo, role")
+        .eq("id", user.id)
+        .single();
+
+
+      if (profileError) {
+
+        console.error(
+          "Profile error:",
+          profileError
+        );
+
+        showError(
+          "Data profil belum ditemukan."
+        );
+
+      }
+
+
+      if (profile) {
+
+        const saldo =
+          profile.saldo || 0;
+
+        const role =
+          profile.role || "user";
+
+
+        document.getElementById(
+          "saldo"
+        ).textContent =
+          formatRupiah(saldo);
+
+
+        document.getElementById(
+          "profileSaldo"
+        ).textContent =
+          formatRupiah(saldo);
+
+
+        const roleElement =
+          document.getElementById(
+            "userRole"
+          );
+
+
+        if (role === "admin") {
+
+          roleElement.textContent =
+            "🛡️ Admin";
+
+          roleElement.className =
+            "profile-value role-admin";
+
+
+          document.getElementById(
+            "adminMenu"
+          ).style.display =
+            "block";
+
+        } else {
+
+          roleElement.textContent =
+            "👤 User";
+
+          roleElement.className =
+            "profile-value role-user";
+
+        }
+
+      }
+
+
+      /*
+       * HITUNG PEMBELIAN
+       */
+
+      const {
+        count: purchaseCount,
+        error: purchaseError
+      } = await supabaseClient
+        .from("purchases")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("user_id", user.id);
+
+
+      if (!purchaseError) {
+
+        document.getElementById(
+          "pembelian"
+        ).textContent =
+          purchaseCount || 0;
+
+      }
+
+
+      /*
+       * HITUNG TOP UP
+       */
+
+      const {
+        count: topupCount,
+        error: topupError
+      } = await supabaseClient
+        .from("topup_request")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("user_id", user.id);
+
+
+      if (!topupError) {
+
+        document.getElementById(
+          "topup"
+        ).textContent =
+          topupCount || 0;
+
+      }
+
+
+      /*
+       * HITUNG NOTIFIKASI BELUM DIBACA
+       */
+
+      const {
+        count: notificationCount,
+        error: notificationError
+      } = await supabaseClient
+        .from("notifications")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+
+
+      if (!notificationError) {
+
+        document.getElementById(
+          "notifikasi"
+        ).textContent =
+          notificationCount || 0;
+
+      }
+
+
+      /*
+       * TAMPILKAN DASHBOARD
+       */
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+      document.getElementById(
+        "dashboardContent"
+      ).style.display =
+        "block";
+
+
+    } catch (error) {
+
+      console.error(
+        "Dashboard error:",
+        error
+      );
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+      showError(
+        "Terjadi kesalahan saat memuat dashboard."
+      );
+
     }
 
-    const user =
-      sessionData.session.user;
-
-    document.getElementById("welcome").textContent =
-      "Login sebagai " + user.email;
-
-    // Ambil saldo
-    const {
-      data: profile,
-      error: profileError
-    } = await supabaseClient
-      .from("profiles")
-      .select("saldo")
-      .eq("id", user.id)
-      .single();
-
-    if (!profileError) {
-      document.getElementById("saldo").textContent =
-        formatRupiah(profile.saldo);
-    }
-
-    // Hitung pembelian
-    const {
-      count: purchaseCount
-    } = await supabaseClient
-      .from("purchases")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
-      .eq("user_id", user.id);
-
-    document.getElementById("pembelian").textContent =
-      purchaseCount || 0;
-
-    // Hitung top up
-    const {
-      count: topupCount
-    } = await supabaseClient
-      .from("topup_request")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
-      .eq("user_id", user.id);
-
-    document.getElementById("topup").textContent =
-      topupCount || 0;
-
-    // Hitung notifikasi belum dibaca
-    const {
-      count: notificationCount
-    } = await supabaseClient
-      .from("notifications")
-      .select("id", {
-        count: "exact",
-        head: true
-      })
-      .eq("user_id", user.id)
-      .eq("is_read", false);
-
-    document.getElementById("notifikasi").textContent =
-      notificationCount || 0;
   }
+
 
   async function logout() {
+
     await supabaseClient.auth.signOut();
-    window.location.href = "login.html";
+
+    window.location.href =
+      "login.html";
+
   }
 
+
   loadDashboard();
+
 </script>
 
 </body>
