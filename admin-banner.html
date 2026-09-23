@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Admin Banner - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,25 +15,53 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
+      background: #f4f6f8;
       color: #222;
     }
 
-    header {
+    nav {
       background: #111827;
       color: white;
-      padding: 18px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 22px;
+    .brand {
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 11px;
+      border-radius: 7px;
+      background: #1f2937;
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      background: #374151;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 25px auto;
-      padding: 0 16px;
+      padding: 0 15px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
     }
 
     .card {
@@ -42,22 +69,34 @@
       border-radius: 12px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 12px rgba(0,0,0,.07);
     }
 
-    h2 {
+    .card h2 {
       margin-top: 0;
+      font-size: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 13px;
+      margin-bottom: 6px;
+      font-weight: bold;
     }
 
     input,
     textarea {
       width: 100%;
       padding: 11px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      border: 1px solid #ddd;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #2563eb;
     }
 
     textarea {
@@ -65,26 +104,41 @@
       resize: vertical;
     }
 
-    label {
-      font-weight: bold;
-      font-size: 14px;
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .checkbox-row input {
+      width: auto;
     }
 
     button {
       border: none;
       border-radius: 8px;
-      padding: 10px 15px;
+      padding: 10px 14px;
       cursor: pointer;
       font-weight: bold;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
     .btn-primary {
       background: #2563eb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
       color: white;
     }
 
@@ -98,27 +152,55 @@
       color: white;
     }
 
-    .btn-warning {
-      background: #d97706;
-      color: white;
+    .btn-small {
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .banner-list {
+      display: grid;
+      gap: 15px;
     }
 
     .banner-item {
       border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 15px;
-      margin-bottom: 15px;
+      background: #fff;
     }
 
-    .banner-item img {
-      width: 100%;
-      max-height: 220px;
+    .banner-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .banner-info {
+      flex: 1;
+    }
+
+    .banner-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    .banner-description {
+      color: #6b7280;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+    .banner-image {
+      width: 220px;
+      height: 120px;
       object-fit: cover;
       border-radius: 8px;
-      margin-bottom: 12px;
+      background: #e5e7eb;
     }
 
-    .status {
+    .badge {
       display: inline-block;
       padding: 5px 9px;
       border-radius: 20px;
@@ -127,83 +209,81 @@
       margin-bottom: 10px;
     }
 
-    .active {
+    .badge-active {
       background: #dcfce7;
       color: #166534;
     }
 
-    .inactive {
+    .badge-inactive {
       background: #fee2e2;
       color: #991b1b;
     }
 
+    .banner-url {
+      font-size: 13px;
+      color: #6b7280;
+      word-break: break-all;
+      margin-top: 7px;
+    }
+
     .actions {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    #message {
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
-
-    .edit-box {
-      display: none;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      padding: 15px;
-      border-radius: 10px;
       margin-top: 15px;
     }
 
-    .edit-box.show {
-      display: block;
+    .edit-form {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
     }
 
-    .empty {
-      color: #666;
-      text-align: center;
-      padding: 25px;
+    .hidden {
+      display: none !important;
     }
 
     .loading {
       text-align: center;
-      color: #666;
-      padding: 25px;
+      padding: 30px;
+      color: #6b7280;
     }
 
-    .error {
-      color: #b91c1c;
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #6b7280;
+    }
+
+    .error-box {
       background: #fee2e2;
+      color: #991b1b;
       padding: 12px;
       border-radius: 8px;
+      margin-bottom: 15px;
     }
 
-    .success {
-      color: #166534;
+    .success-box {
       background: #dcfce7;
+      color: #166534;
       padding: 12px;
       border-radius: 8px;
+      margin-bottom: 15px;
     }
 
-    .url-text {
-      word-break: break-all;
-      color: #555;
-      font-size: 13px;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        margin-top: 15px;
+    @media (max-width: 700px) {
+      .banner-top {
+        flex-direction: column;
       }
 
-      .card {
-        padding: 15px;
+      .banner-image {
+        width: 100%;
+        height: 180px;
       }
 
-      .actions button {
+      .nav-links {
         width: 100%;
       }
     }
@@ -212,886 +292,946 @@
 
 <body>
 
-<header>
-  <h1>🎨 Admin Banner - JaxGkv</h1>
-</header>
+  <nav>
+    <div class="brand">⚙️ JaxGkv Admin</div>
 
-<div class="container">
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="admin-produk.html">Produk</a>
+      <a href="admin-pembelian.html">Pembelian</a>
+      <a href="admin-banner.html">Banner</a>
+      <a href="index.html">Beranda</a>
+    </div>
+  </nav>
 
-  <!-- ========================= -->
-  <!-- TAMBAH BANNER -->
-  <!-- ========================= -->
+  <div class="container">
 
-  <div class="card">
-
-    <h2>➕ Tambah Banner</h2>
+    <h1>🖼️ Kelola Banner</h1>
 
     <div id="message"></div>
 
-    <label for="title">
-      Judul
-    </label>
+    <!-- TAMBAH BANNER -->
+    <div class="card">
+      <h2>➕ Tambah Banner</h2>
 
-    <input
-      id="title"
-      type="text"
-      placeholder="Contoh: Promo Terbaru"
-      maxlength="150"
-    >
+      <form id="addBannerForm">
 
-    <label for="description">
-      Deskripsi
-    </label>
+        <label for="title">Judul Banner</label>
+        <input
+          type="text"
+          id="title"
+          maxlength="150"
+          required
+          placeholder="Contoh: Promo Top Up"
+        >
 
-    <textarea
-      id="description"
-      placeholder="Deskripsi banner"
-      maxlength="1000"
-    ></textarea>
+        <label for="description">Deskripsi</label>
+        <textarea
+          id="description"
+          maxlength="1000"
+          placeholder="Deskripsi banner..."
+        ></textarea>
 
-    <label for="image_url">
-      URL Gambar
-    </label>
+        <label for="image_url">Image URL</label>
+        <input
+          type="url"
+          id="image_url"
+          placeholder="https://example.com/banner.jpg"
+        >
 
-    <input
-      id="image_url"
-      type="text"
-      placeholder="https://..."
-    >
+        <label for="link_url">Link URL</label>
+        <input
+          type="text"
+          id="link_url"
+          placeholder="produk.html atau https://example.com"
+        >
 
-    <small>
-      Gunakan URL gambar dengan http:// atau https://
-    </small>
+        <div class="checkbox-row">
+          <input type="checkbox" id="is_active" checked>
+          <label for="is_active" style="margin:0;">
+            Aktifkan banner
+          </label>
+        </div>
 
-    <br><br>
+        <br>
 
-    <label for="link_url">
-      URL Tujuan
-    </label>
+        <button type="submit" class="btn-primary" id="addButton">
+          ➕ Tambah Banner
+        </button>
 
-    <input
-      id="link_url"
-      type="text"
-      placeholder="produk.html atau https://..."
-    >
-
-    <small>
-      Contoh: produk.html
-    </small>
-
-    <br><br>
-
-    <button
-      id="addBannerBtn"
-      class="btn-primary"
-      onclick="addBanner()"
-    >
-      ➕ Tambah Banner
-    </button>
-
-  </div>
+      </form>
+    </div>
 
 
-  <!-- ========================= -->
-  <!-- DAFTAR BANNER -->
-  <!-- ========================= -->
+    <!-- DAFTAR BANNER -->
+    <div class="card">
+      <h2>📋 Daftar Banner</h2>
 
-  <div class="card">
-
-    <h2>📋 Daftar Banner</h2>
-
-    <button
-      class="btn-secondary"
-      onclick="loadBanners()"
-    >
-      🔄 Refresh
-    </button>
-
-    <br><br>
-
-    <div id="bannerList">
-      <div class="loading">
-        Memuat banner...
+      <div id="bannerList">
+        <div class="loading">
+          Memuat banner...
+        </div>
       </div>
     </div>
 
   </div>
-
-</div>
 
 
 <script>
+  const SUPABASE_URL =
+    "https://evuwahoflentgidcjmsx.supabase.co";
 
-const SUPABASE_URL =
-  "https://evuwahoflentgidcjmsx.supabase.co";
+  const SUPABASE_KEY =
+    "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-const SUPABASE_KEY =
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-// ======================================
-// CEK ADMIN
-// ======================================
-
-async function checkAdmin() {
-
-  const {
-    data: { user },
-    error
-  } = await supabaseClient.auth.getUser();
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-  if (error || !user) {
+  /*
+   * =====================================================
+   * HELPER
+   * =====================================================
+   */
 
-    alert("Silakan login terlebih dahulu.");
+  function showMessage(message, type = "success") {
+    const el = document.getElementById("message");
 
-    location.href = "login.html";
-
-    return false;
-  }
-
-
-  const {
-    data: profile,
-    error: profileError
-  } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-
-  if (
-    profileError ||
-    !profile ||
-    profile.role !== "admin"
-  ) {
-
-    alert("Akses hanya untuk admin.");
-
-    location.href = "dashboard.html";
-
-    return false;
-  }
-
-
-  return true;
-}
-
-
-// ======================================
-// LOAD BANNER
-// ======================================
-
-async function loadBanners() {
-
-  const list =
-    document.getElementById("bannerList");
-
-
-  list.innerHTML = `
-    <div class="loading">
-      Memuat banner...
-    </div>
-  `;
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("banners")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-    list.innerHTML = `
-      <div class="error">
-        Gagal memuat banner:
-        ${escapeHtml(error.message)}
+    el.innerHTML = `
+      <div class="${type === "error" ? "error-box" : "success-box"}">
+        ${escapeHtml(message)}
       </div>
     `;
 
-    return;
+    setTimeout(() => {
+      el.innerHTML = "";
+    }, 4000);
   }
 
 
-  if (!data || data.length === 0) {
+  function escapeHtml(value) {
+    if (value === null || value === undefined) {
+      return "";
+    }
 
-    list.innerHTML = `
-      <div class="empty">
-        Belum ada banner.
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function escapeAttribute(value) {
+    return escapeHtml(value);
+  }
+
+
+  /*
+   * =====================================================
+   * VALIDASI URL
+   * =====================================================
+   */
+
+  function isValidImageUrl(value) {
+    if (!value) return true;
+
+    try {
+      const url = new URL(value);
+
+      return (
+        url.protocol === "http:" ||
+        url.protocol === "https:"
+      );
+    } catch {
+      return false;
+    }
+  }
+
+
+  function isValidLinkUrl(value) {
+    if (!value) return true;
+
+    value = value.trim();
+
+    // Tolak protocol-relative URL
+    if (value.startsWith("//")) {
+      return false;
+    }
+
+    // Relative URL diperbolehkan
+    if (
+      value.startsWith("/") ||
+      value.startsWith("./") ||
+      value.startsWith("../") ||
+      value.startsWith("#")
+    ) {
+      return true;
+    }
+
+    // URL http / https
+    try {
+      const url = new URL(value);
+
+      return (
+        url.protocol === "http:" ||
+        url.protocol === "https:"
+      );
+    } catch {
+      // Relative seperti produk.html
+      return !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value);
+    }
+  }
+
+
+  /*
+   * =====================================================
+   * CEK LOGIN + ADMIN
+   * =====================================================
+   */
+
+  async function checkAdmin() {
+    try {
+      const {
+        data: { user },
+        error: userError
+      } = await supabaseClient.auth.getUser();
+
+      if (userError || !user) {
+        window.location.href = "login.html";
+        return false;
+      }
+
+      const {
+        data: profile,
+        error: profileError
+      } = await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error(profileError);
+
+        alert("Gagal memeriksa akun.");
+
+        window.location.href = "index.html";
+
+        return false;
+      }
+
+      if (!profile || profile.role !== "admin") {
+        alert("Akses ditolak. Halaman ini hanya untuk admin.");
+
+        window.location.href = "index.html";
+
+        return false;
+      }
+
+      return true;
+
+    } catch (error) {
+      console.error(error);
+
+      window.location.href = "login.html";
+
+      return false;
+    }
+  }
+
+
+  /*
+   * =====================================================
+   * LOAD BANNERS
+   * =====================================================
+   */
+
+  async function loadBanners() {
+
+    const container =
+      document.getElementById("bannerList");
+
+    container.innerHTML = `
+      <div class="loading">
+        Memuat banner...
       </div>
     `;
 
-    return;
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+        .from("banners")
+        .select("*")
+        .order("id", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+
+        container.innerHTML = `
+          <div class="empty">
+            Belum ada banner.
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML =
+        data.map(renderBanner).join("");
+
+    } catch (error) {
+
+      console.error(error);
+
+      container.innerHTML = `
+        <div class="error-box">
+          Gagal memuat banner:
+          ${escapeHtml(error.message)}
+        </div>
+      `;
+    }
   }
 
 
-  list.innerHTML =
-    data.map(renderBanner).join("");
-}
+  /*
+   * =====================================================
+   * RENDER BANNER
+   * =====================================================
+   */
 
+  function renderBanner(banner) {
 
-// ======================================
-// RENDER BANNER
-// ======================================
+    const id = Number(banner.id);
 
-function renderBanner(banner) {
+    const title =
+      escapeHtml(banner.title || "");
 
-  const image =
-    banner.image_url
-      ? `
-        <img
-          src="${escapeAttribute(banner.image_url)}"
-          alt="${escapeAttribute(banner.title)}"
-          onerror="this.style.display='none'"
-        >
-      `
-      : "";
+    const description =
+      escapeHtml(banner.description || "");
 
+    const imageUrl =
+      escapeAttribute(banner.image_url || "");
 
-  const link =
-    banner.link_url
-      ? `
-        <p class="url-text">
-          🔗
-          ${escapeHtml(banner.link_url)}
-        </p>
-      `
-      : "";
+    const linkUrl =
+      escapeHtml(banner.link_url || "");
 
+    const active =
+      banner.is_active === true;
 
-  return `
-    <div
-      class="banner-item"
-      id="banner-${Number(banner.id)}"
-    >
+    return `
+      <div class="banner-item" id="banner-${id}">
 
-      ${image}
+        <div class="banner-top">
 
-      <span
-        class="status ${
-          banner.is_active
-            ? "active"
-            : "inactive"
-        }"
-      >
-        ${
-          banner.is_active
-            ? "AKTIF"
-            : "NONAKTIF"
-        }
-      </span>
+          <div class="banner-info">
 
-      <h3>
-        ${escapeHtml(banner.title)}
-      </h3>
+            <div class="banner-title">
+              ${title}
+            </div>
 
-      <p>
-        ${escapeHtml(
-          banner.description
-        )}
-      </p>
+            <div>
+              <span class="badge ${
+                active
+                  ? "badge-active"
+                  : "badge-inactive"
+              }">
+                ${
+                  active
+                    ? "● Aktif"
+                    : "● Nonaktif"
+                }
+              </span>
+            </div>
 
-      ${link}
+            <div class="banner-description">
+              ${description || "Tidak ada deskripsi"}
+            </div>
 
+            ${
+              banner.link_url
+                ? `
+                  <div class="banner-url">
+                    🔗 ${linkUrl}
+                  </div>
+                `
+                : ""
+            }
 
-      <div class="actions">
+          </div>
 
-        <button
-          class="btn-primary"
-          onclick="showEditBanner(
-            ${Number(banner.id)}
-          )"
-        >
-          ✏️ Edit
-        </button>
-
-
-        <button
-          class="${
-            banner.is_active
-              ? "btn-secondary"
-              : "btn-primary"
-          }"
-          onclick="toggleBanner(
-            ${Number(banner.id)},
-            ${Boolean(banner.is_active)}
-          )"
-        >
           ${
-            banner.is_active
-              ? "Nonaktifkan"
-              : "Aktifkan"
-          }
-        </button>
-
-
-        <button
-          class="btn-danger"
-          onclick="deleteBanner(
-            ${Number(banner.id)}
-          )"
-        >
-          🗑️ Hapus
-        </button>
-
-      </div>
-
-
-      <!-- FORM EDIT -->
-
-      <div
-        class="edit-box"
-        id="edit-${Number(banner.id)}"
-      >
-
-        <h3>
-          ✏️ Edit Banner
-        </h3>
-
-
-        <label>
-          Judul
-        </label>
-
-        <input
-          id="edit-title-${Number(banner.id)}"
-          type="text"
-          value="${escapeAttribute(
-            banner.title
-          )}"
-          maxlength="150"
-        >
-
-
-        <label>
-          Deskripsi
-        </label>
-
-        <textarea
-          id="edit-description-${Number(banner.id)}"
-          maxlength="1000"
-        >${escapeHtml(
-          banner.description
-        )}</textarea>
-
-
-        <label>
-          URL Gambar
-        </label>
-
-        <input
-          id="edit-image-${Number(banner.id)}"
-          type="text"
-          value="${escapeAttribute(
             banner.image_url
-          )}"
-        >
+              ? `
+                <img
+                  src="${imageUrl}"
+                  class="banner-image"
+                  alt="${escapeAttribute(banner.title || "Banner")}"
+                  loading="lazy"
+                  onerror="this.style.display='none';"
+                >
+              `
+              : ""
+          }
 
-
-        <label>
-          URL Tujuan
-        </label>
-
-        <input
-          id="edit-link-${Number(banner.id)}"
-          type="text"
-          value="${escapeAttribute(
-            banner.link_url
-          )}"
-        >
+        </div>
 
 
         <div class="actions">
 
           <button
-            class="btn-primary"
-            onclick="saveBanner(
-              ${Number(banner.id)}
-            )"
+            class="btn-warning btn-small"
+            onclick="showEditForm(${id})"
           >
-            💾 Simpan
+            ✏️ Edit
           </button>
 
 
           <button
-            class="btn-secondary"
-            onclick="hideEditBanner(
-              ${Number(banner.id)}
-            )"
+            class="${
+              active
+                ? "btn-secondary"
+                : "btn-success"
+            } btn-small"
+            onclick="toggleBanner(${id}, ${!active})"
           >
-            Batal
+            ${
+              active
+                ? "⏸ Nonaktifkan"
+                : "▶ Aktifkan"
+            }
+          </button>
+
+
+          <button
+            class="btn-danger btn-small"
+            onclick="deleteBanner(${id})"
+          >
+            🗑️ Hapus
           </button>
 
         </div>
 
+
+        <div
+          id="edit-form-${id}"
+          class="edit-form hidden"
+        >
+
+          <h3>✏️ Edit Banner</h3>
+
+          <label>
+            Judul
+          </label>
+
+          <input
+            type="text"
+            id="edit-title-${id}"
+            maxlength="150"
+            value="${escapeAttribute(banner.title || "")}"
+          >
+
+
+          <label>
+            Deskripsi
+          </label>
+
+          <textarea
+            id="edit-description-${id}"
+            maxlength="1000"
+          >${escapeHtml(banner.description || "")}</textarea>
+
+
+          <label>
+            Image URL
+          </label>
+
+          <input
+            type="url"
+            id="edit-image-${id}"
+            value="${escapeAttribute(banner.image_url || "")}"
+          >
+
+
+          <label>
+            Link URL
+          </label>
+
+          <input
+            type="text"
+            id="edit-link-${id}"
+            value="${escapeAttribute(banner.link_url || "")}"
+          >
+
+
+          <div class="checkbox-row">
+
+            <input
+              type="checkbox"
+              id="edit-active-${id}"
+              ${active ? "checked" : ""}
+            >
+
+            <label
+              for="edit-active-${id}"
+              style="margin:0;"
+            >
+              Banner aktif
+            </label>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              class="btn-primary btn-small"
+              onclick="saveBanner(${id})"
+            >
+              💾 Simpan
+            </button>
+
+            <button
+              class="btn-secondary btn-small"
+              onclick="hideEditForm(${id})"
+            >
+              Batal
+            </button>
+
+          </div>
+
+        </div>
+
       </div>
-
-    </div>
-  `;
-}
-
-
-// ======================================
-// TAMBAH BANNER
-// ======================================
-
-async function addBanner() {
-
-  const title =
-    document
-      .getElementById("title")
-      .value
-      .trim();
-
-
-  const description =
-    document
-      .getElementById("description")
-      .value
-      .trim();
-
-
-  const image_url =
-    document
-      .getElementById("image_url")
-      .value
-      .trim();
-
-
-  const link_url =
-    document
-      .getElementById("link_url")
-      .value
-      .trim();
-
-
-  const message =
-    document.getElementById("message");
-
-
-  const button =
-    document.getElementById(
-      "addBannerBtn"
-    );
-
-
-  message.className = "";
-  message.textContent = "";
-
-
-  if (!title) {
-
-    message.className = "error";
-
-    message.textContent =
-      "Judul banner wajib diisi.";
-
-    return;
+    `;
   }
 
 
-  button.disabled = true;
+  /*
+   * =====================================================
+   * TAMBAH BANNER
+   * =====================================================
+   */
 
-  button.textContent =
-    "⏳ Menambahkan...";
+  document
+    .getElementById("addBannerForm")
+    .addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById("addButton");
+
+      const title =
+        document.getElementById("title")
+          .value.trim();
+
+      const description =
+        document.getElementById("description")
+          .value.trim();
+
+      const image_url =
+        document.getElementById("image_url")
+          .value.trim();
+
+      const link_url =
+        document.getElementById("link_url")
+          .value.trim();
+
+      const is_active =
+        document.getElementById("is_active")
+          .checked;
 
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.rpc(
-      "admin_add_banner",
-      {
-        p_title: title,
-        p_description: description,
-        p_image_url: image_url,
-        p_link_url: link_url,
-        p_is_active: true
+      if (!title) {
+        showMessage(
+          "Judul banner wajib diisi.",
+          "error"
+        );
+        return;
       }
-    );
 
 
-  button.disabled = false;
+      if (!isValidImageUrl(image_url)) {
+        showMessage(
+          "Image URL harus menggunakan http:// atau https://.",
+          "error"
+        );
+        return;
+      }
 
-  button.textContent =
-    "➕ Tambah Banner";
+
+      if (!isValidLinkUrl(link_url)) {
+        showMessage(
+          "Link URL tidak valid.",
+          "error"
+        );
+        return;
+      }
 
 
-  if (error) {
+      button.disabled = true;
+      button.textContent = "⏳ Menyimpan...";
 
-    console.error(error);
 
-    message.className = "error";
+      try {
 
-    message.textContent =
-      "Gagal menambah banner: " +
-      error.message;
+        const {
+          data,
+          error
+        } = await supabaseClient.rpc(
+          "admin_add_banner",
+          {
+            p_title: title,
+            p_description: description,
+            p_image_url: image_url,
+            p_link_url: link_url,
+            p_is_active: is_active
+          }
+        );
 
-    return;
+
+        if (error) {
+          throw error;
+        }
+
+
+        showMessage(
+          "Banner berhasil ditambahkan."
+        );
+
+
+        document
+          .getElementById("addBannerForm")
+          .reset();
+
+
+        document
+          .getElementById("is_active")
+          .checked = true;
+
+
+        await loadBanners();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "Gagal menambah banner: " +
+          error.message,
+          "error"
+        );
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent = "➕ Tambah Banner";
+
+      }
+
+    });
+
+
+  /*
+   * =====================================================
+   * SHOW EDIT FORM
+   * =====================================================
+   */
+
+  function showEditForm(id) {
+
+    const form =
+      document.getElementById(
+        `edit-form-${id}`
+      );
+
+    if (!form) return;
+
+    form.classList.remove("hidden");
+
+    form.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
   }
 
 
-  if (
-    !data ||
-    data.success !== true
-  ) {
+  /*
+   * =====================================================
+   * HIDE EDIT FORM
+   * =====================================================
+   */
 
-    message.className = "error";
+  function hideEditForm(id) {
 
-    message.textContent =
-      "Banner gagal ditambahkan.";
+    const form =
+      document.getElementById(
+        `edit-form-${id}`
+      );
 
-    return;
+    if (!form) return;
+
+    form.classList.add("hidden");
   }
 
 
-  message.className =
-    "success";
+  /*
+   * =====================================================
+   * SIMPAN EDIT
+   * =====================================================
+   */
 
-  message.textContent =
-    "Banner berhasil ditambahkan.";
+  async function saveBanner(id) {
 
-
-  document.getElementById(
-    "title"
-  ).value = "";
-
-
-  document.getElementById(
-    "description"
-  ).value = "";
-
-
-  document.getElementById(
-    "image_url"
-  ).value = "";
-
-
-  document.getElementById(
-    "link_url"
-  ).value = "";
-
-
-  await loadBanners();
-}
-
-
-// ======================================
-// TAMPILKAN FORM EDIT
-// ======================================
-
-function showEditBanner(id) {
-
-  const box =
-    document.getElementById(
-      `edit-${id}`
-    );
-
-
-  if (!box) {
-    return;
-  }
-
-
-  box.classList.add("show");
-
-
-  box.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-  });
-}
-
-
-// ======================================
-// SEMBUNYIKAN FORM EDIT
-// ======================================
-
-function hideEditBanner(id) {
-
-  const box =
-    document.getElementById(
-      `edit-${id}`
-    );
-
-
-  if (!box) {
-    return;
-  }
-
-
-  box.classList.remove("show");
-}
-
-
-// ======================================
-// SIMPAN EDIT BANNER
-// ======================================
-
-async function saveBanner(id) {
-
-  const title =
-    document
-      .getElementById(
+    const title =
+      document.getElementById(
         `edit-title-${id}`
-      )
-      .value
-      .trim();
+      ).value.trim();
 
-
-  const description =
-    document
-      .getElementById(
+    const description =
+      document.getElementById(
         `edit-description-${id}`
-      )
-      .value
-      .trim();
+      ).value.trim();
 
-
-  const image_url =
-    document
-      .getElementById(
+    const image_url =
+      document.getElementById(
         `edit-image-${id}`
-      )
-      .value
-      .trim();
+      ).value.trim();
 
-
-  const link_url =
-    document
-      .getElementById(
+    const link_url =
+      document.getElementById(
         `edit-link-${id}`
-      )
-      .value
-      .trim();
+      ).value.trim();
+
+    const is_active =
+      document.getElementById(
+        `edit-active-${id}`
+      ).checked;
 
 
-  if (!title) {
+    if (!title) {
+      showMessage(
+        "Judul banner wajib diisi.",
+        "error"
+      );
+      return;
+    }
 
-    alert(
-      "Judul banner wajib diisi."
-    );
 
-    return;
-  }
+    if (!isValidImageUrl(image_url)) {
+      showMessage(
+        "Image URL harus menggunakan http:// atau https://.",
+        "error"
+      );
+      return;
+    }
 
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.rpc(
-      "admin_update_banner",
-      {
-        p_id: id,
-        p_title: title,
-        p_description: description,
-        p_image_url: image_url,
-        p_link_url: link_url,
-        p_is_active: true
+    if (!isValidLinkUrl(link_url)) {
+      showMessage(
+        "Link URL tidak valid.",
+        "error"
+      );
+      return;
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient.rpc(
+        "admin_update_banner",
+        {
+          p_id: id,
+          p_title: title,
+          p_description: description,
+          p_image_url: image_url,
+          p_link_url: link_url,
+          p_is_active: is_active
+        }
+      );
+
+
+      if (error) {
+        throw error;
       }
-    );
 
 
-  if (error) {
+      showMessage(
+        "Banner berhasil diperbarui."
+      );
 
-    console.error(error);
 
-    alert(
-      "Gagal mengedit banner: " +
-      error.message
-    );
+      await loadBanners();
 
-    return;
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        "Gagal mengedit banner: " +
+        error.message,
+        "error"
+      );
+    }
   }
 
 
-  if (
-    !data ||
-    data.success !== true
-  ) {
+  /*
+   * =====================================================
+   * TOGGLE AKTIF / NONAKTIF
+   * =====================================================
+   */
 
-    alert(
-      "Banner gagal diperbarui."
+  async function toggleBanner(id, newStatus) {
+
+    const action =
+      newStatus
+        ? "mengaktifkan"
+        : "menonaktifkan";
+
+
+    const yakin = confirm(
+      `Yakin ingin ${action} banner ini?`
     );
 
-    return;
+
+    if (!yakin) {
+      return;
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient.rpc(
+        "admin_toggle_banner",
+        {
+          p_id: id,
+          p_is_active: newStatus
+        }
+      );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        newStatus
+          ? "Banner berhasil diaktifkan."
+          : "Banner berhasil dinonaktifkan."
+      );
+
+
+      await loadBanners();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        "Gagal mengubah status banner: " +
+        error.message,
+        "error"
+      );
+    }
   }
 
 
-  alert(
-    "Banner berhasil diperbarui."
-  );
+  /*
+   * =====================================================
+   * HAPUS BANNER
+   * =====================================================
+   */
 
+  async function deleteBanner(id) {
 
-  await loadBanners();
-}
-
-
-// ======================================
-// TOGGLE BANNER
-// ======================================
-
-async function toggleBanner(
-  id,
-  currentStatus
-) {
-
-  const newStatus =
-    !currentStatus;
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("banners")
-      .update({
-        is_active: newStatus
-      })
-      .eq("id", id);
-
-
-  if (error) {
-
-    console.error(error);
-
-    alert(
-      "Gagal mengubah status: " +
-      error.message
+    const yakin = confirm(
+      "Yakin ingin menghapus banner ini?\n\n" +
+      "Data yang sudah dihapus tidak dapat dikembalikan."
     );
 
-    return;
+
+    if (!yakin) {
+      return;
+    }
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await supabaseClient.rpc(
+        "admin_delete_banner",
+        {
+          p_id: id
+        }
+      );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        "Banner berhasil dihapus."
+      );
+
+
+      await loadBanners();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        "Gagal menghapus banner: " +
+        error.message,
+        "error"
+      );
+    }
   }
 
 
-  await loadBanners();
-}
+  /*
+   * =====================================================
+   * START
+   * =====================================================
+   */
 
+  async function init() {
 
-// ======================================
-// HAPUS BANNER
-// ======================================
+    const isAdmin =
+      await checkAdmin();
 
-async function deleteBanner(id) {
-
-  const confirmed =
-    confirm(
-      "Yakin ingin menghapus banner ini?"
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("banners")
-      .delete()
-      .eq("id", id);
-
-
-  if (error) {
-
-    console.error(error);
-
-    alert(
-      "Gagal menghapus banner: " +
-      error.message
-    );
-
-    return;
-  }
-
-
-  alert(
-    "Banner berhasil dihapus."
-  );
-
-
-  await loadBanners();
-}
-
-
-// ======================================
-// ESCAPE HTML
-// ======================================
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-}
-
-
-// ======================================
-// ESCAPE ATTRIBUTE
-// ======================================
-
-function escapeAttribute(value) {
-
-  return escapeHtml(value);
-}
-
-
-// ======================================
-// INIT
-// ======================================
-
-(async function init() {
-
-  const allowed =
-    await checkAdmin();
-
-
-  if (allowed) {
+    if (!isAdmin) {
+      return;
+    }
 
     await loadBanners();
-
   }
 
-})();
+
+  init();
 
 </script>
 
