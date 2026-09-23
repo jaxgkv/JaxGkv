@@ -135,6 +135,14 @@
       border-top: 1px solid #e5e7eb;
     }
 
+    .buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
     .detail-button {
       display: inline-block;
       background: #2563eb;
@@ -143,11 +151,24 @@
       padding: 9px 14px;
       border-radius: 6px;
       font-size: 14px;
-      margin-top: 12px;
     }
 
     .detail-button:hover {
       background: #1d4ed8;
+    }
+
+    .video-button {
+      display: inline-block;
+      background: #16a34a;
+      color: white;
+      text-decoration: none;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .video-button:hover {
+      background: #15803d;
     }
 
     .empty {
@@ -313,6 +334,7 @@
           .select(`
             id,
             order_code,
+            product_id,
             product_name,
             price,
             quantity,
@@ -483,6 +505,22 @@
                   item.status
                 )}
 
+                ${
+                  item.status === "completed" &&
+                  item.product_id
+                    ? `
+                      <div>
+                        <a
+                          class="video-button"
+                          href="video.html?id=${encodeURIComponent(item.product_id)}"
+                        >
+                          🎬 Tonton Video
+                        </a>
+                      </div>
+                    `
+                    : ""
+                }
+
               </div>
 
             `;
@@ -502,9 +540,7 @@
               </div>
 
 
-              <div style="
-                text-align:right;
-              ">
+              <div class="buttons">
 
                 <a
                   class="detail-button"
