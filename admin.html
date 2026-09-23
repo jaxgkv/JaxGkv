@@ -1,218 +1,241 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JaxGkv Admin</title>
-<link rel="stylesheet" href="css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0b;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #d4af37;
+    }
+
+    .box {
+      background: #151515;
+      border: 1px solid #292929;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 15px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nominal {
+      color: #d4af37;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .status {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      background: #d4af37;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .empty {
+      color: #999;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .error {
+      color: #ff5555;
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="navbar">
-  <div class="logo">Jax<span>Gkv</span></div>
-  <nav>
-    <a href="index.html">Beranda</a>
-  </nav>
-</header>
+<div class="container">
 
-<main class="hero">
-  <section>
-    <p class="badge">JAXGKV • ADMIN</p>
-    <h1>Panel <span>Admin</span></h1>
-    <p class="desc">Kelola pengajuan top up pengguna.</p>
-  </section>
-</main>
+  <h1>Admin Panel</h1>
 
-<section class="cards">
-  <div class="card">
-    <h2>Pengajuan Top Up</h2>
-    <p id="loading">Memuat data...</p>
-    <div id="topupList"></div>
+  <div id="message"></div>
+
+  <div id="requests">
+    Memuat request...
   </div>
-</section>
 
-<footer>
-  © 2026 JaxGkv. All rights reserved.
-</footer>
+</div>
 
 <script>
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "GANTI_DENGAN_PUBLISHABLE_KEY_YANG_SAMA_DENGAN_LOGIN";
 
 const supabaseClient = window.supabase.createClient(
-  "https://evuwahoflentgidcjmsx.supabase.co",
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3"
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
 );
 
-async function start() {
+async function checkAdmin() {
 
-  const { data: userData } =
-    await supabaseClient.auth.getUser();
+  const {
+    data: { user },
+    error
+  } = await supabaseClient.auth.getUser();
 
-  const user = userData.user;
-
-  if (!user) {
+  if (error || !user) {
     window.location.href = "login.html";
-    return;
+    return false;
   }
 
-  const { data: profile } =
+  const { data: profile, error: profileError } =
     await supabaseClient
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-  if (!profile || profile.role !== "admin") {
-    alert("Akses admin ditolak.");
-    window.location.href = "index.html";
-    return;
+  if (profileError || !profile || profile.role !== "admin") {
+    document.getElementById("requests").innerHTML =
+      '<div class="box error">Akses ditolak. Halaman ini khusus admin.</div>';
+
+    return false;
   }
 
-  loadTopups();
+  return true;
 }
 
 
-async function loadTopups() {
+async function loadRequests() {
 
-  const list =
-    document.getElementById("topupList");
-
-  const loading =
-    document.getElementById("loading");
+  const container = document.getElementById("requests");
 
   const { data, error } =
     await supabaseClient
       .from("topup_request")
-      .select(
-        "id,user_id,nominal,status,created_at"
-      )
-      .order(
-        "created_at",
-        { ascending: false }
-      );
-
-  loading.style.display = "none";
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
 
   if (error) {
-    list.innerHTML =
-      "<p>Gagal mengambil data: " +
-      error.message +
-      "</p>";
+    container.innerHTML =
+      `<div class="box error">Gagal memuat data: ${error.message}</div>`;
     return;
   }
-
-  list.innerHTML = "";
 
   if (!data || data.length === 0) {
-    list.innerHTML =
-      "<p>Belum ada pengajuan top up.</p>";
+    container.innerHTML =
+      '<div class="box empty">Tidak ada top-up pending.</div>';
     return;
   }
 
-  data.forEach(function(item) {
+  container.innerHTML = "";
 
-    const div =
-      document.createElement("div");
+  data.forEach(req => {
 
-    div.className = "card";
-    div.style.marginTop = "15px";
+    const box = document.createElement("div");
+    box.className = "box";
 
-    const nominal =
-      Number(item.nominal)
-        .toLocaleString("id-ID");
+    box.innerHTML = `
+      <div class="row">
 
-    const tanggal =
-      new Date(item.created_at)
-        .toLocaleString("id-ID");
+        <div>
+          <div class="nominal">
+            Rp${Number(req.nominal).toLocaleString("id-ID")}
+          </div>
 
-    let button = "";
+          <div class="status">
+            ID Request: ${req.id}
+          </div>
 
-    if (item.status === "pending") {
+          <div class="status">
+            User ID: ${req.user_id}
+          </div>
 
-      button = `
-        <button
-          class="btn primary"
-          onclick="approveTopup(${item.id})">
-          Approve Top Up
+          <div class="status">
+            ${new Date(req.created_at).toLocaleString("id-ID")}
+          </div>
+        </div>
+
+        <button onclick="approveTopup(${req.id}, this)">
+          Approve
         </button>
-      `;
 
-    } else if (item.status === "approved") {
-
-      button = `
-        <p><b>✓ Sudah disetujui</b></p>
-      `;
-
-    }
-
-    div.innerHTML = `
-      <h3>Top Up #${item.id}</h3>
-
-      <p>
-        <b>User ID:</b><br>
-        ${item.user_id}
-      </p>
-
-      <p>
-        <b>Nominal:</b>
-        Rp${nominal}
-      </p>
-
-      <p>
-        <b>Status:</b>
-        ${item.status}
-      </p>
-
-      <p>
-        <b>Tanggal:</b>
-        ${tanggal}
-      </p>
-
-      ${button}
+      </div>
     `;
 
-    list.appendChild(div);
+    container.appendChild(box);
   });
 }
 
 
-async function approveTopup(id) {
+async function approveTopup(id, button) {
 
-  if (!confirm(
-    "Yakin ingin menyetujui top up ini?"
-  )) {
+  if (!confirm("Approve top-up ini?")) {
     return;
   }
 
+  button.disabled = true;
+  button.textContent = "Memproses...";
+
   const { error } =
-    await supabaseClient.rpc(
-      "approve_topup",
-      {
-        p_topup_id: id
-      }
-    );
+    await supabaseClient.rpc("approve_topup", {
+      request_id: id
+    });
 
   if (error) {
 
-    alert(
-      "Gagal approve:\n" +
-      error.message
-    );
+    alert("Gagal approve:\n" + error.message);
+
+    button.disabled = false;
+    button.textContent = "Approve";
 
     return;
   }
 
-  alert(
-    "Top up berhasil disetujui!"
-  );
+  alert("Top-up berhasil di-approve.");
 
-  loadTopups();
+  loadRequests();
 }
 
 
-start();
+(async function() {
 
+  const isAdmin = await checkAdmin();
+
+  if (isAdmin) {
+    loadRequests();
+  }
+
+})();
 </script>
 
 </body>
