@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan Toko - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    nav {
+      background: #111827;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    nav .brand {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 12px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 7px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .btn-save {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-refresh {
+      background: #e5e7eb;
+      color: #111827;
+      margin-left: 8px;
+    }
+
+    .status {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .status.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .loading {
+      color: #666;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        align-items: flex-start;
+      }
+
+      nav a {
+        display: inline-block;
+        margin: 4px 8px 4px 0;
+      }
+
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="brand">⚙️ Pengaturan Toko</div>
+
+  <div>
+    <a href="admin-dashboard.html">Dashboard</a>
+    <a href="admin-banner.html">Banner</a>
+    <a href="index.html">Beranda</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>Pengaturan Toko</h1>
+
+    <div class="subtitle">
+      Atur informasi utama toko yang nantinya dapat ditampilkan di website.
+    </div>
+
+    <div id="loading" class="loading">
+      Memuat pengaturan...
+    </div>
+
+    <form id="settingsForm" style="display:none;">
+
+      <div class="form-group">
+        <label for="storeName">Nama Toko</label>
+        <input
+          type="text"
+          id="storeName"
+          placeholder="Contoh: JaxGkv"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="storeDescription">Deskripsi Toko</label>
+        <textarea
+          id="storeDescription"
+          placeholder="Contoh: Toko digital terpercaya..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="contact">Kontak</label>
+        <input
+          type="text"
+          id="contact"
+          placeholder="Contoh: WhatsApp 08xxxxxxxxxx"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="footerText">Teks Footer</label>
+        <input
+          type="text"
+          id="footerText"
+          placeholder="Contoh: © 2026 JaxGkv"
+        >
+      </div>
+
+      <button type="submit" class="btn-save">
+        💾 Simpan Pengaturan
+      </button>
+
+      <button
+        type="button"
+        class="btn-refresh"
+        onclick="loadSettings()"
+      >
+        🔄 Refresh
+      </button>
+
+      <div id="status" class="status"></div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://evuwahoflentgidcjmsx.supabase.co';
+
+  const SUPABASE_KEY = 'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
+
+  const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  async function checkAdmin() {
+    const {
+      data: {
+        session
+      }
+    } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      window.location.href = 'login.html';
+      return false;
+    }
+
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error || !profile || profile.role !== 'admin') {
+      alert('Akses hanya untuk admin.');
+      window.location.href = 'dashboard.html';
+      return false;
+    }
+
+    return true;
+  }
+
+  async function loadSettings() {
+    const loading = document.getElementById('loading');
+    const form = document.getElementById('settingsForm');
+
+    loading.style.display = 'block';
+    form.style.display = 'none';
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from('store_settings')
+      .select('*')
+      .limit(1)
+      .single();
+
+    if (error) {
+      loading.textContent =
+        'Gagal memuat pengaturan: ' + error.message;
+      return;
+    }
+
+    document.getElementById('storeName').value =
+      data.store_name || '';
+
+    document.getElementById('storeDescription').value =
+      data.store_description || '';
+
+    document.getElementById('contact').value =
+      data.contact || '';
+
+    document.getElementById('footerText').value =
+      data.footer_text || '';
+
+    loading.style.display = 'none';
+    form.style.display = 'block';
+  }
+
+  document
+    .getElementById('settingsForm')
+    .addEventListener('submit', async function(event) {
+
+      event.preventDefault();
+
+      const status = document.getElementById('status');
+
+      status.className = 'status';
+      status.textContent = 'Menyimpan...';
+      status.style.display = 'block';
+
+      const {
+        data: settings,
+        error: findError
+      } = await supabaseClient
+        .from('store_settings')
+        .select('id')
+        .limit(1)
+        .single();
+
+      if (findError) {
+        status.className = 'status error';
+        status.textContent =
+          'Gagal mengambil data: ' + findError.message;
+        return;
+      }
+
+      const {
+        error
+      } = await supabaseClient
+        .from('store_settings')
+        .update({
+          store_name:
+            document.getElementById('storeName').value.trim(),
+
+          store_description:
+            document.getElementById('storeDescription').value.trim(),
+
+          contact:
+            document.getElementById('contact').value.trim(),
+
+          footer_text:
+            document.getElementById('footerText').value.trim(),
+
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', settings.id);
+
+      if (error) {
+        status.className = 'status error';
+        status.textContent =
+          'Gagal menyimpan: ' + error.message;
+        return;
+      }
+
+      status.className = 'status success';
+      status.textContent =
+        '✅ Pengaturan toko berhasil disimpan.';
+    });
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  async function init() {
+    const isAdmin = await checkAdmin();
+
+    if (!isAdmin) {
+      return;
+    }
+
+    await loadSettings();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
