@@ -3,87 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin - JaxGkv</title>
+
+  <title>Admin Dashboard - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background: #f5f5f5;
       margin: 0;
-      padding: 20px;
+    }
+
+    nav {
+      background: #111;
+      color: white;
+      padding: 15px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
     }
 
     .container {
-      max-width: 900px;
-      margin: auto;
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
     }
 
-    .header {
-      background: #111;
-      color: white;
-      padding: 22px;
-      border-radius: 14px;
-      margin-bottom: 20px;
+    h1 {
+      margin-bottom: 25px;
     }
 
-    .header h1 {
-      margin: 0 0 8px;
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
     }
 
-    .header p {
-      margin: 0;
-      opacity: .8;
+    .stat {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .grid {
+    .stat-icon {
+      font-size: 30px;
+    }
+
+    .stat-title {
+      color: #666;
+      margin-top: 10px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .menu {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 15px;
     }
 
-    .card {
+    .menu a {
+      display: block;
       background: white;
-      border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-      cursor: pointer;
+      padding: 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #111;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-weight: bold;
     }
 
-    .card:hover {
-      transform: translateY(-2px);
+    .menu a:hover {
+      background: #eee;
     }
 
-    .icon {
-      font-size: 32px;
-      margin-bottom: 10px;
+    .loading {
+      text-align: center;
+      padding: 30px;
     }
 
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 19px;
+    .error {
+      background: #ffe5e5;
+      color: #b00020;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
     }
 
-    .card p {
-      color: #666;
-      margin: 0;
+    @media (max-width: 700px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .menu {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .logout {
-      margin-top: 20px;
-      width: 100%;
-      padding: 13px;
-      border: 0;
-      border-radius: 10px;
-      background: #dc2626;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      .grid {
+    @media (max-width: 450px) {
+      .stats {
         grid-template-columns: 1fr;
       }
     }
@@ -92,44 +124,79 @@
 
 <body>
 
+<nav>
+  <a href="index.html">🏠 Beranda</a>
+  <a href="admin-dashboard.html">📊 Admin Dashboard</a>
+  <a href="admin.html">💳 Top Up</a>
+  <a href="admin-pembelian.html">📦 Pembelian</a>
+  <a href="admin-produk.html">🛍️ Produk</a>
+  <a href="dashboard.html">👤 User Dashboard</a>
+  <a href="#" onclick="logout()">Logout</a>
+</nav>
+
 <div class="container">
 
-  <div class="header">
-    <h1>Dashboard Admin</h1>
-    <p id="email">Memuat...</p>
+  <h1>📊 Admin Dashboard</h1>
+
+  <div id="error" class="error"></div>
+
+  <div id="loading" class="loading">
+    Memuat statistik...
   </div>
 
-  <div class="grid">
+  <div id="stats" class="stats" style="display:none;">
 
-    <div class="card" onclick="location.href='admin.html'">
-      <div class="icon">💰</div>
-      <h2>Kelola Top Up</h2>
-      <p>Lihat dan approve permintaan top up.</p>
+    <div class="stat">
+      <div class="stat-icon">👥</div>
+      <div class="stat-title">Total Pengguna</div>
+      <div id="users" class="stat-value">0</div>
     </div>
 
-    <div class="card" onclick="location.href='admin-pembelian.html'">
-      <div class="icon">🛒</div>
-      <h2>Kelola Pembelian</h2>
-      <p>Lihat riwayat pembelian pengguna.</p>
+    <div class="stat">
+      <div class="stat-icon">🛍️</div>
+      <div class="stat-title">Total Produk</div>
+      <div id="products" class="stat-value">0</div>
     </div>
 
-    <div class="card" onclick="location.href='admin-produk.html'">
-      <div class="icon">📦</div>
-      <h2>Kelola Produk</h2>
-      <p>Tambah, edit, dan hapus produk.</p>
+    <div class="stat">
+      <div class="stat-icon">📦</div>
+      <div class="stat-title">Total Pesanan</div>
+      <div id="purchases" class="stat-value">0</div>
     </div>
 
-    <div class="card" onclick="location.href='index.html'">
-      <div class="icon">🏠</div>
-      <h2>Website Utama</h2>
-      <p>Kembali ke halaman utama JaxGkv.</p>
+    <div class="stat">
+      <div class="stat-icon">💳</div>
+      <div class="stat-title">Top Up Disetujui</div>
+      <div id="topups" class="stat-value">0</div>
     </div>
 
   </div>
 
-  <button class="logout" onclick="logout()">
-    Logout Admin
-  </button>
+  <h2>Menu Admin</h2>
+
+  <div class="menu">
+
+    <a href="admin.html">
+      💳 Kelola Top Up
+    </a>
+
+    <a href="admin-pembelian.html">
+      📦 Kelola Pembelian
+    </a>
+
+    <a href="admin-produk.html">
+      🛍️ Kelola Produk
+    </a>
+
+    <a href="dashboard.html">
+      👤 Dashboard User
+    </a>
+
+    <a href="index.html">
+      🏠 Kembali ke Beranda
+    </a>
+
+  </div>
 
 </div>
 
@@ -142,50 +209,122 @@ const SUPABASE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
 const supabaseClient =
-  window.supabase.createClient(
+  supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
 
 
-async function cekAdmin() {
+// ===============================
+// CEK ADMIN
+// ===============================
+
+async function checkAdmin() {
 
   const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
+    data: { user },
+    error
+  } = await supabaseClient.auth.getUser();
 
-  if (!session) {
-    location.href = "login.html";
+  if (error || !user) {
+    window.location.href = "login.html";
     return;
   }
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
+  const {
+    data: profile,
+    error: profileError
+  } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
 
-  if (!profile || profile.role !== "admin") {
-    alert("Halaman ini khusus admin.");
-    location.href = "index.html";
+  if (profileError || !profile) {
+    alert("Profile tidak ditemukan.");
+    window.location.href = "dashboard.html";
     return;
   }
 
-  document.getElementById("email").textContent =
-    session.user.email;
+  if (profile.role !== "admin") {
+    alert("Akses admin ditolak.");
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  loadStats();
 }
 
+
+// ===============================
+// LOAD STATISTIK
+// ===============================
+
+async function loadStats() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_dashboard_stats"
+  );
+
+  document.getElementById(
+    "loading"
+  ).style.display = "none";
+
+  if (error) {
+
+    console.error(error);
+
+    const errorBox =
+      document.getElementById("error");
+
+    errorBox.textContent =
+      "Gagal memuat statistik: " +
+      error.message;
+
+    errorBox.style.display = "block";
+
+    return;
+  }
+
+  document.getElementById("users").textContent =
+    Number(data.users).toLocaleString("id-ID");
+
+  document.getElementById("products").textContent =
+    Number(data.products).toLocaleString("id-ID");
+
+  document.getElementById("purchases").textContent =
+    Number(data.purchases).toLocaleString("id-ID");
+
+  document.getElementById("topups").textContent =
+    Number(data.approved_topups).toLocaleString("id-ID");
+
+  document.getElementById(
+    "stats"
+  ).style.display = "grid";
+}
+
+
+// ===============================
+// LOGOUT
+// ===============================
 
 async function logout() {
 
   await supabaseClient.auth.signOut();
 
-  location.href = "login.html";
+  window.location.href =
+    "login.html";
 }
 
 
-cekAdmin();
+// ===============================
+// START
+// ===============================
+
+checkAdmin();
 
 </script>
 
