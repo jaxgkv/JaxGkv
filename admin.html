@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JAXGKV • Admin</title>
+
+  <title>Admin - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -15,746 +16,970 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #0b0b0b;
-      color: #fff;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      padding: 18px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #bbb;
+      font-size: 14px;
     }
 
     .container {
       width: 100%;
-      max-width: 950px;
-      margin: auto;
-      padding: 25px 16px 40px;
-    }
-
-    .brand {
-      color: #d4af37;
-      font-size: 14px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    h1 {
-      margin: 8px 0;
-      font-size: 30px;
-    }
-
-    .subtitle {
-      color: #999;
-      font-size: 14px;
-      margin-bottom: 25px;
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 15px;
     }
 
     .section {
-      background: #151515;
-      border: 1px solid #292929;
+      background: white;
       border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.06);
     }
 
-    .section-title {
-      color: #d4af37;
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 18px;
+    .section h2 {
+      margin-top: 0;
+      font-size: 19px;
     }
 
-    .message {
-      display: none;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 9px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .message.success {
-      display: block;
-      background: #102d1a;
-      border: 1px solid #235b35;
-      color: #62db8a;
-    }
-
-    .message.error {
-      display: block;
-      background: #351414;
-      border: 1px solid #642525;
-      color: #ff7373;
+    .form-group {
+      margin-bottom: 14px;
     }
 
     label {
       display: block;
-      color: #aaa;
-      font-size: 13px;
       margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: bold;
     }
 
     input,
     textarea,
     select {
       width: 100%;
-      background: #0f0f0f;
-      color: white;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 11px;
-      margin-bottom: 14px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      font-size: 14px;
       outline: none;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
-      border-color: #d4af37;
-    }
-
-    textarea {
-      min-height: 100px;
-      resize: vertical;
+      border-color: #111;
     }
 
     button {
-      width: 100%;
-      border: none;
+      border: 0;
       border-radius: 9px;
-      padding: 12px;
-      margin-top: 5px;
-      background: #d4af37;
-      color: #000;
-      font-size: 15px;
-      font-weight: bold;
+      padding: 11px 16px;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    button:hover {
-      opacity: 0.85;
+    .btn-primary {
+      background: #111;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-approve {
+      background: #198754;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #eee;
+      color: #222;
     }
 
     button:disabled {
-      opacity: 0.5;
+      opacity: .6;
       cursor: not-allowed;
     }
 
-    .secondary {
-      background: #333;
-      color: #fff;
+    .message {
+      display: none;
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 14px;
     }
 
-    .danger {
-      background: #991b1b;
-      color: #fff;
+    .message.success {
+      display: block;
+      background: #d1e7dd;
+      color: #0f5132;
     }
 
-    .product,
-    .topup {
-      background: #101010;
-      border: 1px solid #292929;
+    .message.error {
+      display: block;
+      background: #f8d7da;
+      color: #842029;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .product-card {
+      border: 1px solid #ddd;
       border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .product:last-child,
-    .topup:last-child {
-      margin-bottom: 0;
+      overflow: hidden;
+      background: white;
     }
 
     .product-image {
       width: 100%;
-      max-height: 220px;
+      height: 160px;
       object-fit: cover;
-      border-radius: 9px;
-      margin-bottom: 12px;
-      border: 1px solid #292929;
+      background: #eee;
+      display: block;
     }
 
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .info {
-      margin: 7px 0;
-      font-size: 14px;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .label-text {
-      color: #777;
-    }
-
-    .nominal {
-      color: #d4af37;
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .pending {
-      color: #f0b90b;
-      font-weight: bold;
-    }
-
-    .approved {
-      color: #43d17b;
-      font-weight: bold;
-    }
-
-    .video-ok {
-      color: #43d17b;
-      font-weight: bold;
-    }
-
-    .video-none {
-      color: #f0b90b;
-      font-weight: bold;
-    }
-
-    .actions {
+    .no-image {
+      height: 160px;
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 14px;
+      align-items: center;
+      justify-content: center;
+      background: #eee;
+      color: #777;
+      font-size: 13px;
     }
 
-    .actions button {
-      flex: 1;
-      min-width: 130px;
+    .product-content {
+      padding: 14px;
     }
 
-    .loading,
+    .product-content h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .product-info {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .product-actions {
+      margin-top: 12px;
+    }
+
+    .product-actions button {
+      width: 100%;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status.pending {
+      background: #fff3cd;
+      color: #664d03;
+    }
+
+    .status.approved {
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+
+    .topup-card {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+
+    .topup-card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .topup-actions {
+      margin-top: 10px;
+    }
+
     .empty {
       text-align: center;
-      color: #888;
-      padding: 25px 10px;
+      padding: 25px;
+      color: #777;
+      border: 1px dashed #ccc;
+      border-radius: 10px;
     }
 
     .file-info {
-      color: #777;
+      margin-top: 6px;
       font-size: 12px;
-      margin-top: -8px;
-      margin-bottom: 12px;
+      color: #777;
     }
 
-    .footer {
-      text-align: center;
-      color: #555;
-      font-size: 12px;
-      margin-top: 30px;
+    .loading {
+      opacity: .7;
+      pointer-events: none;
     }
   </style>
 </head>
 
 <body>
 
+<header>
+  <h1>⚙️ JaxGkv Admin</h1>
+  <p>Kelola produk, video, dan top up</p>
+</header>
+
 <div class="container">
-
-  <div class="brand">JAXGKV • ADMIN</div>
-
-  <h1>Panel Admin</h1>
-
-  <div class="subtitle">
-    Kelola produk dan top up JaxGkv.
-  </div>
 
   <div id="message" class="message"></div>
 
+  <!-- ========================= -->
+  <!-- TAMBAH PRODUK -->
+  <!-- ========================= -->
 
-  <!-- =====================================================
-       TAMBAH PRODUK
-  ====================================================== -->
+  <section class="section">
+    <h2>➕ Tambah Produk</h2>
 
-  <div class="section">
-
-    <div class="section-title">
-      ➕ Tambah Produk
+    <div class="form-group">
+      <label for="productName">Nama Produk</label>
+      <input
+        type="text"
+        id="productName"
+        placeholder="Nama produk"
+      >
     </div>
 
-    <label>Nama Produk</label>
-
-    <input
-      id="productName"
-      type="text"
-      placeholder="Contoh: Vid 1"
-    >
-
-
-    <label>Harga</label>
-
-    <input
-      id="productPrice"
-      type="number"
-      min="0"
-      placeholder="Contoh: 20000"
-    >
-
-
-    <label>Deskripsi</label>
-
-    <textarea
-      id="productDescription"
-      placeholder="Deskripsi produk..."
-    ></textarea>
-
-
-    <label>Kategori</label>
-
-    <input
-      id="productCategory"
-      type="text"
-      placeholder="Contoh: Video"
-    >
-
-
-    <label>Stok</label>
-
-    <input
-      id="productStock"
-      type="number"
-      min="0"
-      value="1"
-    >
-
-
-    <label>URL Gambar / Thumbnail</label>
-
-    <input
-      id="productImage"
-      type="text"
-      placeholder="https://..."
-    >
-
-
-    <label>Video Produk</label>
-
-    <input
-      id="productVideo"
-      type="file"
-      accept="video/*"
-    >
-
-    <div class="file-info">
-      Video akan diupload otomatis ke Storage bucket "No 1".
-      Batas file mengikuti batas Storage Supabase.
+    <div class="form-group">
+      <label for="productPrice">Harga</label>
+      <input
+        type="number"
+        id="productPrice"
+        min="0"
+        placeholder="Contoh: 10000"
+      >
     </div>
 
+    <div class="form-group">
+      <label for="productCategory">Kategori</label>
+      <input
+        type="text"
+        id="productCategory"
+        placeholder="Contoh: Video"
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="productStock">Stok</label>
+      <input
+        type="number"
+        id="productStock"
+        min="0"
+        value="1"
+        placeholder="Contoh: 10"
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="productDescription">Deskripsi</label>
+      <textarea
+        id="productDescription"
+        placeholder="Deskripsi produk"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="productImage">URL Gambar Produk</label>
+      <input
+        type="text"
+        id="productImage"
+        placeholder="https://..."
+      >
+      <div class="file-info">
+        Boleh dikosongkan.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="productVideo">Upload Video</label>
+      <input
+        type="file"
+        id="productVideo"
+        accept="video/*"
+      >
+      <div class="file-info">
+        Maksimal mengikuti batas file Storage Supabase.
+      </div>
+    </div>
 
     <button
-      type="button"
-      id="addProductButton"
+      id="addButton"
+      class="btn-primary"
       onclick="addProduct()"
     >
-      Tambah Produk
+      ➕ Simpan Produk
+    </button>
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- KELOLA PRODUK -->
+  <!-- ========================= -->
+
+  <section class="section">
+    <h2>📦 Kelola Produk</h2>
+
+    <button
+      class="btn-secondary"
+      onclick="loadProducts()"
+      style="margin-bottom:15px;"
+    >
+      🔄 Refresh
     </button>
 
-  </div>
-
-
-  <!-- =====================================================
-       KELOLA PRODUK
-  ====================================================== -->
-
-  <div class="section">
-
-    <div class="section-title">
-      📦 Kelola Produk
-    </div>
-
-    <div id="products">
-
-      <div class="loading">
+    <div id="productsList">
+      <div class="empty">
         Memuat produk...
       </div>
-
     </div>
+  </section>
 
-  </div>
 
+  <!-- ========================= -->
+  <!-- KELOLA TOP UP -->
+  <!-- ========================= -->
 
-  <!-- =====================================================
-       KELOLA TOP UP
-  ====================================================== -->
+  <section class="section">
+    <h2>💰 Kelola Top Up</h2>
 
-  <div class="section">
+    <button
+      class="btn-secondary"
+      onclick="loadTopups()"
+      style="margin-bottom:15px;"
+    >
+      🔄 Refresh
+    </button>
 
-    <div class="section-title">
-      💰 Kelola Top Up
-    </div>
-
-    <div id="requests">
-
-      <div class="loading">
-        Memuat pengajuan top up...
+    <div id="topupList">
+      <div class="empty">
+        Memuat top up...
       </div>
-
     </div>
-
-  </div>
-
-
-  <div class="footer">
-    © 2026 JaxGkv. All rights reserved.
-  </div>
+  </section>
 
 </div>
 
 
 <script>
+  const SUPABASE_URL =
+    "https://evuwahoflentgidcjmsx.supabase.co";
 
-const SUPABASE_URL =
-  "https://evuwahoflentgidcjmsx.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-
-/* =====================================================
-   MESSAGE
-===================================================== */
-
-function showMessage(text, type) {
-
-  const element =
-    document.getElementById("message");
-
-  element.textContent = text;
-
-  element.className =
-    "message " + type;
-
-}
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
 
 
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
+  // =========================================
+  // MESSAGE
+  // =========================================
 
-function escapeHTML(value) {
+  function showMessage(message, type = "success") {
+    const el =
+      document.getElementById("message");
 
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    el.textContent = message;
+    el.className = "message " + type;
 
-}
-
-
-/* =====================================================
-   CHECK ADMIN
-===================================================== */
-
-async function checkAdmin() {
-
-  const {
-    data: { user },
-    error
-  } = await supabaseClient.auth.getUser();
-
-
-  if (error || !user) {
-
-    window.location.href =
-      "login.html";
-
-    return false;
-
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 
 
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // =========================================
+  // CEK ADMIN
+  // =========================================
 
+  async function checkAdmin() {
 
-  if (
-    profileError ||
-    !profile ||
-    profile.role !== "admin"
-  ) {
+    const {
+      data: {
+        user
+      },
+      error: userError
+    } = await supabaseClient.auth.getUser();
 
-    document.body.innerHTML = `
-
-      <div style="
-        color:white;
-        background:#0b0b0b;
-        min-height:100vh;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        text-align:center;
-        font-family:Arial;
-        padding:20px;
-      ">
-
-        <div>
-
-          <h2>🚫 Akses Ditolak</h2>
-
-          <p>
-            Halaman ini hanya dapat digunakan oleh admin.
-          </p>
-
-        </div>
-
-      </div>
-
-    `;
-
-    return false;
-
-  }
-
-
-  return true;
-
-}
-
-
-/* =====================================================
-   UPLOAD VIDEO
-===================================================== */
-
-async function uploadVideo(file) {
-
-  if (!file) {
-    return null;
-  }
-
-
-  const extension =
-    file.name.includes(".")
-      ? file.name.split(".").pop()
-      : "mp4";
-
-
-  const safeName =
-    file.name
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9_-]/g, "_");
-
-
-  const uniqueName =
-    Date.now() +
-    "_" +
-    Math.random()
-      .toString(36)
-      .substring(2, 8);
-
-
-  const path =
-    "AdminUpload/" +
-    uniqueName +
-    "_" +
-    safeName +
-    "." +
-    extension;
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .storage
-      .from("No 1")
-      .upload(
-        path,
-        file,
-        {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type
-        }
+    if (userError || !user) {
+      showMessage(
+        "Anda belum login.",
+        "error"
       );
+      return false;
+    }
 
+    const {
+      data: profile,
+      error
+    } =
+      await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
 
-  if (error) {
+    if (error) {
+      showMessage(
+        "Gagal mengecek role: " +
+        error.message,
+        "error"
+      );
+      return false;
+    }
 
-    throw new Error(
-      "Upload video gagal: " +
-      error.message
-    );
+    if (profile.role !== "admin") {
+      showMessage(
+        "Akses ditolak. Halaman ini hanya untuk admin.",
+        "error"
+      );
+      return false;
+    }
 
+    return true;
   }
 
 
-  return path;
+  // =========================================
+  // UPLOAD VIDEO
+  // =========================================
 
-}
+  async function uploadVideo(file) {
 
+    if (!file) {
+      return null;
+    }
 
-/* =====================================================
-   TAMBAH PRODUK
-===================================================== */
+    if (!file.type.startsWith("video/")) {
+      throw new Error(
+        "File yang dipilih bukan video."
+      );
+    }
 
-async function addProduct() {
+    const maxSize =
+      50 * 1024 * 1024;
 
-  const button =
-    document.getElementById(
-      "addProductButton"
-    );
+    if (file.size > maxSize) {
+      throw new Error(
+        "Video terlalu besar. Maksimal 50 MB."
+      );
+    }
 
+    const extension =
+      file.name.includes(".")
+        ? file.name.split(".").pop()
+        : "mp4";
 
-  const name =
-    document
-      .getElementById("productName")
-      .value
-      .trim();
+    const safeName =
+      file.name
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^a-zA-Z0-9_-]/g, "_");
 
+    const uniqueName =
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .substring(2, 8);
 
-  const price =
-    Number(
-      document
-        .getElementById("productPrice")
-        .value
-    );
+    const path =
+      "AdminUpload/" +
+      uniqueName +
+      "_" +
+      safeName +
+      "." +
+      extension;
 
-
-  const description =
-    document
-      .getElementById("productDescription")
-      .value
-      .trim();
-
-
-  const category =
-    document
-      .getElementById("productCategory")
-      .value
-      .trim();
-
-
-  const stock =
-    Number(
-      document
-        .getElementById("productStock")
-        .value
-    );
-
-
-  const imageUrl =
-    document
-      .getElementById("productImage")
-      .value
-      .trim();
-
-
-  const videoFile =
-    document
-      .getElementById("productVideo")
-      .files[0];
-
-
-  /* VALIDASI NAMA */
-
-  if (!name) {
-
-    showMessage(
-      "Nama produk wajib diisi.",
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  /* VALIDASI HARGA */
-
-  if (
-    !Number.isFinite(price) ||
-    price < 0
-  ) {
-
-    showMessage(
-      "Harga tidak valid.",
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  /* VALIDASI KATEGORI */
-
-  if (!category) {
-
-    showMessage(
-      "Kategori wajib diisi.",
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  /* VALIDASI STOK */
-
-  if (
-    !Number.isFinite(stock) ||
-    stock < 0
-  ) {
-
-    showMessage(
-      "Stok tidak valid.",
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Memproses...";
-
-
-  try {
-
-    let videoPath = null;
-
-
-    /* =================================================
-       UPLOAD VIDEO
-    ================================================= */
-
-    if (videoFile) {
-
-      button.textContent =
-        "Mengupload video...";
-
-
-      videoPath =
-        await uploadVideo(
-          videoFile
+    const {
+      error
+    } =
+      await supabaseClient
+        .storage
+        .from("No 1")
+        .upload(
+          path,
+          file,
+          {
+            cacheControl: "3600",
+            upsert: false,
+            contentType:
+              file.type || "video/mp4"
+          }
         );
 
+    if (error) {
+      throw new Error(
+        "Upload video gagal: " +
+        error.message
+      );
+    }
+
+    return path;
+  }
+
+
+  // =========================================
+  // TAMBAH PRODUK
+  // =========================================
+
+  async function addProduct() {
+
+    const button =
+      document.getElementById("addButton");
+
+    try {
+
+      button.disabled = true;
+      button.textContent =
+        "⏳ Menyimpan...";
+
+      const isAdmin =
+        await checkAdmin();
+
+      if (!isAdmin) {
+        return;
+      }
+
+      const name =
+        document
+          .getElementById("productName")
+          .value
+          .trim();
+
+      const price =
+        Number(
+          document
+            .getElementById("productPrice")
+            .value
+        );
+
+      const category =
+        document
+          .getElementById("productCategory")
+          .value
+          .trim();
+
+      const stock =
+        Number(
+          document
+            .getElementById("productStock")
+            .value
+        );
+
+      const description =
+        document
+          .getElementById("productDescription")
+          .value
+          .trim();
+
+      const imageUrl =
+        document
+          .getElementById("productImage")
+          .value
+          .trim();
+
+      const videoFile =
+        document
+          .getElementById("productVideo")
+          .files[0];
+
+
+      // VALIDASI
+
+      if (!name) {
+        showMessage(
+          "Nama produk wajib diisi.",
+          "error"
+        );
+        return;
+      }
+
+      if (
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+        showMessage(
+          "Harga tidak valid.",
+          "error"
+        );
+        return;
+      }
+
+      if (!category) {
+        showMessage(
+          "Kategori wajib diisi.",
+          "error"
+        );
+        return;
+      }
+
+      if (
+        !Number.isFinite(stock) ||
+        stock < 0
+      ) {
+        showMessage(
+          "Stok tidak valid.",
+          "error"
+        );
+        return;
+      }
+
+
+      // UPLOAD VIDEO
+
+      let videoPath = "";
+
+      if (videoFile) {
+
+        showMessage(
+          "⏳ Sedang upload video...",
+          "success"
+        );
+
+        videoPath =
+          await uploadVideo(videoFile);
+
+      }
+
+
+      // INSERT PRODUK
+
+      showMessage(
+        "⏳ Menyimpan data produk...",
+        "success"
+      );
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("products")
+          .insert({
+            name: name,
+            price: price,
+            description:
+              description || "",
+            category: category,
+
+            /*
+             * image_url TIDAK BOLEH null
+             * karena kolom database NOT NULL.
+             */
+            image_url:
+              imageUrl || "",
+
+            stock: stock,
+
+            /*
+             * video_url juga dibuat string kosong
+             * jika tidak ada video.
+             */
+            video_url:
+              videoPath || ""
+          });
+
+
+      if (error) {
+        throw new Error(
+          "Gagal menyimpan produk: " +
+          error.message
+        );
+      }
+
+
+      // RESET FORM
+
+      document
+        .getElementById("productName")
+        .value = "";
+
+      document
+        .getElementById("productPrice")
+        .value = "";
+
+      document
+        .getElementById("productCategory")
+        .value = "";
+
+      document
+        .getElementById("productStock")
+        .value = "1";
+
+      document
+        .getElementById("productDescription")
+        .value = "";
+
+      document
+        .getElementById("productImage")
+        .value = "";
+
+      document
+        .getElementById("productVideo")
+        .value = "";
+
+
+      showMessage(
+        "✅ Produk berhasil ditambahkan.",
+        "success"
+      );
+
+      await loadProducts();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Terjadi kesalahan.",
+        "error"
+      );
+
+    } finally {
+
+      button.disabled = false;
+
+      button.textContent =
+        "➕ Simpan Produk";
+    }
+  }
+
+
+  // =========================================
+  // LOAD PRODUCTS
+  // =========================================
+
+  async function loadProducts() {
+
+    const container =
+      document.getElementById(
+        "productsList"
+      );
+
+    container.innerHTML =
+      '<div class="empty">Memuat produk...</div>';
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("products")
+        .select(
+          "id,name,price,description,category,image_url,stock,video_url"
+        )
+        .order(
+          "id",
+          {
+            ascending: false
+          }
+        );
+
+
+    if (error) {
+
+      container.innerHTML =
+        '<div class="empty">Gagal memuat produk: ' +
+        escapeHtml(error.message) +
+        "</div>";
+
+      return;
     }
 
 
-    /* =================================================
-       SIMPAN PRODUK
-    ================================================= */
+    if (!data || data.length === 0) {
 
-    button.textContent =
-      "Menyimpan produk...";
+      container.innerHTML =
+        '<div class="empty">Belum ada produk.</div>';
+
+      return;
+    }
+
+
+    const grid =
+      document.createElement("div");
+
+    grid.className =
+      "products-grid";
+
+
+    data.forEach(product => {
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "product-card";
+
+
+      let imageHtml = "";
+
+      if (product.image_url) {
+
+        imageHtml =
+          `<img
+            class="product-image"
+            src="${escapeAttribute(product.image_url)}"
+            alt="${escapeAttribute(product.name)}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <div class="no-image" style="display:none;">
+            Tidak dapat memuat gambar
+          </div>`;
+
+      } else {
+
+        imageHtml =
+          `<div class="no-image">
+            Tidak ada gambar
+          </div>`;
+      }
+
+
+      const videoStatus =
+        product.video_url
+          ? "🎬 Video tersedia"
+          : "🔒 Belum ada video";
+
+
+      card.innerHTML = `
+        ${imageHtml}
+
+        <div class="product-content">
+
+          <h3>
+            ${escapeHtml(product.name)}
+          </h3>
+
+          <div class="product-info">
+
+            <div>
+              ID:
+              ${product.id}
+            </div>
+
+            <div>
+              Harga:
+              ${formatRupiah(product.price)}
+            </div>
+
+            <div>
+              Kategori:
+              ${escapeHtml(product.category || "-")}
+            </div>
+
+            <div>
+              Stok:
+              ${product.stock}
+            </div>
+
+            <div>
+              ${videoStatus}
+            </div>
+
+            <div>
+              Deskripsi:
+              ${escapeHtml(
+                product.description || "-"
+              )}
+            </div>
+
+          </div>
+
+          <div class="product-actions">
+
+            <button
+              class="btn-danger"
+              onclick="deleteProduct(${product.id})"
+            >
+              🗑️ Hapus Produk
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+
+      grid.appendChild(card);
+
+    });
+
+
+    container.innerHTML = "";
+
+    container.appendChild(grid);
+  }
+
+
+  // =========================================
+  // DELETE PRODUCT
+  // =========================================
+
+  async function deleteProduct(id) {
+
+    const confirmDelete =
+      confirm(
+        "Yakin ingin menghapus produk ID " +
+        id +
+        "?"
+      );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+
+    const isAdmin =
+      await checkAdmin();
+
+    if (!isAdmin) {
+      return;
+    }
 
 
     const {
@@ -762,818 +987,317 @@ async function addProduct() {
     } =
       await supabaseClient
         .from("products")
-        .insert({
-
-          name:
-            name,
-
-          price:
-            price,
-
-          description:
-            description || null,
-
-          category:
-            category,
-
-          image_url:
-            imageUrl || null,
-
-          stock:
-            stock,
-
-          video_url:
-            videoPath
-
-        });
+        .delete()
+        .eq("id", id);
 
 
     if (error) {
 
-      throw new Error(
-        "Gagal menyimpan produk: " +
-        error.message
+      showMessage(
+        "Gagal menghapus produk: " +
+        error.message,
+        "error"
       );
 
+      return;
     }
 
 
-    /* =================================================
-       BERHASIL
-    ================================================= */
-
     showMessage(
-      "✅ Produk berhasil ditambahkan.",
+      "✅ Produk berhasil dihapus.",
       "success"
     );
 
 
-    /* RESET FORM */
-
-    document.getElementById(
-      "productName"
-    ).value = "";
+    await loadProducts();
+  }
 
 
-    document.getElementById(
-      "productPrice"
-    ).value = "";
+  // =========================================
+  // LOAD TOP UP
+  // =========================================
+
+  async function loadTopups() {
+
+    const container =
+      document.getElementById(
+        "topupList"
+      );
+
+    container.innerHTML =
+      '<div class="empty">Memuat top up...</div>';
 
 
-    document.getElementById(
-      "productDescription"
-    ).value = "";
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("topup_request")
+        .select(
+          "id,user_id,nominal,status,created_at"
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
 
 
-    document.getElementById(
-      "productCategory"
-    ).value = "";
+    if (error) {
+
+      container.innerHTML =
+        '<div class="empty">Gagal memuat top up: ' +
+        escapeHtml(error.message) +
+        "</div>";
+
+      return;
+    }
 
 
-    document.getElementById(
-      "productStock"
-    ).value = "1";
+    if (!data || data.length === 0) {
+
+      container.innerHTML =
+        '<div class="empty">Belum ada request top up.</div>';
+
+      return;
+    }
 
 
-    document.getElementById(
-      "productImage"
-    ).value = "";
+    container.innerHTML = "";
 
 
-    document.getElementById(
-      "productVideo"
-    ).value = "";
+    data.forEach(item => {
 
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "topup-card";
+
+
+      const statusClass =
+        item.status === "approved"
+          ? "approved"
+          : "pending";
+
+
+      const statusText =
+        item.status === "approved"
+          ? "Approved"
+          : "Pending";
+
+
+      let actionHtml = "";
+
+
+      if (item.status === "pending") {
+
+        actionHtml = `
+          <div class="topup-actions">
+
+            <button
+              class="btn-approve"
+              onclick="approveTopup(${item.id})"
+            >
+              ✅ Approve
+            </button>
+
+          </div>
+        `;
+      }
+
+
+      card.innerHTML = `
+
+        <p>
+          <strong>ID Request:</strong>
+          ${item.id}
+        </p>
+
+        <p>
+          <strong>User ID:</strong>
+          ${escapeHtml(item.user_id)}
+        </p>
+
+        <p>
+          <strong>Nominal:</strong>
+          ${formatRupiah(item.nominal)}
+        </p>
+
+        <p>
+          <strong>Status:</strong>
+          <span class="status ${statusClass}">
+            ${statusText}
+          </span>
+        </p>
+
+        <p>
+          <strong>Tanggal:</strong>
+          ${formatDate(item.created_at)}
+        </p>
+
+        ${actionHtml}
+      `;
+
+
+      container.appendChild(card);
+
+    });
+  }
+
+
+  // =========================================
+  // APPROVE TOP UP
+  // =========================================
+
+  async function approveTopup(id) {
+
+    const confirmApprove =
+      confirm(
+        "Approve top up request #" +
+        id +
+        "?"
+      );
+
+    if (!confirmApprove) {
+      return;
+    }
+
+
+    const isAdmin =
+      await checkAdmin();
+
+    if (!isAdmin) {
+      return;
+    }
+
+
+    try {
+
+      showMessage(
+        "⏳ Memproses approval...",
+        "success"
+      );
+
+
+      const {
+        error
+      } =
+        await supabaseClient.rpc(
+          "approve_topup",
+          {
+            request_id: id
+          }
+        );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        "✅ Top up berhasil di-approve.",
+        "success"
+      );
+
+
+      await loadTopups();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        "Gagal approve top up: " +
+        error.message,
+        "error"
+      );
+    }
+  }
+
+
+  // =========================================
+  // HELPERS
+  // =========================================
+
+  function formatRupiah(number) {
+
+    return new Intl.NumberFormat(
+      "id-ID",
+      {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }
+    ).format(number || 0);
+  }
+
+
+  function formatDate(date) {
+
+    if (!date) {
+      return "-";
+    }
+
+    return new Date(date)
+      .toLocaleString(
+        "id-ID",
+        {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }
+      );
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function escapeAttribute(value) {
+
+    return escapeHtml(value);
+  }
+
+
+  // =========================================
+  // INIT
+  // =========================================
+
+  async function init() {
+
+    const isAdmin =
+      await checkAdmin();
+
+    if (!isAdmin) {
+      return;
+    }
 
     await loadProducts();
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Add product error:",
-      error
-    );
-
-
-    showMessage(
-      error.message,
-      "error"
-    );
-
+    await loadTopups();
   }
 
 
-  button.disabled = false;
-
-  button.textContent =
-    "Tambah Produk";
-
-}
-
-
-/* =====================================================
-   LOAD PRODUCTS
-===================================================== */
-
-async function loadProducts() {
-
-  const container =
-    document.getElementById(
-      "products"
-    );
-
-
-  container.innerHTML = `
-
-    <div class="loading">
-
-      Memuat produk...
-
-    </div>
-
-  `;
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("products")
-      .select(`
-        id,
-        name,
-        price,
-        description,
-        category,
-        image_url,
-        stock,
-        video_url
-      `)
-      .order(
-        "id",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-
-        ❌ Gagal memuat produk.
-
-        <br><br>
-
-        ${escapeHTML(
-          error.message
-        )}
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  if (
-    !data ||
-    data.length === 0
-  ) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-
-        Belum ada produk.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  container.innerHTML = "";
-
-
-  data.forEach(
-    function(product) {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-
-      item.className =
-        "product";
-
-
-      /* THUMBNAIL */
-
-      let imageHTML = "";
-
-
-      if (product.image_url) {
-
-        imageHTML = `
-
-          <img
-            class="product-image"
-            src="${escapeHTML(
-              product.image_url
-            )}"
-            alt="${escapeHTML(
-              product.name
-            )}"
-            onerror="
-              this.style.display='none'
-            "
-          >
-
-        `;
-
-      }
-
-
-      /* VIDEO STATUS */
-
-      const videoStatus =
-        product.video_url
-
-          ? `
-
-            <div class="info video-ok">
-
-              🎬 Video: tersedia
-
-            </div>
-
-          `
-
-          : `
-
-            <div class="info video-none">
-
-              🎬 Video: belum ada
-
-            </div>
-
-          `;
-
-
-      item.innerHTML = `
-
-        ${imageHTML}
-
-
-        <div class="title">
-
-          ${escapeHTML(
-            product.name
-          )}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-            ID:
-          </span>
-
-          ${product.id}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-            Harga:
-          </span>
-
-          <span class="nominal">
-
-            Rp${Number(
-              product.price
-            ).toLocaleString(
-              "id-ID"
-            )}
-
-          </span>
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-            Kategori:
-          </span>
-
-          ${escapeHTML(
-            product.category || "-"
-          )}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-            Stok:
-          </span>
-
-          ${product.stock}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-            Deskripsi:
-          </span>
-
-          <br>
-
-          ${escapeHTML(
-            product.description || "-"
-          )}
-
-        </div>
-
-
-        ${videoStatus}
-
-
-        <div class="actions">
-
-          <button
-            type="button"
-            class="danger"
-            onclick="
-              deleteProduct(
-                ${product.id}
-              )
-            "
-          >
-
-            🗑️ Hapus
-
-          </button>
-
-        </div>
-
-      `;
-
-
-      container.appendChild(
-        item
-      );
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   DELETE PRODUCT
-===================================================== */
-
-async function deleteProduct(id) {
-
-  const confirmed =
-    confirm(
-      "Hapus produk ini?\n\n" +
-      "Data produk akan dihapus."
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .from("products")
-      .delete()
-      .eq("id", id);
-
-
-  if (error) {
-
-    showMessage(
-      "Gagal menghapus produk: " +
-      error.message,
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  showMessage(
-    "Produk berhasil dihapus.",
-    "success"
-  );
-
-
-  await loadProducts();
-
-}
-
-
-/* =====================================================
-   LOAD TOP UP
-===================================================== */
-
-async function loadRequests() {
-
-  const container =
-    document.getElementById(
-      "requests"
-    );
-
-
-  container.innerHTML = `
-
-    <div class="loading">
-
-      Memuat pengajuan top up...
-
-    </div>
-
-  `;
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("topup_request")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-
-        ❌ Gagal memuat data.
-
-        <br><br>
-
-        ${escapeHTML(
-          error.message
-        )}
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  if (
-    !data ||
-    data.length === 0
-  ) {
-
-    container.innerHTML = `
-
-      <div class="empty">
-
-        Belum ada pengajuan top up.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  container.innerHTML = "";
-
-
-  data.forEach(
-    function(req) {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-
-      item.className =
-        "topup";
-
-
-      const nominal =
-        Number(
-          req.nominal
-        ).toLocaleString(
-          "id-ID"
-        );
-
-
-      const tanggal =
-        new Date(
-          req.created_at
-        ).toLocaleString(
-          "id-ID"
-        );
-
-
-      let statusHTML = "";
-
-
-      if (
-        req.status === "pending"
-      ) {
-
-        statusHTML = `
-
-          <div class="pending">
-
-            🕐 Pending
-
-          </div>
-
-
-          <button
-            type="button"
-            onclick="
-              approveTopup(
-                ${req.id},
-                this
-              )
-            "
-          >
-
-            Approve Top Up
-
-          </button>
-
-        `;
-
-      }
-
-      else if (
-        req.status === "approved"
-      ) {
-
-        statusHTML = `
-
-          <div class="approved">
-
-            ✓ Sudah disetujui
-
-          </div>
-
-        `;
-
-      }
-
-      else {
-
-        statusHTML = `
-
-          <div>
-
-            Status:
-            ${escapeHTML(
-              req.status
-            )}
-
-          </div>
-
-        `;
-
-      }
-
-
-      item.innerHTML = `
-
-        <div class="title">
-
-          Top Up #${req.id}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-
-            User ID:
-
-          </span>
-
-          <br>
-
-          ${escapeHTML(
-            req.user_id
-          )}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-
-            Nominal:
-
-          </span>
-
-          <br>
-
-          <span class="nominal">
-
-            Rp${nominal}
-
-          </span>
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-
-            Status:
-
-          </span>
-
-          <br>
-
-          ${escapeHTML(
-            req.status
-          )}
-
-        </div>
-
-
-        <div class="info">
-
-          <span class="label-text">
-
-            Tanggal:
-
-          </span>
-
-          <br>
-
-          ${tanggal}
-
-        </div>
-
-
-        ${statusHTML}
-
-      `;
-
-
-      container.appendChild(
-        item
-      );
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   APPROVE TOP UP
-===================================================== */
-
-async function approveTopup(
-  id,
-  button
-) {
-
-  const confirmed =
-    confirm(
-      "Approve top-up ini?\n\n" +
-      "Saldo pengguna akan bertambah " +
-      "sesuai nominal."
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Memproses...";
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .rpc(
-        "approve_topup",
-        {
-          request_id: id
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Approve error:",
-      error
-    );
-
-
-    showMessage(
-      "Gagal approve: " +
-      error.message,
-      "error"
-    );
-
-
-    button.disabled = false;
-
-    button.textContent =
-      "Approve Top Up";
-
-    return;
-
-  }
-
-
-  showMessage(
-    "Top-up berhasil disetujui.",
-    "success"
-  );
-
-
-  await loadRequests();
-
-}
-
-
-/* =====================================================
-   INIT
-===================================================== */
-
-async function init() {
-
-  const isAdmin =
-    await checkAdmin();
-
-
-  if (!isAdmin) {
-    return;
-  }
-
-
-  await loadProducts();
-
-  await loadRequests();
-
-}
-
-
-init();
-
+  init();
 </script>
 
 </body>
 </html>
+
+Perubahan pentingnya ada di sini:
+
+image_url: imageUrl || "",
+
+Jadi sekarang kalau URL gambar dikosongkan, yang masuk ke database adalah """", bukan "null", sehingga tidak kena error "image_url violates not-null constraint".
+
+Setelah itu tinggal replace seluruh isi "admin.html" di GitHub lalu commit.
