@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Admin Banner - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -77,6 +78,11 @@
       font-weight: bold;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .btn-primary {
       background: #2563eb;
       color: white;
@@ -89,11 +95,6 @@
 
     .btn-secondary {
       background: #6b7280;
-      color: white;
-    }
-
-    .btn-success {
-      background: #16a34a;
       color: white;
     }
 
@@ -148,29 +149,63 @@
       font-weight: bold;
     }
 
-    .edit-form {
+    .edit-box {
       display: none;
       background: #f9fafb;
       border: 1px solid #e5e7eb;
-      border-radius: 10px;
       padding: 15px;
+      border-radius: 10px;
       margin-top: 15px;
     }
 
-    .edit-form.show {
+    .edit-box.show {
       display: block;
     }
 
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 15px;
+    .empty {
+      color: #666;
+      text-align: center;
+      padding: 25px;
     }
 
-    .checkbox-row input {
-      width: auto;
-      margin: 0;
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 25px;
+    }
+
+    .error {
+      color: #b91c1c;
+      background: #fee2e2;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .success {
+      color: #166534;
+      background: #dcfce7;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .url-text {
+      word-break: break-all;
+      color: #555;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin-top: 15px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .actions button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -178,57 +213,92 @@
 <body>
 
 <header>
-  <h1>🎨 Admin Banner</h1>
+  <h1>🎨 Admin Banner - JaxGkv</h1>
 </header>
 
 <div class="container">
 
+  <!-- ========================= -->
   <!-- TAMBAH BANNER -->
+  <!-- ========================= -->
+
   <div class="card">
-    <h2>Tambah Banner</h2>
+
+    <h2>➕ Tambah Banner</h2>
 
     <div id="message"></div>
 
-    <label>Judul</label>
+    <label for="title">
+      Judul
+    </label>
+
     <input
       id="title"
       type="text"
       placeholder="Contoh: Promo Terbaru"
+      maxlength="150"
     >
 
-    <label>Deskripsi</label>
+    <label for="description">
+      Deskripsi
+    </label>
+
     <textarea
       id="description"
       placeholder="Deskripsi banner"
+      maxlength="1000"
     ></textarea>
 
-    <label>URL Gambar</label>
+    <label for="image_url">
+      URL Gambar
+    </label>
+
     <input
       id="image_url"
       type="text"
       placeholder="https://..."
     >
 
-    <label>URL Tujuan</label>
+    <small>
+      Gunakan URL gambar dengan http:// atau https://
+    </small>
+
+    <br><br>
+
+    <label for="link_url">
+      URL Tujuan
+    </label>
+
     <input
       id="link_url"
       type="text"
-      placeholder="https://... atau produk.html"
+      placeholder="produk.html atau https://..."
     >
 
+    <small>
+      Contoh: produk.html
+    </small>
+
+    <br><br>
+
     <button
+      id="addBannerBtn"
       class="btn-primary"
       onclick="addBanner()"
     >
-      Tambah Banner
+      ➕ Tambah Banner
     </button>
+
   </div>
 
 
+  <!-- ========================= -->
   <!-- DAFTAR BANNER -->
+  <!-- ========================= -->
+
   <div class="card">
 
-    <h2>Daftar Banner</h2>
+    <h2>📋 Daftar Banner</h2>
 
     <button
       class="btn-secondary"
@@ -240,7 +310,9 @@
     <br><br>
 
     <div id="bannerList">
-      Memuat banner...
+      <div class="loading">
+        Memuat banner...
+      </div>
     </div>
 
   </div>
@@ -256,7 +328,6 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
@@ -264,9 +335,9 @@ const supabaseClient =
   );
 
 
-// ===============================
+// ======================================
 // CEK ADMIN
-// ===============================
+// ======================================
 
 async function checkAdmin() {
 
@@ -280,8 +351,7 @@ async function checkAdmin() {
 
     alert("Silakan login terlebih dahulu.");
 
-    location.href =
-      "login.html";
+    location.href = "login.html";
 
     return false;
   }
@@ -306,8 +376,7 @@ async function checkAdmin() {
 
     alert("Akses hanya untuk admin.");
 
-    location.href =
-      "dashboard.html";
+    location.href = "dashboard.html";
 
     return false;
   }
@@ -317,20 +386,21 @@ async function checkAdmin() {
 }
 
 
-// ===============================
+// ======================================
 // LOAD BANNER
-// ===============================
+// ======================================
 
 async function loadBanners() {
 
   const list =
-    document.getElementById(
-      "bannerList"
-    );
+    document.getElementById("bannerList");
 
 
-  list.innerHTML =
-    "Memuat banner...";
+  list.innerHTML = `
+    <div class="loading">
+      Memuat banner...
+    </div>
+  `;
 
 
   const {
@@ -347,11 +417,14 @@ async function loadBanners() {
 
   if (error) {
 
-    list.innerHTML =
-      `<p style="color:red">
+    console.error(error);
+
+    list.innerHTML = `
+      <div class="error">
         Gagal memuat banner:
         ${escapeHtml(error.message)}
-      </p>`;
+      </div>
+    `;
 
     return;
   }
@@ -359,214 +432,225 @@ async function loadBanners() {
 
   if (!data || data.length === 0) {
 
-    list.innerHTML =
-      "<p>Belum ada banner.</p>";
+    list.innerHTML = `
+      <div class="empty">
+        Belum ada banner.
+      </div>
+    `;
 
     return;
   }
 
 
   list.innerHTML =
-    data.map(banner => `
+    data.map(renderBanner).join("");
+}
 
-      <div
-        class="banner-item"
-        id="banner-${banner.id}"
+
+// ======================================
+// RENDER BANNER
+// ======================================
+
+function renderBanner(banner) {
+
+  const image =
+    banner.image_url
+      ? `
+        <img
+          src="${escapeAttribute(banner.image_url)}"
+          alt="${escapeAttribute(banner.title)}"
+          onerror="this.style.display='none'"
+        >
+      `
+      : "";
+
+
+  const link =
+    banner.link_url
+      ? `
+        <p class="url-text">
+          🔗
+          ${escapeHtml(banner.link_url)}
+        </p>
+      `
+      : "";
+
+
+  return `
+    <div
+      class="banner-item"
+      id="banner-${Number(banner.id)}"
+    >
+
+      ${image}
+
+      <span
+        class="status ${
+          banner.is_active
+            ? "active"
+            : "inactive"
+        }"
       >
-
         ${
-          banner.image_url
-            ? `
-              <img
-                src="${escapeAttribute(banner.image_url)}"
-                alt="${escapeAttribute(banner.title)}"
-                onerror="this.style.display='none'"
-              >
-            `
-            : ""
+          banner.is_active
+            ? "AKTIF"
+            : "NONAKTIF"
         }
+      </span>
+
+      <h3>
+        ${escapeHtml(banner.title)}
+      </h3>
+
+      <p>
+        ${escapeHtml(
+          banner.description
+        )}
+      </p>
+
+      ${link}
 
 
-        <span
-          class="status ${
+      <div class="actions">
+
+        <button
+          class="btn-primary"
+          onclick="showEditBanner(
+            ${Number(banner.id)}
+          )"
+        >
+          ✏️ Edit
+        </button>
+
+
+        <button
+          class="${
             banner.is_active
-              ? "active"
-              : "inactive"
+              ? "btn-secondary"
+              : "btn-primary"
           }"
+          onclick="toggleBanner(
+            ${Number(banner.id)},
+            ${Boolean(banner.is_active)}
+          )"
         >
           ${
             banner.is_active
-              ? "AKTIF"
-              : "NONAKTIF"
+              ? "Nonaktifkan"
+              : "Aktifkan"
           }
-        </span>
+        </button>
 
+
+        <button
+          class="btn-danger"
+          onclick="deleteBanner(
+            ${Number(banner.id)}
+          )"
+        >
+          🗑️ Hapus
+        </button>
+
+      </div>
+
+
+      <!-- FORM EDIT -->
+
+      <div
+        class="edit-box"
+        id="edit-${Number(banner.id)}"
+      >
 
         <h3>
-          ${escapeHtml(banner.title)}
+          ✏️ Edit Banner
         </h3>
 
 
-        <p>
-          ${escapeHtml(
-            banner.description
-          )}
-        </p>
+        <label>
+          Judul
+        </label>
+
+        <input
+          id="edit-title-${Number(banner.id)}"
+          type="text"
+          value="${escapeAttribute(
+            banner.title
+          )}"
+          maxlength="150"
+        >
 
 
-        ${
-          banner.link_url
-            ? `
-              <p>
-                🔗
-                ${escapeHtml(
-                  banner.link_url
-                )}
-              </p>
-            `
-            : ""
-        }
+        <label>
+          Deskripsi
+        </label>
+
+        <textarea
+          id="edit-description-${Number(banner.id)}"
+          maxlength="1000"
+        >${escapeHtml(
+          banner.description
+        )}</textarea>
+
+
+        <label>
+          URL Gambar
+        </label>
+
+        <input
+          id="edit-image-${Number(banner.id)}"
+          type="text"
+          value="${escapeAttribute(
+            banner.image_url
+          )}"
+        >
+
+
+        <label>
+          URL Tujuan
+        </label>
+
+        <input
+          id="edit-link-${Number(banner.id)}"
+          type="text"
+          value="${escapeAttribute(
+            banner.link_url
+          )}"
+        >
 
 
         <div class="actions">
 
           <button
-            class="btn-warning"
-            onclick="showEditForm(
-              ${banner.id},
-              '${escapeJs(banner.title)}',
-              '${escapeJs(banner.description)}',
-              '${escapeJs(banner.image_url)}',
-              '${escapeJs(banner.link_url)}',
-              ${banner.is_active}
+            class="btn-primary"
+            onclick="saveBanner(
+              ${Number(banner.id)}
             )"
           >
-            ✏️ Edit
+            💾 Simpan
           </button>
 
 
           <button
-            class="${
-              banner.is_active
-                ? "btn-secondary"
-                : "btn-success"
-            }"
-            onclick="toggleBanner(
-              ${banner.id},
-              ${banner.is_active}
+            class="btn-secondary"
+            onclick="hideEditBanner(
+              ${Number(banner.id)}
             )"
           >
-            ${
-              banner.is_active
-                ? "Nonaktifkan"
-                : "Aktifkan"
-            }
+            Batal
           </button>
-
-
-          <button
-            class="btn-danger"
-            onclick="deleteBanner(
-              ${banner.id}
-            )"
-          >
-            🗑️ Hapus
-          </button>
-
-        </div>
-
-
-        <!-- FORM EDIT -->
-
-        <div
-          id="edit-${banner.id}"
-          class="edit-form"
-        >
-
-          <h3>
-            ✏️ Edit Banner
-          </h3>
-
-
-          <label>Judul</label>
-
-          <input
-            id="edit-title-${banner.id}"
-            type="text"
-          >
-
-
-          <label>Deskripsi</label>
-
-          <textarea
-            id="edit-description-${banner.id}"
-          ></textarea>
-
-
-          <label>URL Gambar</label>
-
-          <input
-            id="edit-image-${banner.id}"
-            type="text"
-          >
-
-
-          <label>URL Tujuan</label>
-
-          <input
-            id="edit-link-${banner.id}"
-            type="text"
-          >
-
-
-          <div class="checkbox-row">
-
-            <input
-              id="edit-active-${banner.id}"
-              type="checkbox"
-            >
-
-            <label>
-              Banner aktif
-            </label>
-
-          </div>
-
-
-          <div class="actions">
-
-            <button
-              class="btn-success"
-              onclick="saveBanner(
-                ${banner.id}
-              )"
-            >
-              💾 Simpan
-            </button>
-
-
-            <button
-              class="btn-secondary"
-              onclick="hideEditForm(
-                ${banner.id}
-              )"
-            >
-              Batal
-            </button>
-
-          </div>
 
         </div>
 
       </div>
 
-    `).join("");
+    </div>
+  `;
 }
 
 
-// ===============================
+// ======================================
 // TAMBAH BANNER
-// ===============================
+// ======================================
 
 async function addBanner() {
 
@@ -599,15 +683,22 @@ async function addBanner() {
 
 
   const message =
+    document.getElementById("message");
+
+
+  const button =
     document.getElementById(
-      "message"
+      "addBannerBtn"
     );
+
+
+  message.className = "";
+  message.textContent = "";
 
 
   if (!title) {
 
-    message.style.color =
-      "red";
+    message.className = "error";
 
     message.textContent =
       "Judul banner wajib diisi.";
@@ -616,30 +707,39 @@ async function addBanner() {
   }
 
 
+  button.disabled = true;
+
+  button.textContent =
+    "⏳ Menambahkan...";
+
+
   const {
+    data,
     error
   } =
-    await supabaseClient
-      .from("banners")
-      .insert({
+    await supabaseClient.rpc(
+      "admin_add_banner",
+      {
+        p_title: title,
+        p_description: description,
+        p_image_url: image_url,
+        p_link_url: link_url,
+        p_is_active: true
+      }
+    );
 
-        title,
 
-        description,
+  button.disabled = false;
 
-        image_url,
-
-        link_url,
-
-        is_active: true
-
-      });
+  button.textContent =
+    "➕ Tambah Banner";
 
 
   if (error) {
 
-    message.style.color =
-      "red";
+    console.error(error);
+
+    message.className = "error";
 
     message.textContent =
       "Gagal menambah banner: " +
@@ -649,8 +749,22 @@ async function addBanner() {
   }
 
 
-  message.style.color =
-    "green";
+  if (
+    !data ||
+    data.success !== true
+  ) {
+
+    message.className = "error";
+
+    message.textContent =
+      "Banner gagal ditambahkan.";
+
+    return;
+  }
+
+
+  message.className =
+    "success";
 
   message.textContent =
     "Banner berhasil ditambahkan.";
@@ -676,86 +790,68 @@ async function addBanner() {
   ).value = "";
 
 
-  loadBanners();
+  await loadBanners();
 }
 
 
-// ===============================
+// ======================================
 // TAMPILKAN FORM EDIT
-// ===============================
+// ======================================
 
-function showEditForm(
-  id,
-  title,
-  description,
-  imageUrl,
-  linkUrl,
-  isActive
-) {
+function showEditBanner(id) {
 
-  const form =
+  const box =
     document.getElementById(
-      "edit-" + id
+      `edit-${id}`
     );
 
 
-  document.getElementById(
-    "edit-title-" + id
-  ).value = title;
+  if (!box) {
+    return;
+  }
 
 
-  document.getElementById(
-    "edit-description-" + id
-  ).value = description;
+  box.classList.add("show");
 
 
-  document.getElementById(
-    "edit-image-" + id
-  ).value = imageUrl;
-
-
-  document.getElementById(
-    "edit-link-" + id
-  ).value = linkUrl;
-
-
-  document.getElementById(
-    "edit-active-" + id
-  ).checked = isActive;
-
-
-  form.classList.add("show");
+  box.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 }
 
 
-// ===============================
+// ======================================
 // SEMBUNYIKAN FORM EDIT
-// ===============================
+// ======================================
 
-function hideEditForm(id) {
+function hideEditBanner(id) {
 
-  const form =
+  const box =
     document.getElementById(
-      "edit-" + id
+      `edit-${id}`
     );
 
 
-  form.classList.remove(
-    "show"
-  );
+  if (!box) {
+    return;
+  }
+
+
+  box.classList.remove("show");
 }
 
 
-// ===============================
-// SIMPAN EDIT
-// ===============================
+// ======================================
+// SIMPAN EDIT BANNER
+// ======================================
 
 async function saveBanner(id) {
 
   const title =
     document
       .getElementById(
-        "edit-title-" + id
+        `edit-title-${id}`
       )
       .value
       .trim();
@@ -764,7 +860,7 @@ async function saveBanner(id) {
   const description =
     document
       .getElementById(
-        "edit-description-" + id
+        `edit-description-${id}`
       )
       .value
       .trim();
@@ -773,7 +869,7 @@ async function saveBanner(id) {
   const image_url =
     document
       .getElementById(
-        "edit-image-" + id
+        `edit-image-${id}`
       )
       .value
       .trim();
@@ -782,18 +878,10 @@ async function saveBanner(id) {
   const link_url =
     document
       .getElementById(
-        "edit-link-" + id
+        `edit-link-${id}`
       )
       .value
       .trim();
-
-
-  const is_active =
-    document
-      .getElementById(
-        "edit-active-" + id
-      )
-      .checked;
 
 
   if (!title) {
@@ -818,15 +906,17 @@ async function saveBanner(id) {
         p_description: description,
         p_image_url: image_url,
         p_link_url: link_url,
-        p_is_active: is_active
+        p_is_active: true
       }
     );
 
 
   if (error) {
 
+    console.error(error);
+
     alert(
-      "Gagal mengubah banner: " +
+      "Gagal mengedit banner: " +
       error.message
     );
 
@@ -840,7 +930,7 @@ async function saveBanner(id) {
   ) {
 
     alert(
-      "Perubahan banner gagal."
+      "Banner gagal diperbarui."
     );
 
     return;
@@ -852,18 +942,22 @@ async function saveBanner(id) {
   );
 
 
-  loadBanners();
+  await loadBanners();
 }
 
 
-// ===============================
-// AKTIF / NONAKTIF
-// ===============================
+// ======================================
+// TOGGLE BANNER
+// ======================================
 
 async function toggleBanner(
   id,
   currentStatus
 ) {
+
+  const newStatus =
+    !currentStatus;
+
 
   const {
     error
@@ -871,13 +965,14 @@ async function toggleBanner(
     await supabaseClient
       .from("banners")
       .update({
-        is_active:
-          !currentStatus
+        is_active: newStatus
       })
       .eq("id", id);
 
 
   if (error) {
+
+    console.error(error);
 
     alert(
       "Gagal mengubah status: " +
@@ -888,22 +983,23 @@ async function toggleBanner(
   }
 
 
-  loadBanners();
+  await loadBanners();
 }
 
 
-// ===============================
-// HAPUS
-// ===============================
+// ======================================
+// HAPUS BANNER
+// ======================================
 
 async function deleteBanner(id) {
 
-  if (
-    !confirm(
+  const confirmed =
+    confirm(
       "Yakin ingin menghapus banner ini?"
-    )
-  ) {
+    );
 
+
+  if (!confirmed) {
     return;
   }
 
@@ -919,6 +1015,8 @@ async function deleteBanner(id) {
 
   if (error) {
 
+    console.error(error);
+
     alert(
       "Gagal menghapus banner: " +
       error.message
@@ -928,13 +1026,18 @@ async function deleteBanner(id) {
   }
 
 
-  loadBanners();
+  alert(
+    "Banner berhasil dihapus."
+  );
+
+
+  await loadBanners();
 }
 
 
-// ===============================
-// ESCAPE
-// ===============================
+// ======================================
+// ESCAPE HTML
+// ======================================
 
 function escapeHtml(value) {
 
@@ -962,37 +1065,19 @@ function escapeHtml(value) {
 }
 
 
+// ======================================
+// ESCAPE ATTRIBUTE
+// ======================================
+
 function escapeAttribute(value) {
 
   return escapeHtml(value);
 }
 
 
-function escapeJs(value) {
-
-  return String(value ?? "")
-    .replace(
-      /\\/g,
-      "\\\\"
-    )
-    .replace(
-      /'/g,
-      "\\'"
-    )
-    .replace(
-      /\r/g,
-      "\\r"
-    )
-    .replace(
-      /\n/g,
-      "\\n"
-    );
-}
-
-
-// ===============================
-// START
-// ===============================
+// ======================================
+// INIT
+// ======================================
 
 (async function init() {
 
