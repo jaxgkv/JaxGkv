@@ -2,17 +2,25 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Riwayat Pembelian - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f5f6fa;
       margin: 0;
-      padding: 0;
+      color: #111827;
     }
 
     nav {
@@ -21,7 +29,6 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      align-items: center;
     }
 
     nav a,
@@ -36,11 +43,6 @@
       font-size: 14px;
     }
 
-    nav a:hover,
-    nav button:hover {
-      background: #4b5563;
-    }
-
     .container {
       max-width: 900px;
       margin: 30px auto;
@@ -51,15 +53,37 @@
       margin-bottom: 20px;
     }
 
-    .order {
+    .loading,
+    .error,
+    .empty {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+
+    .empty {
+      color: #6b7280;
+    }
+
+    .order-card {
       background: white;
       border-radius: 10px;
       padding: 18px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
     }
 
     .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
       border-bottom: 1px solid #e5e7eb;
       padding-bottom: 12px;
       margin-bottom: 12px;
@@ -69,6 +93,7 @@
       font-size: 18px;
       font-weight: bold;
       color: #2563eb;
+      word-break: break-word;
     }
 
     .date {
@@ -78,8 +103,8 @@
     }
 
     .item {
-      border-bottom: 1px solid #f0f0f0;
       padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .item:last-child {
@@ -87,8 +112,9 @@
     }
 
     .product-name {
+      font-size: 16px;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .detail {
@@ -101,7 +127,7 @@
       display: inline-block;
       padding: 5px 9px;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       margin-top: 6px;
     }
@@ -126,456 +152,490 @@
       color: #991b1b;
     }
 
-    .total {
+    .order-total {
       text-align: right;
-      font-size: 17px;
+      font-size: 18px;
       font-weight: bold;
       margin-top: 15px;
       padding-top: 12px;
-      border-top: 1px solid #e5e7eb;
+      border-top: 2px solid #e5e7eb;
     }
 
     .buttons {
       display: flex;
-      justify-content: flex-end;
-      gap: 8px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .button {
+      display: inline-block;
+      text-decoration: none;
+      border: none;
+      padding: 9px 13px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
     }
 
     .detail-button {
-      display: inline-block;
-      background: #2563eb;
+      background: #111827;
       color: white;
-      text-decoration: none;
-      padding: 9px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .detail-button:hover {
-      background: #1d4ed8;
     }
 
     .video-button {
-      display: inline-block;
-      background: #16a34a;
+      background: #2563eb;
       color: white;
-      text-decoration: none;
-      padding: 9px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .video-button:hover {
-      background: #15803d;
-    }
-
-    .empty {
-      background: white;
-      padding: 25px;
-      text-align: center;
-      border-radius: 10px;
-      color: #6b7280;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 30px;
     }
   </style>
 </head>
 
 <body>
 
-  <nav>
-    <a href="index.html">🏠 Beranda</a>
-    <a href="dashboard.html">📊 Dashboard</a>
-    <a href="produk.html">🛍️ Produk</a>
-    <a href="keranjang.html">🛒 Keranjang</a>
-    <a href="topup.html">💰 Top Up</a>
-    <a href="riwayat-topup.html">📜 Riwayat Top Up</a>
-    <a href="riwayat-pembelian.html">🧾 Riwayat Pembelian</a>
-    <a href="notifikasi.html">🔔 Notifikasi</a>
-    <a href="profil.html">👤 Profil</a>
-    <button onclick="logout()">Logout</button>
-  </nav>
+<nav>
+  <a href="index.html">🏠 Beranda</a>
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="produk.html">🛍️ Produk</a>
+  <a href="keranjang.html">🛒 Keranjang</a>
+  <a href="topup.html">💰 Top Up</a>
+  <a href="riwayat-pembelian.html">🧾 Riwayat Pembelian</a>
+  <a href="notifikasi.html">🔔 Notifikasi</a>
+  <a href="profil.html">👤 Profil</a>
+  <button onclick="logout()">Logout</button>
+</nav>
 
-  <div class="container">
 
-    <h1>🧾 Riwayat Pembelian</h1>
+<div class="container">
 
-    <div id="loading" class="loading">
-      Memuat riwayat pembelian...
-    </div>
+  <h1>🧾 Riwayat Pembelian</h1>
 
-    <div id="orders"></div>
-
+  <div id="loading" class="loading">
+    Memuat riwayat pembelian...
   </div>
 
-  <script>
+  <div id="content"></div>
 
-    const SUPABASE_URL =
-      "https://evuwahoflentgidcjmsx.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
-    const supabaseClient =
-      supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+</div>
 
 
-    async function checkLogin() {
+<script>
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
 
-      const { data, error } =
-        await supabaseClient.auth.getSession();
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-      if (error || !data.session) {
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-        window.location.href =
-          "login.html";
 
-        return null;
-      }
+function formatRupiah(value) {
 
-      return data.session.user;
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0
     }
+  ).format(Number(value) || 0);
+}
 
 
-    function formatRupiah(value) {
+function formatDate(date) {
 
-      return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-        maximumFractionDigits: 0
-      }).format(value);
+  if (!date) {
+    return "-";
+  }
 
+  return new Date(date).toLocaleString(
+    "id-ID",
+    {
+      dateStyle: "medium",
+      timeStyle: "short"
     }
+  );
+}
 
 
-    function formatDate(date) {
+function escapeHtml(value) {
 
-      return new Date(date).toLocaleString(
-        "id-ID",
-        {
-          dateStyle: "medium",
-          timeStyle: "short"
-        }
-      );
-
-    }
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 
-    function statusHTML(status) {
+function statusHTML(status) {
 
-      if (status === "processing") {
+  if (status === "processing") {
 
-        return `
-          <span class="status processing">
-            ⚙️ Processing
-          </span>
-        `;
-
-      }
-
-
-      if (status === "completed") {
-
-        return `
-          <span class="status completed">
-            ✅ Completed
-          </span>
-        `;
-
-      }
+    return `
+      <span class="status processing">
+        ⚙️ Processing
+      </span>
+    `;
+  }
 
 
-      if (status === "cancelled") {
+  if (status === "completed") {
 
-        return `
-          <span class="status cancelled">
-            ❌ Cancelled
-          </span>
-        `;
-
-      }
-
-
-      return `
-        <span class="status pending">
-          🕐 Pending
-        </span>
-      `;
-
-    }
+    return `
+      <span class="status completed">
+        ✅ Completed
+      </span>
+    `;
+  }
 
 
-    async function loadPurchases() {
+  if (status === "cancelled") {
 
-      const user =
-        await checkLogin();
-
-      if (!user) return;
-
-
-      const loading =
-        document.getElementById("loading");
-
-      const orders =
-        document.getElementById("orders");
+    return `
+      <span class="status cancelled">
+        ❌ Cancelled
+      </span>
+    `;
+  }
 
 
-      const { data, error } =
-        await supabaseClient
-          .from("purchases")
-          .select(`
-            id,
-            order_code,
-            product_id,
-            product_name,
-            price,
-            quantity,
-            status,
-            created_at
-          `)
-          .eq("user_id", user.id)
-          .order("created_at", {
-            ascending: false
-          });
+  return `
+    <span class="status pending">
+      🕐 Pending
+    </span>
+  `;
+}
 
 
-      loading.style.display = "none";
+async function loadHistory() {
+
+  const loading =
+    document.getElementById("loading");
+
+  const content =
+    document.getElementById("content");
 
 
-      if (error) {
-
-        orders.innerHTML = `
-          <div class="empty">
-
-            ❌ Gagal memuat
-            riwayat pembelian.
-
-            <br><br>
-
-            ${error.message}
-
-          </div>
-        `;
-
-        return;
-      }
+  const {
+    data: sessionData,
+    error: sessionError
+  } =
+    await supabaseClient.auth.getSession();
 
 
-      if (!data || data.length === 0) {
+  if (
+    sessionError ||
+    !sessionData.session
+  ) {
 
-        orders.innerHTML = `
-          <div class="empty">
+    window.location.href =
+      "login.html";
 
-            📦 Belum ada pembelian.
-
-          </div>
-        `;
-
-        return;
-      }
+    return;
+  }
 
 
-      /*
-        Kelompokkan transaksi
-        berdasarkan Order ID.
-      */
-
-      const grouped = {};
+  const user =
+    sessionData.session.user;
 
 
-      data.forEach(item => {
-
-        const key =
-          item.order_code ||
-          `PURCHASE-${item.id}`;
-
-
-        if (!grouped[key]) {
-
-          grouped[key] = [];
-
-        }
-
-
-        grouped[key].push(item);
-
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("purchases")
+      .select(`
+        id,
+        order_code,
+        product_id,
+        product_name,
+        price,
+        quantity,
+        status,
+        created_at
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending: false
       });
 
 
-      let html = "";
+  loading.style.display = "none";
 
 
-      Object.keys(grouped)
-        .forEach(orderCode => {
+  if (error) {
 
-          const items =
-            grouped[orderCode];
+    content.innerHTML = `
+      <div class="error">
+        ❌ Gagal memuat riwayat.
+        <br><br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
 
-
-          let orderTotal = 0;
-
-
-          items.forEach(item => {
-
-            const quantity =
-              Number(item.quantity || 1);
-
-            const subtotal =
-              Number(item.price) *
-              quantity;
-
-            orderTotal += subtotal;
-
-          });
+    return;
+  }
 
 
-          const firstItem =
-            items[0];
+  if (!data || data.length === 0) {
+
+    content.innerHTML = `
+      <div class="empty">
+        Belum ada pembelian.
+      </div>
+    `;
+
+    return;
+  }
 
 
-          html += `
+  /*
+   * Produk yang mempunyai order_code yang sama
+   * digabung menjadi satu pesanan.
+   *
+   * Kalau order_code kosong:
+   * setiap purchase dianggap sebagai pesanan
+   * sendiri.
+   */
 
-            <div class="order">
-
-              <div class="order-header">
-
-                <div class="order-code">
-                  📦 Order ID:
-                  ${orderCode}
-                </div>
-
-                <div class="date">
-                  ${formatDate(
-                    firstItem.created_at
-                  )}
-                </div>
-
-              </div>
-
-          `;
+  const groups = new Map();
 
 
-          items.forEach(item => {
+  data.forEach(item => {
 
-            const quantity =
-              Number(item.quantity || 1);
-
-
-            const subtotal =
-              Number(item.price) *
-              quantity;
+    let groupKey;
 
 
-            html += `
+    if (
+      item.order_code &&
+      item.order_code.trim()
+    ) {
 
-              <div class="item">
+      groupKey =
+        "ORDER-" +
+        item.order_code;
 
-                <div class="product-name">
-                  ${item.product_name}
-                </div>
+    } else {
 
-                <div class="detail">
-                  Harga:
-                  ${formatRupiah(
-                    item.price
-                  )}
-                </div>
-
-                <div class="detail">
-                  Jumlah:
-                  ${quantity}
-                </div>
-
-                <div class="detail">
-                  Subtotal:
-                  ${formatRupiah(
-                    subtotal
-                  )}
-                </div>
-
-                ${statusHTML(
-                  item.status
-                )}
-
-                ${
-                  item.status === "completed" &&
-                  item.product_id
-                    ? `
-                      <div>
-                        <a
-                          class="video-button"
-                          href="video.html?id=${encodeURIComponent(item.product_id)}"
-                        >
-                          🎬 Tonton Video
-                        </a>
-                      </div>
-                    `
-                    : ""
-                }
-
-              </div>
-
-            `;
-
-          });
+      groupKey =
+        "PURCHASE-" +
+        item.id;
+    }
 
 
-          html += `
+    if (!groups.has(groupKey)) {
 
-              <div class="total">
+      groups.set(
+        groupKey,
+        {
+          orderCode:
+            item.order_code &&
+            item.order_code.trim()
+              ? item.order_code
+              : null,
 
-                Total Pesanan:
-                ${formatRupiah(
-                  orderTotal
-                )}
+          fallbackId:
+            item.id,
 
-              </div>
+          created_at:
+            item.created_at,
+
+          items: []
+        }
+      );
+    }
 
 
-              <div class="buttons">
+    groups
+      .get(groupKey)
+      .items
+      .push(item);
+  });
 
-                <a
-                  class="detail-button"
-                  href="detail-pesanan.html?order=${encodeURIComponent(orderCode)}"
-                >
-                  👁️ Lihat Detail
-                </a>
 
-              </div>
+  let html = "";
 
+
+  groups.forEach(order => {
+
+    let total = 0;
+
+
+    order.items.forEach(item => {
+
+      total +=
+        Number(item.price || 0) *
+        Number(item.quantity || 1);
+    });
+
+
+    /*
+     * Nomor pesanan:
+     * - order_code jika tersedia
+     * - PURCHASE-ID jika kosong
+     */
+
+    const displayOrderCode =
+      order.orderCode
+        ? order.orderCode
+        : "PURCHASE-" +
+          order.fallbackId;
+
+
+    /*
+     * Detail selalu dikirim dengan purchase ID
+     * untuk menjamin data lama tetap bisa dibuka.
+     *
+     * Untuk order yang mempunyai beberapa item,
+     * detail-pesanan.html akan menggunakan order_code
+     * bila tersedia.
+     */
+
+    const detailUrl =
+      order.orderCode
+        ? "detail-pesanan.html?order=" +
+          encodeURIComponent(
+            order.orderCode
+          )
+        : "detail-pesanan.html?purchase=" +
+          encodeURIComponent(
+            order.fallbackId
+          );
+
+
+    let itemsHTML = "";
+
+
+    order.items.forEach(item => {
+
+      const quantity =
+        Number(item.quantity || 1);
+
+      const subtotal =
+        Number(item.price || 0) *
+        quantity;
+
+
+      let videoButton = "";
+
+
+      if (
+        item.status === "completed" &&
+        item.product_id
+      ) {
+
+        videoButton = `
+          <a
+            class="button video-button"
+            href="video.html?id=${encodeURIComponent(item.product_id)}"
+          >
+            🎬 Tonton Video
+          </a>
+        `;
+      }
+
+
+      itemsHTML += `
+
+        <div class="item">
+
+          <div class="product-name">
+            ${escapeHtml(item.product_name)}
+          </div>
+
+          <div class="detail">
+            Harga:
+            ${formatRupiah(item.price)}
+          </div>
+
+          <div class="detail">
+            Jumlah:
+            ${quantity}
+          </div>
+
+          <div class="detail">
+            Subtotal:
+            ${formatRupiah(subtotal)}
+          </div>
+
+          ${statusHTML(item.status)}
+
+          ${videoButton}
+
+        </div>
+      `;
+    });
+
+
+    html += `
+
+      <div class="order-card">
+
+        <div class="order-header">
+
+          <div>
+
+            <div class="order-code">
+              📦 ${escapeHtml(displayOrderCode)}
             </div>
 
-          `;
+            <div class="date">
+              Dibuat:
+              ${formatDate(order.created_at)}
+            </div>
 
-        });
+          </div>
 
-
-      orders.innerHTML = html;
-
-    }
-
-
-    async function logout() {
-
-      await supabaseClient.auth.signOut();
-
-      window.location.href =
-        "login.html";
-
-    }
+        </div>
 
 
-    loadPurchases();
+        ${itemsHTML}
 
-  </script>
+
+        <div class="order-total">
+          Total:
+          ${formatRupiah(total)}
+        </div>
+
+
+        <div class="buttons">
+
+          <a
+            class="button detail-button"
+            href="${detailUrl}"
+          >
+            👁️ Lihat Detail
+          </a>
+
+        </div>
+
+      </div>
+    `;
+  });
+
+
+  content.innerHTML = html;
+}
+
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href =
+    "login.html";
+}
+
+
+loadHistory();
+</script>
 
 </body>
 </html>
