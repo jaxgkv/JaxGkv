@@ -9,114 +9,191 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
     }
 
     nav {
-      background: #111;
+      background: #111827;
       color: white;
-      padding: 15px;
+      padding: 15px 20px;
       display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
+      justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    nav .brand {
+      font-size: 20px;
+      font-weight: bold;
     }
 
     nav a {
       color: white;
       text-decoration: none;
+      margin-left: 12px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 30px auto;
-      padding: 20px;
+      padding: 0 15px;
     }
 
     h1 {
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
       margin-bottom: 25px;
     }
 
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 18px;
       margin-bottom: 30px;
     }
 
-    .stat {
+    .stat-card {
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
     }
 
     .stat-icon {
       font-size: 30px;
+      margin-bottom: 10px;
     }
 
     .stat-title {
       color: #666;
-      margin-top: 10px;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
     .stat-value {
       font-size: 28px;
       font-weight: bold;
-      margin-top: 5px;
     }
 
-    .menu {
+    .menu-card {
+      background: white;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .menu-card h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .menu-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 15px;
     }
 
-    .menu a {
+    .menu-item {
       display: block;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
       text-decoration: none;
-      color: #111;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      font-weight: bold;
+      color: #222;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      transition: 0.2s;
     }
 
-    .menu a:hover {
-      background: #eee;
+    .menu-item:hover {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      transform: translateY(-2px);
+    }
+
+    .menu-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .menu-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .menu-description {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
     }
 
     .loading {
-      text-align: center;
-      padding: 30px;
+      color: #666;
+      margin-bottom: 20px;
     }
 
     .error {
-      background: #ffe5e5;
-      color: #b00020;
-      padding: 15px;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
       border-radius: 8px;
       margin-bottom: 20px;
       display: none;
     }
 
-    @media (max-width: 700px) {
+    footer {
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+      padding: 30px 15px;
+    }
+
+    @media (max-width: 900px) {
       .stats {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .menu {
-        grid-template-columns: 1fr;
+      .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    @media (max-width: 450px) {
+    @media (max-width: 600px) {
+      nav {
+        align-items: flex-start;
+      }
+
+      nav a {
+        display: inline-block;
+        margin: 4px 8px 4px 0;
+      }
+
       .stats {
         grid-template-columns: 1fr;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        margin-top: 20px;
       }
     }
   </style>
@@ -125,216 +202,252 @@
 <body>
 
 <nav>
-  <a href="index.html">🏠 Beranda</a>
-  <a href="admin-dashboard.html">📊 Admin Dashboard</a>
-  <a href="admin.html">💳 Top Up</a>
-  <a href="admin-pembelian.html">📦 Pembelian</a>
-  <a href="admin-produk.html">🛍️ Produk</a>
-  <a href="admin-banner.html">🎨 Banner</a>
-  <a href="dashboard.html">👤 User Dashboard</a>
-  <a href="#" onclick="logout()">Logout</a>
+  <div class="brand">
+    🛠️ Admin JaxGkv
+  </div>
+
+  <div>
+    <a href="index.html">Beranda</a>
+    <a href="dashboard.html">User Dashboard</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
 </nav>
 
 <div class="container">
 
-  <h1>📊 Admin Dashboard</h1>
+  <h1>Admin Dashboard</h1>
 
-  <div id="error" class="error"></div>
+  <div class="subtitle">
+    Kelola toko, pengguna, produk, pesanan, banner, dan pengaturan toko.
+  </div>
+
+  <div id="errorBox" class="error"></div>
 
   <div id="loading" class="loading">
     Memuat statistik...
   </div>
 
-  <div id="stats" class="stats" style="display:none;">
+  <div class="stats">
 
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-icon">👥</div>
       <div class="stat-title">Total Pengguna</div>
-      <div id="users" class="stat-value">0</div>
+      <div id="totalUsers" class="stat-value">-</div>
     </div>
 
-    <div class="stat">
-      <div class="stat-icon">🛍️</div>
-      <div class="stat-title">Total Produk</div>
-      <div id="products" class="stat-value">0</div>
-    </div>
-
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-icon">📦</div>
-      <div class="stat-title">Total Pesanan</div>
-      <div id="purchases" class="stat-value">0</div>
+      <div class="stat-title">Total Produk</div>
+      <div id="totalProducts" class="stat-value">-</div>
     </div>
 
-    <div class="stat">
-      <div class="stat-icon">💳</div>
+    <div class="stat-card">
+      <div class="stat-icon">🛒</div>
+      <div class="stat-title">Total Pembelian</div>
+      <div id="totalPurchases" class="stat-value">-</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
       <div class="stat-title">Top Up Disetujui</div>
-      <div id="topups" class="stat-value">0</div>
+      <div id="approvedTopups" class="stat-value">-</div>
     </div>
 
   </div>
 
-  <h2>Menu Admin</h2>
+  <div class="menu-card">
 
-  <div class="menu">
+    <h2>Menu Admin</h2>
 
-    <a href="admin.html">
-      💳 Kelola Top Up
-    </a>
+    <div class="menu-grid">
 
-    <a href="admin-pembelian.html">
-      📦 Kelola Pembelian
-    </a>
+      <a class="menu-item" href="admin-pembelian.html">
+        <div class="menu-icon">🛒</div>
+        <div class="menu-title">Kelola Pembelian</div>
+        <div class="menu-description">
+          Lihat pesanan pengguna dan ubah status pesanan.
+        </div>
+      </a>
 
-    <a href="admin-produk.html">
-      🛍️ Kelola Produk
-    </a>
+      <a class="menu-item" href="admin-produk.html">
+        <div class="menu-icon">📦</div>
+        <div class="menu-title">Kelola Produk</div>
+        <div class="menu-description">
+          Tambah, edit, hapus produk, harga, kategori, dan stok.
+        </div>
+      </a>
 
-    <a href="admin-banner.html">
-      🎨 Kelola Banner
-    </a>
+      <a class="menu-item" href="admin-banner.html">
+        <div class="menu-icon">🎨</div>
+        <div class="menu-title">Kelola Banner</div>
+        <div class="menu-description">
+          Tambah, edit, aktifkan, nonaktifkan, dan hapus banner.
+        </div>
+      </a>
 
-    <a href="admin-user.html">
-      👥 Kelola Pengguna
-    </a>
+      <a class="menu-item" href="admin-user.html">
+        <div class="menu-icon">👥</div>
+        <div class="menu-title">Kelola Pengguna</div>
+        <div class="menu-description">
+          Lihat pengguna dan ubah role user atau admin.
+        </div>
+      </a>
 
-    <a href="dashboard.html">
-      👤 Dashboard User
-    </a>
+      <a class="menu-item" href="admin-settings.html">
+        <div class="menu-icon">⚙️</div>
+        <div class="menu-title">Pengaturan Toko</div>
+        <div class="menu-description">
+          Atur nama toko, deskripsi, kontak, dan informasi footer.
+        </div>
+      </a>
 
-    <a href="index.html">
-      🏠 Kembali ke Beranda
-    </a>
+      <a class="menu-item" href="admin.html">
+        <div class="menu-icon">💳</div>
+        <div class="menu-title">Kelola Top Up</div>
+        <div class="menu-description">
+          Periksa dan proses permintaan top up pengguna.
+        </div>
+      </a>
+
+      <a class="menu-item" href="dashboard.html">
+        <div class="menu-icon">🏠</div>
+        <div class="menu-title">Dashboard User</div>
+        <div class="menu-description">
+          Kembali melihat dashboard pengguna.
+        </div>
+      </a>
+
+      <a class="menu-item" href="index.html">
+        <div class="menu-icon">🌐</div>
+        <div class="menu-title">Kembali ke Beranda</div>
+        <div class="menu-description">
+          Lihat tampilan utama website JaxGkv.
+        </div>
+      </a>
+
+    </div>
 
   </div>
 
 </div>
 
+<footer>
+  JaxGkv Admin Panel
+</footer>
+
 <script>
+  const SUPABASE_URL =
+    'https://evuwahoflentgidcjmsx.supabase.co';
 
-const SUPABASE_URL =
-  "https://evuwahoflentgidcjmsx.supabase.co";
+  const SUPABASE_KEY =
+    'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
 
-const SUPABASE_KEY =
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  async function checkAdmin() {
 
+    const {
+      data: {
+        session
+      }
+    } = await supabaseClient.auth.getSession();
 
-// ===============================
-// CEK ADMIN
-// ===============================
+    if (!session) {
+      window.location.href = 'login.html';
+      return false;
+    }
 
-async function checkAdmin() {
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
 
-  const {
-    data: { user },
-    error
-  } = await supabaseClient.auth.getUser();
+    if (
+      error ||
+      !profile ||
+      profile.role !== 'admin'
+    ) {
+      alert('Akses hanya untuk admin.');
+      window.location.href = 'dashboard.html';
+      return false;
+    }
 
-  if (error || !user) {
-    window.location.href = "login.html";
-    return;
+    return true;
   }
 
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  async function loadStats() {
 
-  if (profileError || !profile) {
-    alert("Profile tidak ditemukan.");
-    window.location.href = "dashboard.html";
-    return;
-  }
-
-  if (profile.role !== "admin") {
-    alert("Akses admin ditolak.");
-    window.location.href = "dashboard.html";
-    return;
-  }
-
-  loadStats();
-}
-
-
-// ===============================
-// LOAD STATISTIK
-// ===============================
-
-async function loadStats() {
-
-  const {
-    data,
-    error
-  } = await supabaseClient.rpc(
-    "admin_dashboard_stats"
-  );
-
-  document.getElementById(
-    "loading"
-  ).style.display = "none";
-
-  if (error) {
-
-    console.error(error);
+    const loading =
+      document.getElementById('loading');
 
     const errorBox =
-      document.getElementById("error");
+      document.getElementById('errorBox');
 
-    errorBox.textContent =
-      "Gagal memuat statistik: " +
-      error.message;
+    loading.style.display = 'block';
+    errorBox.style.display = 'none';
 
-    errorBox.style.display = "block";
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      'admin_dashboard_stats'
+    );
 
-    return;
+    if (error) {
+
+      loading.style.display = 'none';
+
+      errorBox.textContent =
+        'Gagal memuat statistik: ' +
+        error.message;
+
+      errorBox.style.display = 'block';
+
+      return;
+    }
+
+    document.getElementById('totalUsers').textContent =
+      Number(data.users || 0).toLocaleString('id-ID');
+
+    document.getElementById('totalProducts').textContent =
+      Number(data.products || 0).toLocaleString('id-ID');
+
+    document.getElementById('totalPurchases').textContent =
+      Number(data.purchases || 0).toLocaleString('id-ID');
+
+    document.getElementById('approvedTopups').textContent =
+      Number(data.approved_topups || 0).toLocaleString('id-ID');
+
+    loading.style.display = 'none';
   }
 
-  document.getElementById("users").textContent =
-    Number(data.users).toLocaleString("id-ID");
+  async function logout() {
 
-  document.getElementById("products").textContent =
-    Number(data.products).toLocaleString("id-ID");
+    await supabaseClient.auth.signOut();
 
-  document.getElementById("purchases").textContent =
-    Number(data.purchases).toLocaleString("id-ID");
+    window.location.href = 'login.html';
+  }
 
-  document.getElementById("topups").textContent =
-    Number(data.approved_topups).toLocaleString("id-ID");
+  async function init() {
 
-  document.getElementById(
-    "stats"
-  ).style.display = "grid";
-}
+    const isAdmin = await checkAdmin();
 
+    if (!isAdmin) {
+      return;
+    }
 
-// ===============================
-// LOGOUT
-// ===============================
+    await loadStats();
+  }
 
-async function logout() {
-
-  await supabaseClient.auth.signOut();
-
-  window.location.href =
-    "login.html";
-}
-
-
-// ===============================
-// START
-// ===============================
-
-checkAdmin();
-
+  init();
 </script>
 
 </body>
