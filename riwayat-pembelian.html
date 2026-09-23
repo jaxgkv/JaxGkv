@@ -135,6 +135,21 @@
       border-top: 1px solid #e5e7eb;
     }
 
+    .detail-button {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    .detail-button:hover {
+      background: #1d4ed8;
+    }
+
     .empty {
       background: white;
       padding: 25px;
@@ -166,6 +181,7 @@
   </nav>
 
   <div class="container">
+
     <h1>🧾 Riwayat Pembelian</h1>
 
     <div id="loading" class="loading">
@@ -173,98 +189,116 @@
     </div>
 
     <div id="orders"></div>
+
   </div>
 
   <script>
-    const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+
+    const SUPABASE_URL =
+      "https://evuwahoflentgidcjmsx.supabase.co";
 
     const SUPABASE_KEY =
       "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-    const supabaseClient = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+    const supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
 
     async function checkLogin() {
+
       const { data, error } =
         await supabaseClient.auth.getSession();
 
       if (error || !data.session) {
-        window.location.href = "login.html";
+
+        window.location.href =
+          "login.html";
+
         return null;
       }
 
       return data.session.user;
     }
 
+
     function formatRupiah(value) {
+
       return new Intl.NumberFormat("id-ID", {
         style: "currency",
         currency: "IDR",
         maximumFractionDigits: 0
       }).format(value);
+
     }
+
 
     function formatDate(date) {
-      return new Date(date).toLocaleString("id-ID", {
-        dateStyle: "medium",
-        timeStyle: "short"
-      });
+
+      return new Date(date).toLocaleString(
+        "id-ID",
+        {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }
+      );
+
     }
 
+
     function statusHTML(status) {
+
       if (status === "processing") {
+
         return `
           <span class="status processing">
             ⚙️ Processing
           </span>
         `;
+
       }
 
+
       if (status === "completed") {
+
         return `
           <span class="status completed">
             ✅ Completed
           </span>
         `;
+
       }
 
+
       if (status === "cancelled") {
+
         return `
           <span class="status cancelled">
             ❌ Cancelled
           </span>
         `;
+
       }
+
 
       return `
         <span class="status pending">
           🕐 Pending
         </span>
       `;
+
     }
 
+
     async function loadPurchases() {
-      const user = await checkLogin();
+
+      const user =
+        await checkLogin();
 
       if (!user) return;
 
-      const { data, error } = await supabaseClient
-        .from("purchases")
-        .select(`
-          id,
-          order_code,
-          product_name,
-          price,
-          quantity,
-          status,
-          created_at
-        `)
-        .eq("user_id", user.id)
-        .order("created_at", {
-          ascending: false
-        });
 
       const loading =
         document.getElementById("loading");
@@ -272,135 +306,239 @@
       const orders =
         document.getElementById("orders");
 
+
+      const { data, error } =
+        await supabaseClient
+          .from("purchases")
+          .select(`
+            id,
+            order_code,
+            product_name,
+            price,
+            quantity,
+            status,
+            created_at
+          `)
+          .eq("user_id", user.id)
+          .order("created_at", {
+            ascending: false
+          });
+
+
       loading.style.display = "none";
 
+
       if (error) {
+
         orders.innerHTML = `
           <div class="empty">
-            ❌ Gagal memuat riwayat pembelian.
+
+            ❌ Gagal memuat
+            riwayat pembelian.
+
             <br><br>
+
             ${error.message}
+
           </div>
         `;
+
         return;
       }
+
 
       if (!data || data.length === 0) {
+
         orders.innerHTML = `
           <div class="empty">
+
             📦 Belum ada pembelian.
+
           </div>
         `;
+
         return;
       }
 
+
       /*
-        Kelompokkan berdasarkan order_code.
-        Jika order_code null, gunakan ID pembelian
-        sebagai grup tersendiri.
+        Kelompokkan transaksi
+        berdasarkan Order ID.
       */
 
       const grouped = {};
 
+
       data.forEach(item => {
+
         const key =
           item.order_code ||
           `PURCHASE-${item.id}`;
 
+
         if (!grouped[key]) {
+
           grouped[key] = [];
+
         }
 
+
         grouped[key].push(item);
+
       });
+
 
       let html = "";
 
-      Object.keys(grouped).forEach(orderCode => {
 
-        const items = grouped[orderCode];
+      Object.keys(grouped)
+        .forEach(orderCode => {
 
-        let orderTotal = 0;
+          const items =
+            grouped[orderCode];
 
-        items.forEach(item => {
-          const subtotal =
-            Number(item.price) *
-            Number(item.quantity || 1);
 
-          orderTotal += subtotal;
-        });
+          let orderTotal = 0;
 
-        const firstItem = items[0];
 
-        html += `
-          <div class="order">
+          items.forEach(item => {
 
-            <div class="order-header">
+            const quantity =
+              Number(item.quantity || 1);
 
-              <div class="order-code">
-                📦 Order ID: ${orderCode}
-              </div>
+            const subtotal =
+              Number(item.price) *
+              quantity;
 
-              <div class="date">
-                ${formatDate(firstItem.created_at)}
-              </div>
+            orderTotal += subtotal;
 
-            </div>
-        `;
+          });
 
-        items.forEach(item => {
 
-          const quantity =
-            Number(item.quantity || 1);
+          const firstItem =
+            items[0];
 
-          const subtotal =
-            Number(item.price) * quantity;
 
           html += `
-            <div class="item">
 
-              <div class="product-name">
-                ${item.product_name}
+            <div class="order">
+
+              <div class="order-header">
+
+                <div class="order-code">
+                  📦 Order ID:
+                  ${orderCode}
+                </div>
+
+                <div class="date">
+                  ${formatDate(
+                    firstItem.created_at
+                  )}
+                </div>
+
               </div>
 
-              <div class="detail">
-                Harga: ${formatRupiah(item.price)}
+          `;
+
+
+          items.forEach(item => {
+
+            const quantity =
+              Number(item.quantity || 1);
+
+
+            const subtotal =
+              Number(item.price) *
+              quantity;
+
+
+            html += `
+
+              <div class="item">
+
+                <div class="product-name">
+                  ${item.product_name}
+                </div>
+
+                <div class="detail">
+                  Harga:
+                  ${formatRupiah(
+                    item.price
+                  )}
+                </div>
+
+                <div class="detail">
+                  Jumlah:
+                  ${quantity}
+                </div>
+
+                <div class="detail">
+                  Subtotal:
+                  ${formatRupiah(
+                    subtotal
+                  )}
+                </div>
+
+                ${statusHTML(
+                  item.status
+                )}
+
               </div>
 
-              <div class="detail">
-                Jumlah: ${quantity}
+            `;
+
+          });
+
+
+          html += `
+
+              <div class="total">
+
+                Total Pesanan:
+                ${formatRupiah(
+                  orderTotal
+                )}
+
               </div>
 
-              <div class="detail">
-                Subtotal: ${formatRupiah(subtotal)}
-              </div>
 
-              ${statusHTML(item.status)}
+              <div style="
+                text-align:right;
+              ">
+
+                <a
+                  class="detail-button"
+                  href="detail-pesanan.html?order=${encodeURIComponent(orderCode)}"
+                >
+                  👁️ Lihat Detail
+                </a>
+
+              </div>
 
             </div>
+
           `;
+
         });
 
-        html += `
-            <div class="total">
-              Total Pesanan:
-              ${formatRupiah(orderTotal)}
-            </div>
-
-          </div>
-        `;
-      });
 
       orders.innerHTML = html;
+
     }
+
 
     async function logout() {
+
       await supabaseClient.auth.signOut();
 
-      window.location.href = "login.html";
+      window.location.href =
+        "login.html";
+
     }
 
+
     loadPurchases();
+
   </script>
 
 </body>
