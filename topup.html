@@ -3,156 +3,401 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JaxGkv — Top Up</title>
 
-  <link rel="stylesheet" href="css/style.css">
+  <title>Top Up Saldo — JaxGkv</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    nav {
+      background: #111827;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 12px;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .saldo {
+      background: #111827;
+      color: white;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+    }
+
+    .saldo-label {
+      font-size: 13px;
+      color: #d1d5db;
+    }
+
+    .saldo-value {
+      font-size: 26px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 9px;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 9px;
+      display: none;
+    }
+
+    .success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .info {
+      margin-top: 20px;
+      background: #eff6ff;
+      padding: 15px;
+      border-radius: 10px;
+      color: #1e40af;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 
 <body>
 
-  <header class="navbar">
-    <div class="logo">Jax<span>Gkv</span></div>
+<nav>
+  <div class="brand">JaxGkv</div>
 
-    <nav>
-      <a href="index.html">Beranda</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="produk.html">Produk</a>
-      <a href="topup.html">Top Up</a>
-      <button id="logoutBtn" class="btn">Logout</button>
-    </nav>
-  </header>
+  <div>
+    <a href="index.html">Beranda</a>
+    <a href="produk.html">Produk</a>
+  </div>
+</nav>
 
-  <main class="hero">
-    <section>
+<div class="container">
 
-      <p class="badge">JAXGKV • TOP UP</p>
+  <div class="card">
 
-      <h1>Top Up <span>Saldo</span></h1>
+    <h1>Top Up Saldo</h1>
 
-      <p class="desc">
-        Pilih nominal saldo yang ingin kamu top up.
-      </p>
+    <div class="saldo">
+      <div class="saldo-label">Saldo saat ini</div>
+      <div class="saldo-value" id="saldo">Memuat...</div>
+    </div>
 
-      <div class="card">
+    <label for="nominal">Nominal Top Up</label>
 
-        <label for="nominal">
-          Nominal Top Up
-        </label>
+    <select id="nominal">
+      <option value="10000">Rp10.000</option>
+      <option value="20000">Rp20.000</option>
+      <option value="50000">Rp50.000</option>
+      <option value="100000">Rp100.000</option>
+      <option value="200000">Rp200.000</option>
+      <option value="500000">Rp500.000</option>
+      <option value="1000000">Rp1.000.000</option>
+    </select>
 
-        <select id="nominal">
-          <option value="10000">Rp10.000</option>
-          <option value="25000">Rp25.000</option>
-          <option value="50000">Rp50.000</option>
-          <option value="100000">Rp100.000</option>
-          <option value="250000">Rp250.000</option>
-          <option value="500000">Rp500.000</option>
-        </select>
+    <button id="submitBtn">
+      Ajukan Top Up
+    </button>
 
-        <button id="topupBtn" class="btn primary">
-          Ajukan Top Up
-        </button>
+    <div id="message" class="message"></div>
 
-        <p id="message"></p>
+    <div class="info">
+      Setelah mengajukan top up, status akan menjadi
+      <b>Pending</b>. Saldo baru bertambah setelah
+      permintaan disetujui admin.
+    </div>
 
-      </div>
+  </div>
 
-    </section>
-  </main>
+</div>
 
-  <footer>
-    © 2026 JaxGkv. All rights reserved.
-  </footer>
+<script>
 
-  <script>
+const SUPABASE_URL =
+  'https://evuwahoflentgidcjmsx.supabase.co';
 
-    const SUPABASE_URL =
-      "https://evuwahoflentgidcjmsx.supabase.co";
+const SUPABASE_KEY =
+  'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
-    async function checkLogin() {
+const saldoElement =
+  document.getElementById('saldo');
 
-      const {
-        data: { user }
-      } = await supabaseClient.auth.getUser();
+const nominalElement =
+  document.getElementById('nominal');
 
-      if (!user) {
-        window.location.href = "login.html";
-        return null;
-      }
+const submitBtn =
+  document.getElementById('submitBtn');
 
-      return user;
+const message =
+  document.getElementById('message');
+
+
+function rupiah(value) {
+
+  return new Intl.NumberFormat(
+    'id-ID',
+    {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }
+  ).format(value || 0);
+
+}
+
+
+function showMessage(text, type) {
+
+  message.textContent = text;
+
+  message.className =
+    'message ' + type;
+
+}
+
+
+async function loadUser() {
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.getUser();
+
+
+  if (error || !data.user) {
+
+    window.location.href =
+      'login.html';
+
+    return null;
+
+  }
+
+
+  return data.user;
+
+}
+
+
+async function loadSaldo(user) {
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from('profiles')
+      .select('saldo')
+      .eq('id', user.id)
+      .single();
+
+
+  if (error) {
+
+    saldoElement.textContent =
+      'Rp0';
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  saldoElement.textContent =
+    rupiah(data.saldo);
+
+}
+
+
+submitBtn.addEventListener(
+  'click',
+  async function() {
+
+    submitBtn.disabled = true;
+
+    showMessage(
+      '',
+      ''
+    );
+
+
+    const user =
+      await loadUser();
+
+
+    if (!user) {
+
+      return;
+
     }
 
 
-    document
-      .getElementById("topupBtn")
-      .addEventListener("click", async function () {
-
-        const user = await checkLogin();
-
-        if (!user) return;
-
-        const nominal =
-          Number(
-            document.getElementById("nominal").value
-          );
-
-        const message =
-          document.getElementById("message");
-
-        message.textContent =
-          "Mengirim permintaan...";
+    const nominal =
+      Number(
+        nominalElement.value
+      );
 
 
-        const { error } =
-          await supabaseClient
-            .from("topup_request")
-            .insert({
-              user_id: user.id,
-              nominal: nominal,
-              status: "pending"
-            });
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from('Topup_request')
+        .insert({
+          user_id: user.id,
+          nominal: nominal,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
 
-        if (error) {
+    if (error) {
 
-          message.textContent =
-            "Gagal: " + error.message;
+      console.error(error);
 
-          return;
-        }
+      showMessage(
+        'Gagal membuat permintaan top up: ' +
+        error.message,
+        'error'
+      );
 
+      submitBtn.disabled = false;
 
-        message.textContent =
-          "Top up berhasil diajukan! Menunggu persetujuan admin.";
+      return;
 
-      });
-
-
-    document
-      .getElementById("logoutBtn")
-      .addEventListener("click", async function () {
-
-        await supabaseClient.auth.signOut();
-
-        window.location.href = "login.html";
-
-      });
+    }
 
 
-    checkLogin();
+    showMessage(
+      'Permintaan top up berhasil dibuat. Menunggu persetujuan admin.',
+      'success'
+    );
 
-  </script>
+
+    submitBtn.disabled = false;
+
+  }
+);
+
+
+async function init() {
+
+  const user =
+    await loadUser();
+
+
+  if (!user) {
+
+    return;
+
+  }
+
+
+  await loadSaldo(user);
+
+}
+
+
+init();
+
+</script>
 
 </body>
 </html>
