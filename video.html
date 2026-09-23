@@ -137,21 +137,16 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
-
 const content =
   document.getElementById("content");
-
 
 const params =
   new URLSearchParams(
     window.location.search
   );
 
-
 const productId =
-  Number(
-    params.get("id")
-  );
+  Number(params.get("id"));
 
 
 // =================================
@@ -160,26 +155,23 @@ const productId =
 
 async function checkAccess() {
 
-  if (
-    !productId ||
-    productId <= 0
-  ) {
+  if (!productId || productId <= 0) {
 
-    showError(
-      "ID produk tidak valid."
-    );
+    showError("ID produk tidak valid.");
 
     return;
   }
 
 
-  // Cek login
+  // =================================
+  // CEK LOGIN
+  // =================================
+
   const {
     data: {
       user
     }
-  } =
-    await supabaseClient.auth.getUser();
+  } = await supabaseClient.auth.getUser();
 
 
   if (!user) {
@@ -191,14 +183,19 @@ async function checkAccess() {
   }
 
 
-  // Cek apakah user punya order
+  // =================================
+  // CEK PEMBELIAN
+  // =================================
+
   const {
     data: orders,
     error: orderError
   } =
     await supabaseClient
       .from("orders")
-      .select("id, product_id, status, price, created_at")
+      .select(
+        "id, product_id, status, price, created_at"
+      )
       .eq("user_id", user.id)
       .eq("product_id", productId)
       .eq("status", "paid")
@@ -218,12 +215,14 @@ async function checkAccess() {
   }
 
 
-  if (
-    !orders ||
-    orders.length === 0
-  ) {
+  // =================================
+  // BELUM MEMBELI
+  // =================================
+
+  if (!orders || orders.length === 0) {
 
     content.innerHTML = `
+
       <div class="locked">
 
         <h2>🔒 Video Terkunci</h2>
@@ -241,6 +240,7 @@ async function checkAccess() {
         </a>
 
       </div>
+
     `;
 
     return;
@@ -280,12 +280,49 @@ async function checkAccess() {
   }
 
 
-  if (
-    !product.video_url
-  ) {
+  if (!product.video_url) {
 
     showError(
       "Video untuk produk ini belum tersedia."
+    );
+
+    return;
+  }
+
+
+  // =================================
+  // BUAT SIGNED URL
+  // =================================
+
+  const {
+    data: signedData,
+    error: signedError
+  } =
+    await supabaseClient.storage
+      .from("No 1")
+      .createSignedUrl(
+        product.video_url,
+        3600
+      );
+
+
+  if (signedError) {
+
+    console.error(signedError);
+
+    showError(
+      "Gagal membuat akses video: " +
+      signedError.message
+    );
+
+    return;
+  }
+
+
+  if (!signedData || !signedData.signedUrl) {
+
+    showError(
+      "Signed URL video tidak tersedia."
     );
 
     return;
@@ -319,8 +356,9 @@ async function checkAccess() {
 
         <source
           src="${escapeHtml(
-            product.video_url
+            signedData.signedUrl
           )}"
+          type="video/mp4"
         >
 
         Browser lu tidak mendukung
@@ -368,7 +406,6 @@ function showError(message) {
     </div>
 
   `;
-
 }
 
 
@@ -385,7 +422,6 @@ function escapeHtml(text) {
     text ?? "";
 
   return div.innerHTML;
-
 }
 
 
@@ -399,7 +435,6 @@ async function logout() {
 
   window.location.href =
     "login.html";
-
 }
 
 
