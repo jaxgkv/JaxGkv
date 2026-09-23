@@ -15,14 +15,14 @@
 
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      background: #f4f6f8;
       margin: 0;
       padding: 20px;
-      color: #111;
+      color: #111827;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1050px;
       margin: auto;
     }
 
@@ -39,32 +39,39 @@
       margin: 0;
     }
 
+    h2 {
+      margin-top: 0;
+    }
+
     .box {
       background: white;
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
     }
 
     label {
       display: block;
       font-weight: bold;
-      margin-top: 12px;
-      margin-bottom: 5px;
+      margin-top: 13px;
+      margin-bottom: 6px;
     }
 
     input,
-    textarea,
-    select {
+    textarea {
       width: 100%;
-      box-sizing: border-box;
       padding: 12px;
-      margin-bottom: 5px;
-      border: 1px solid #ccc;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 15px;
       background: white;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #2563eb;
     }
 
     textarea {
@@ -78,21 +85,22 @@
       padding: 10px 14px;
       cursor: pointer;
       font-size: 14px;
+      font-weight: bold;
       margin-right: 6px;
       margin-top: 10px;
     }
 
     button:hover {
-      opacity: 0.9;
+      opacity: .9;
     }
 
     button:disabled {
-      opacity: 0.5;
+      opacity: .5;
       cursor: not-allowed;
     }
 
     .add {
-      background: #111;
+      background: #111827;
       color: white;
       width: 100%;
       margin-top: 18px;
@@ -109,12 +117,22 @@
     }
 
     .back {
-      background: #ddd;
-      color: #111;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .cancel {
+      background: #6b7280;
+      color: white;
+    }
+
+    .save {
+      background: #16a34a;
+      color: white;
     }
 
     .product {
-      border: 1px solid #ddd;
+      border: 1px solid #e5e7eb;
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 14px;
@@ -124,11 +142,11 @@
     }
 
     .product-image {
-      width: 130px;
-      height: 130px;
+      width: 140px;
+      height: 140px;
       border-radius: 10px;
       object-fit: cover;
-      background: #eee;
+      background: #f3f4f6;
       flex-shrink: 0;
     }
 
@@ -140,7 +158,7 @@
     .product-name {
       font-size: 19px;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .category {
@@ -164,6 +182,7 @@
       font-size: 14px;
       line-height: 1.5;
       margin: 8px 0;
+      white-space: pre-wrap;
     }
 
     .stock {
@@ -181,7 +200,15 @@
     }
 
     .empty {
-      color: #666;
+      color: #6b7280;
+      text-align: center;
+      padding: 25px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #6b7280;
+      padding: 25px;
     }
 
     .message {
@@ -213,6 +240,39 @@
       display: none;
     }
 
+    .edit-panel {
+      width: 100%;
+      margin-top: 15px;
+      padding: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .edit-panel h3 {
+      margin-top: 0;
+    }
+
+    .edit-preview {
+      margin-top: 8px;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .url-help {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 12px;
@@ -240,7 +300,7 @@
 <div class="container">
 
   <div class="topbar">
-    <h1>Admin Produk</h1>
+    <h1>⚙️ Admin Produk</h1>
 
     <button
       class="back"
@@ -258,27 +318,29 @@
 
     <h2>➕ Tambah Produk</h2>
 
-    <label>Nama Produk</label>
+    <label for="nama">Nama Produk</label>
 
     <input
       type="text"
       id="nama"
       placeholder="Contoh: Pulsa 10.000"
       maxlength="100"
+      autocomplete="off"
     >
 
 
-    <label>Harga</label>
+    <label for="harga">Harga</label>
 
     <input
       type="number"
       id="harga"
       placeholder="Contoh: 10000"
       min="1"
+      step="1"
     >
 
 
-    <label>Kategori</label>
+    <label for="kategori">Kategori</label>
 
     <input
       type="text"
@@ -289,7 +351,7 @@
     >
 
 
-    <label>Deskripsi</label>
+    <label for="deskripsi">Deskripsi</label>
 
     <textarea
       id="deskripsi"
@@ -298,14 +360,19 @@
     ></textarea>
 
 
-    <label>URL Gambar</label>
+    <label for="gambar">URL Gambar</label>
 
     <input
       type="url"
       id="gambar"
       placeholder="https://contoh.com/gambar.jpg"
+      maxlength="2000"
       oninput="previewGambar()"
     >
+
+    <div class="url-help">
+      Gunakan URL yang diawali http:// atau https://
+    </div>
 
     <img
       id="imagePreview"
@@ -314,13 +381,14 @@
     >
 
 
-    <label>Stok</label>
+    <label for="stok">Stok</label>
 
     <input
       type="number"
       id="stok"
       placeholder="Contoh: 10"
       min="0"
+      step="1"
       value="0"
     >
 
@@ -329,9 +397,7 @@
       id="addButton"
       class="add"
       onclick="tambahProduk()">
-
       + Tambah Produk
-
     </button>
 
 
@@ -352,7 +418,9 @@
     <h2>📦 Daftar Produk</h2>
 
     <div id="produkList">
-      Memuat produk...
+      <div class="loading">
+        Memuat produk...
+      </div>
     </div>
 
   </div>
@@ -368,7 +436,6 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
@@ -376,9 +443,9 @@ const supabaseClient =
   );
 
 
-// =================================
+// =====================================================
 // CEK ADMIN
-// =================================
+// =====================================================
 
 async function cekAdmin() {
 
@@ -388,7 +455,6 @@ async function cekAdmin() {
     },
     error
   } = await supabaseClient.auth.getSession();
-
 
   if (error || !session) {
 
@@ -404,7 +470,8 @@ async function cekAdmin() {
 
 
   const {
-    data: profile
+    data: profile,
+    error: profileError
   } = await supabaseClient
     .from("profiles")
     .select("role")
@@ -412,7 +479,24 @@ async function cekAdmin() {
       "id",
       session.user.id
     )
-    .single();
+    .maybeSingle();
+
+
+  if (profileError) {
+
+    console.error(
+      profileError
+    );
+
+    alert(
+      "Gagal memeriksa akun."
+    );
+
+    location.href =
+      "index.html";
+
+    return false;
+  }
 
 
   if (
@@ -435,22 +519,22 @@ async function cekAdmin() {
 }
 
 
-// =================================
+// =====================================================
 // FORMAT RUPIAH
-// =================================
+// =====================================================
 
 function formatRupiah(nominal) {
 
   return "Rp" +
-    Number(nominal)
+    Number(nominal || 0)
       .toLocaleString("id-ID");
 
 }
 
 
-// =================================
+// =====================================================
 // ESCAPE HTML
-// =================================
+// =====================================================
 
 function escapeHtml(text) {
 
@@ -464,9 +548,37 @@ function escapeHtml(text) {
 }
 
 
-// =================================
+// =====================================================
+// VALIDASI IMAGE URL
+// =====================================================
+
+function isValidImageUrl(value) {
+
+  if (!value) {
+    return true;
+  }
+
+  try {
+
+    const url =
+      new URL(value);
+
+    return (
+      url.protocol === "http:" ||
+      url.protocol === "https:"
+    );
+
+  } catch {
+
+    return false;
+
+  }
+}
+
+
+// =====================================================
 // LOAD PRODUCTS
-// =================================
+// =====================================================
 
 async function loadProducts() {
 
@@ -476,8 +588,11 @@ async function loadProducts() {
     );
 
 
-  list.innerHTML =
-    "Memuat produk...";
+  list.innerHTML = `
+    <div class="loading">
+      Memuat produk...
+    </div>
+  `;
 
 
   const {
@@ -504,10 +619,14 @@ async function loadProducts() {
 
   if (error) {
 
-    list.innerHTML =
-      "<p>Gagal memuat produk.</p>";
-
     console.error(error);
+
+    list.innerHTML = `
+      <div class="message error">
+        Gagal memuat produk:
+        ${escapeHtml(error.message)}
+      </div>
+    `;
 
     return;
   }
@@ -518,8 +637,11 @@ async function loadProducts() {
     data.length === 0
   ) {
 
-    list.innerHTML =
-      "<p class='empty'>Belum ada produk.</p>";
+    list.innerHTML = `
+      <div class="empty">
+        Belum ada produk.
+      </div>
+    `;
 
     return;
   }
@@ -538,32 +660,39 @@ async function loadProducts() {
 
 
     const imageUrl =
-      product.image_url ||
-      "";
+      product.image_url || "";
 
 
-    const imageHTML =
-      imageUrl
-        ? `
-          <img
-            class="product-image"
-            src="${escapeHtml(imageUrl)}"
-            alt="${escapeHtml(product.name)}"
-            onerror="this.style.display='none'"
-          >
-        `
-        : "";
+    let imageHTML = "";
+
+    if (imageUrl) {
+
+      imageHTML = `
+        <img
+          class="product-image"
+          src="${escapeHtml(imageUrl)}"
+          alt="${escapeHtml(product.name)}"
+          loading="lazy"
+          onerror="this.style.display='none'"
+        >
+      `;
+
+    }
+
+
+    const stock =
+      Number(product.stock || 0);
 
 
     const stockClass =
-      Number(product.stock) > 0
+      stock > 0
         ? "stock-ok"
         : "stock-empty";
 
 
     const stockText =
-      Number(product.stock) > 0
-        ? `📦 Stok: ${Number(product.stock)}`
+      stock > 0
+        ? `📦 Stok: ${stock}`
         : "❌ Stok habis";
 
 
@@ -578,7 +707,8 @@ async function loadProducts() {
         </div>
 
         <div class="category">
-          🏷️ ${escapeHtml(product.category || "Umum")}
+          🏷️
+          ${escapeHtml(product.category || "Umum")}
         </div>
 
         <div class="price">
@@ -598,21 +728,133 @@ async function loadProducts() {
           ${stockText}
         </div>
 
+
         <button
           class="edit"
-          onclick="editProduk(${product.id})">
-
+          onclick="showEditForm(${Number(product.id)})">
           ✏️ Edit
-
         </button>
+
 
         <button
           class="delete"
-          onclick="hapusProduk(${product.id})">
-
+          onclick="hapusProduk(${Number(product.id)})">
           🗑️ Hapus
-
         </button>
+
+      </div>
+
+
+      <!-- EDIT PANEL -->
+
+      <div
+        id="edit-panel-${Number(product.id)}"
+        class="edit-panel hidden">
+
+        <h3>
+          ✏️ Edit Produk
+        </h3>
+
+
+        <label>
+          Nama Produk
+        </label>
+
+        <input
+          type="text"
+          id="edit-name-${Number(product.id)}"
+          maxlength="100"
+          value="${escapeHtml(product.name || "")}"
+        >
+
+
+        <label>
+          Harga
+        </label>
+
+        <input
+          type="number"
+          id="edit-price-${Number(product.id)}"
+          min="1"
+          step="1"
+          value="${Number(product.price || 0)}"
+        >
+
+
+        <label>
+          Kategori
+        </label>
+
+        <input
+          type="text"
+          id="edit-category-${Number(product.id)}"
+          maxlength="50"
+          value="${escapeHtml(product.category || "Umum")}"
+        >
+
+
+        <label>
+          Deskripsi
+        </label>
+
+        <textarea
+          id="edit-description-${Number(product.id)}"
+          maxlength="1000"
+        >${escapeHtml(product.description || "")}</textarea>
+
+
+        <label>
+          URL Gambar
+        </label>
+
+        <input
+          type="url"
+          id="edit-image-${Number(product.id)}"
+          maxlength="2000"
+          value="${escapeHtml(product.image_url || "")}"
+          oninput="previewEditGambar(${Number(product.id)})"
+        >
+
+
+        <img
+          id="edit-preview-${Number(product.id)}"
+          class="edit-preview"
+          alt="Preview gambar"
+        >
+
+
+        <label>
+          Stok
+        </label>
+
+        <input
+          type="number"
+          id="edit-stock-${Number(product.id)}"
+          min="0"
+          step="1"
+          value="${stock}"
+        >
+
+
+        <button
+          class="save"
+          id="save-button-${Number(product.id)}"
+          onclick="simpanEdit(${Number(product.id)})">
+          💾 Simpan
+        </button>
+
+
+        <button
+          class="cancel"
+          onclick="hideEditForm(${Number(product.id)})">
+          Batal
+        </button>
+
+
+        <div
+          id="edit-message-${Number(product.id)}"
+          class="message">
+        </div>
 
       </div>
 
@@ -621,14 +863,33 @@ async function loadProducts() {
 
     list.appendChild(div);
 
+
+    if (imageUrl) {
+
+      const preview =
+        document.getElementById(
+          `edit-preview-${Number(product.id)}`
+        );
+
+      if (preview) {
+
+        preview.src =
+          imageUrl;
+
+        preview.style.display =
+          "block";
+
+      }
+    }
+
   });
 
 }
 
 
-// =================================
-// PREVIEW GAMBAR
-// =================================
+// =====================================================
+// PREVIEW GAMBAR TAMBAH
+// =====================================================
 
 function previewGambar() {
 
@@ -644,7 +905,10 @@ function previewGambar() {
     );
 
 
-  if (!url) {
+  if (
+    !url ||
+    !isValidImageUrl(url)
+  ) {
 
     preview.style.display =
       "none";
@@ -653,7 +917,8 @@ function previewGambar() {
   }
 
 
-  preview.src = url;
+  preview.src =
+    url;
 
   preview.style.display =
     "block";
@@ -670,9 +935,69 @@ function previewGambar() {
 }
 
 
-// =================================
-// MESSAGE
-// =================================
+// =====================================================
+// PREVIEW GAMBAR EDIT
+// =====================================================
+
+function previewEditGambar(id) {
+
+  const input =
+    document.getElementById(
+      `edit-image-${id}`
+    );
+
+
+  const preview =
+    document.getElementById(
+      `edit-preview-${id}`
+    );
+
+
+  if (
+    !input ||
+    !preview
+  ) {
+    return;
+  }
+
+
+  const url =
+    input.value.trim();
+
+
+  if (
+    !url ||
+    !isValidImageUrl(url)
+  ) {
+
+    preview.style.display =
+      "none";
+
+    return;
+  }
+
+
+  preview.src =
+    url;
+
+  preview.style.display =
+    "block";
+
+
+  preview.onerror =
+    function() {
+
+      preview.style.display =
+        "none";
+
+    };
+
+}
+
+
+// =====================================================
+// MESSAGE TAMBAH
+// =====================================================
 
 function showMessage(
   text,
@@ -695,9 +1020,40 @@ function showMessage(
 }
 
 
-// =================================
+// =====================================================
+// MESSAGE EDIT
+// =====================================================
+
+function showEditMessage(
+  id,
+  text,
+  type
+) {
+
+  const box =
+    document.getElementById(
+      `edit-message-${id}`
+    );
+
+
+  if (!box) {
+    return;
+  }
+
+
+  box.textContent =
+    text;
+
+
+  box.className =
+    "message " + type;
+
+}
+
+
+// =====================================================
 // TAMBAH PRODUK
-// =================================
+// =====================================================
 
 async function tambahProduk() {
 
@@ -742,6 +1098,8 @@ async function tambahProduk() {
     );
 
 
+  // VALIDASI NAMA
+
   if (!nama) {
 
     showMessage(
@@ -753,13 +1111,15 @@ async function tambahProduk() {
   }
 
 
+  // VALIDASI HARGA
+
   if (
-    !harga ||
+    !Number.isInteger(harga) ||
     harga <= 0
   ) {
 
     showMessage(
-      "Harga harus lebih dari 0.",
+      "Harga harus berupa angka bulat lebih dari 0.",
       "error"
     );
 
@@ -767,13 +1127,30 @@ async function tambahProduk() {
   }
 
 
+  // VALIDASI STOK
+
   if (
     !Number.isInteger(stok) ||
     stok < 0
   ) {
 
     showMessage(
-      "Stok harus berupa angka 0 atau lebih.",
+      "Stok harus berupa angka bulat 0 atau lebih.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  // VALIDASI IMAGE
+
+  if (
+    !isValidImageUrl(gambar)
+  ) {
+
+    showMessage(
+      "URL gambar harus menggunakan http:// atau https://.",
       "error"
     );
 
@@ -791,65 +1168,231 @@ async function tambahProduk() {
     true;
 
   button.textContent =
-    "Menyimpan...";
+    "⏳ Menyimpan...";
 
 
-  const {
-    data,
-    error
-  } = await supabaseClient.rpc(
-    "admin_add_product",
-    {
-      p_name:
-        nama,
+  try {
 
-      p_price:
-        harga,
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_add_product",
+      {
+        p_name:
+          nama,
 
-      p_description:
-        deskripsi,
+        p_price:
+          harga,
 
-      p_category:
-        kategori,
+        p_description:
+          deskripsi,
 
-      p_image_url:
-        gambar,
+        p_category:
+          kategori,
 
-      p_stock:
-        stok
+        p_image_url:
+          gambar,
+
+        p_stock:
+          stok
+      }
+    );
+
+
+    if (error) {
+      throw error;
     }
-  );
 
 
-  button.disabled =
-    false;
+    if (
+      !data ||
+      !data.success
+    ) {
 
-  button.textContent =
-    "+ Tambah Produk";
+      throw new Error(
+        data?.message ||
+        "Gagal menambahkan produk."
+      );
 
+    }
 
-  if (error) {
 
     showMessage(
-      "Gagal: " +
+      "✅ Produk berhasil ditambahkan.",
+      "success"
+    );
+
+
+    document.getElementById(
+      "nama"
+    ).value = "";
+
+
+    document.getElementById(
+      "harga"
+    ).value = "";
+
+
+    document.getElementById(
+      "kategori"
+    ).value = "Umum";
+
+
+    document.getElementById(
+      "deskripsi"
+    ).value = "";
+
+
+    document.getElementById(
+      "gambar"
+    ).value = "";
+
+
+    document.getElementById(
+      "stok"
+    ).value = "0";
+
+
+    document.getElementById(
+      "imagePreview"
+    ).style.display =
+      "none";
+
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "Gagal menambah produk: " +
       error.message,
       "error"
     );
 
-    console.error(error);
+  } finally {
 
+    button.disabled =
+      false;
+
+    button.textContent =
+      "+ Tambah Produk";
+
+  }
+
+}
+
+
+// =====================================================
+// TAMPILKAN EDIT
+// =====================================================
+
+function showEditForm(id) {
+
+  const panel =
+    document.getElementById(
+      `edit-panel-${id}`
+    );
+
+
+  if (!panel) {
     return;
   }
 
 
-  if (
-    !data ||
-    !data.success
-  ) {
+  panel.classList.remove(
+    "hidden"
+  );
 
-    showMessage(
-      data?.message ||
-      "Gagal menambahkan produk.",
+
+  panel.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+}
+
+
+// =====================================================
+// SEMBUNYIKAN EDIT
+// =====================================================
+
+function hideEditForm(id) {
+
+  const panel =
+    document.getElementById(
+      `edit-panel-${id}`
+    );
+
+
+  if (!panel) {
+    return;
+  }
+
+
+  panel.classList.add(
+    "hidden"
+  );
+
+}
+
+
+// =====================================================
+// SIMPAN EDIT
+// =====================================================
+
+async function simpanEdit(id) {
+
+  const nama =
+    document.getElementById(
+      `edit-name-${id}`
+    ).value.trim();
+
+
+  const harga =
+    Number(
+      document.getElementById(
+        `edit-price-${id}`
+      ).value
+    );
+
+
+  const kategori =
+    document.getElementById(
+      `edit-category-${id}`
+    ).value.trim() ||
+    "Umum";
+
+
+  const deskripsi =
+    document.getElementById(
+      `edit-description-${id}`
+    ).value.trim();
+
+
+  const gambar =
+    document.getElementById(
+      `edit-image-${id}`
+    ).value.trim();
+
+
+  const stok =
+    Number(
+      document.getElementById(
+        `edit-stock-${id}`
+      ).value
+    );
+
+
+  // VALIDASI NAMA
+
+  if (!nama) {
+
+    showEditMessage(
+      id,
+      "Nama produk wajib diisi.",
       "error"
     );
 
@@ -857,285 +1400,162 @@ async function tambahProduk() {
   }
 
 
-  showMessage(
-    "✅ Produk berhasil ditambahkan.",
-    "success"
-  );
-
-
-  document.getElementById(
-    "nama"
-  ).value = "";
-
-
-  document.getElementById(
-    "harga"
-  ).value = "";
-
-
-  document.getElementById(
-    "kategori"
-  ).value = "Umum";
-
-
-  document.getElementById(
-    "deskripsi"
-  ).value = "";
-
-
-  document.getElementById(
-    "gambar"
-  ).value = "";
-
-
-  document.getElementById(
-    "stok"
-  ).value = "0";
-
-
-  document.getElementById(
-    "imagePreview"
-  ).style.display =
-    "none";
-
-
-  loadProducts();
-
-}
-
-
-// =================================
-// EDIT PRODUK
-// =================================
-
-async function editProduk(id) {
-
-  const {
-    data: product,
-    error
-  } = await supabaseClient
-    .from("products")
-    .select(`
-      id,
-      name,
-      price,
-      description,
-      category,
-      image_url,
-      stock
-    `)
-    .eq(
-      "id",
-      id
-    )
-    .single();
-
-
-  if (error || !product) {
-
-    alert(
-      "Produk tidak ditemukan."
-    );
-
-    return;
-  }
-
-
-  const nama =
-    prompt(
-      "Nama produk:",
-      product.name
-    );
-
-
-  if (nama === null) {
-    return;
-  }
-
-
-  const hargaInput =
-    prompt(
-      "Harga produk:",
-      product.price
-    );
-
-
-  if (hargaInput === null) {
-    return;
-  }
-
-
-  const kategori =
-    prompt(
-      "Kategori:",
-      product.category || "Umum"
-    );
-
-
-  if (kategori === null) {
-    return;
-  }
-
-
-  const deskripsi =
-    prompt(
-      "Deskripsi produk:",
-      product.description || ""
-    );
-
-
-  if (deskripsi === null) {
-    return;
-  }
-
-
-  const gambar =
-    prompt(
-      "URL gambar:",
-      product.image_url || ""
-    );
-
-
-  if (gambar === null) {
-    return;
-  }
-
-
-  const stokInput =
-    prompt(
-      "Stok:",
-      product.stock
-    );
-
-
-  if (stokInput === null) {
-    return;
-  }
-
-
-  const harga =
-    Number(hargaInput);
-
-
-  const stok =
-    Number(stokInput);
-
-
-  if (!nama.trim()) {
-
-    alert(
-      "Nama produk tidak boleh kosong."
-    );
-
-    return;
-  }
-
+  // VALIDASI HARGA
 
   if (
-    !harga ||
+    !Number.isInteger(harga) ||
     harga <= 0
   ) {
 
-    alert(
-      "Harga tidak valid."
+    showEditMessage(
+      id,
+      "Harga harus berupa angka bulat lebih dari 0.",
+      "error"
     );
 
     return;
   }
 
+
+  // VALIDASI STOK
 
   if (
     !Number.isInteger(stok) ||
     stok < 0
   ) {
 
-    alert(
-      "Stok tidak valid."
+    showEditMessage(
+      id,
+      "Stok harus berupa angka bulat 0 atau lebih.",
+      "error"
     );
 
     return;
   }
 
 
-  const {
-    data,
-    error: updateError
-  } = await supabaseClient.rpc(
-    "admin_update_product",
-    {
-      p_id:
-        id,
-
-      p_name:
-        nama.trim(),
-
-      p_price:
-        harga,
-
-      p_description:
-        deskripsi.trim(),
-
-      p_category:
-        kategori.trim() ||
-        "Umum",
-
-      p_image_url:
-        gambar.trim(),
-
-      p_stock:
-        stok
-    }
-  );
-
-
-  if (updateError) {
-
-    alert(
-      "Gagal: " +
-      updateError.message
-    );
-
-    console.error(
-      updateError
-    );
-
-    return;
-  }
-
+  // VALIDASI IMAGE
 
   if (
-    !data ||
-    !data.success
+    !isValidImageUrl(gambar)
   ) {
 
-    alert(
-      data?.message ||
-      "Gagal mengubah produk."
+    showEditMessage(
+      id,
+      "URL gambar harus menggunakan http:// atau https://.",
+      "error"
     );
 
     return;
   }
 
 
-  alert(
-    "✅ Produk berhasil diubah."
-  );
+  const button =
+    document.getElementById(
+      `save-button-${id}`
+    );
 
 
-  loadProducts();
+  button.disabled =
+    true;
+
+  button.textContent =
+    "⏳ Menyimpan...";
+
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_update_product",
+      {
+        p_id:
+          id,
+
+        p_name:
+          nama,
+
+        p_price:
+          harga,
+
+        p_description:
+          deskripsi,
+
+        p_category:
+          kategori,
+
+        p_image_url:
+          gambar,
+
+        p_stock:
+          stok
+      }
+    );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    if (
+      !data ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data?.message ||
+        "Gagal mengubah produk."
+      );
+
+    }
+
+
+    showEditMessage(
+      id,
+      "✅ Produk berhasil diperbarui.",
+      "success"
+    );
+
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showEditMessage(
+      id,
+      "Gagal mengubah produk: " +
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "💾 Simpan";
+
+  }
 
 }
 
 
-// =================================
+// =====================================================
 // HAPUS PRODUK
-// =================================
+// =====================================================
 
 async function hapusProduk(id) {
 
   const yakin =
     confirm(
-      "Yakin ingin menghapus produk ini?"
+      "Yakin ingin menghapus produk ini?\n\n" +
+      "Data produk yang dihapus tidak dapat dikembalikan."
     );
 
 
@@ -1144,58 +1564,62 @@ async function hapusProduk(id) {
   }
 
 
-  const {
-    data,
-    error
-  } = await supabaseClient.rpc(
-    "admin_delete_product",
-    {
-      p_id:
-        id
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_delete_product",
+      {
+        p_id:
+          id
+      }
+    );
+
+
+    if (error) {
+      throw error;
     }
-  );
 
 
-  if (error) {
+    if (
+      !data ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data?.message ||
+        "Gagal menghapus produk."
+      );
+
+    }
+
 
     alert(
-      "Gagal: " +
-      error.message
+      "🗑️ Produk berhasil dihapus."
     );
+
+
+    await loadProducts();
+
+  } catch (error) {
 
     console.error(error);
 
-    return;
-  }
-
-
-  if (
-    !data ||
-    !data.success
-  ) {
-
     alert(
-      data?.message ||
-      "Gagal menghapus produk."
+      "Gagal menghapus produk: " +
+      error.message
     );
 
-    return;
   }
-
-
-  alert(
-    "🗑️ Produk berhasil dihapus."
-  );
-
-
-  loadProducts();
 
 }
 
 
-// =================================
+// =====================================================
 // START
-// =================================
+// =====================================================
 
 (async function() {
 
@@ -1208,7 +1632,7 @@ async function hapusProduk(id) {
   }
 
 
-  loadProducts();
+  await loadProducts();
 
 })();
 
