@@ -3,403 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Top Up Saldo — JaxGkv</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #222;
-    }
-
-    nav {
-      background: #111827;
-      color: white;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      font-size: 21px;
-      font-weight: bold;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 12px;
-      font-size: 14px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      padding: 0 15px;
-    }
-
-    .card {
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.07);
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    .saldo {
-      background: #111827;
-      color: white;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-    }
-
-    .saldo-label {
-      font-size: 13px;
-      color: #d1d5db;
-    }
-
-    .saldo-value {
-      font-size: 26px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    select,
-    input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #d1d5db;
-      border-radius: 9px;
-      font-size: 15px;
-      margin-bottom: 18px;
-    }
-
-    button {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 9px;
-      background: #2563eb;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #1d4ed8;
-    }
-
-    button:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-
-    .message {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 9px;
-      display: none;
-    }
-
-    .success {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .error {
-      display: block;
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .info {
-      margin-top: 20px;
-      background: #eff6ff;
-      padding: 15px;
-      border-radius: 10px;
-      color: #1e40af;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-  </style>
+  <title>Top Up QRIS — JaxGkv</title>
   <link rel="stylesheet" href="css/style.css">
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .topup-wrap{max-width:760px;margin:auto}
+    .balance-card{margin-bottom:18px;background:linear-gradient(135deg,#1b1b25,#121219);border:1px solid #343440;border-radius:18px;padding:22px}
+    .balance-label{color:#aaa;font-size:13px}.balance-value{font-size:30px;font-weight:800;margin-top:6px;color:#e7b84b}
+    .qris-box{background:#fff;border-radius:18px;padding:18px;text-align:center;margin:18px 0;color:#111}
+    .qris-box img{display:block;width:min(100%,420px);margin:0 auto;border-radius:10px}
+    .qris-name{font-size:18px;font-weight:800;margin:8px 0 2px}.qris-note{font-size:13px;color:#666}
+    .field{margin:16px 0}.field label{display:block;margin-bottom:8px;font-weight:700}.field input{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #343440;background:#0f0f16;color:#fff;font-size:16px;outline:none}.field input:focus{border-color:#e7b84b}
+    .preview{display:none;margin-top:10px}.preview img{max-width:100%;max-height:280px;border-radius:12px;border:1px solid #343440}
+    .steps{display:grid;gap:10px;margin-top:18px}.step{padding:13px 15px;background:#101018;border:1px solid #292933;border-radius:12px;color:#ccc}.step b{color:#fff}
+    .notice{padding:13px 15px;border-radius:12px;background:#2a2415;border:1px solid #574a25;color:#eadcae;margin:15px 0;line-height:1.5}
+    .message{display:none;padding:13px 15px;border-radius:12px;margin:15px 0}.message.show{display:block}.message.success{background:#14351f;color:#a8e6ba}.message.error{background:#3b1818;color:#ffb1b1}
+    .actions-row{display:flex;gap:10px;flex-wrap:wrap}.actions-row .btn{flex:1;min-width:180px;text-align:center}
+    @media(max-width:600px){.hero{padding:35px 5%}.card{padding:18px}.balance-value{font-size:25px}}
+  </style>
 </head>
-
 <body>
-
-<nav>
-  <div class="brand">JaxGkv</div>
-
-  <div>
+<header class="navbar">
+  <div class="logo">Jax<span>Gkv</span></div>
+  <nav>
     <a href="index.html">Beranda</a>
-    <a href="produk.html">Produk</a>
-  </div>
-</nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="riwayat-topup.html">Riwayat</a>
+  </nav>
+</header>
 
-<div class="container">
+<main class="hero">
+  <section class="topup-wrap">
+    <p class="badge">JAXGKV • TOP UP</p>
+    <h1>Top Up <span>QRIS</span></h1>
+    <p class="desc">Masukkan nominal yang kamu bayar, scan QRIS, lalu upload bukti pembayaran untuk diverifikasi admin.</p>
 
-  <div class="card">
-
-    <h1>Top Up Saldo</h1>
-
-    <div class="saldo">
-      <div class="saldo-label">Saldo saat ini</div>
-      <div class="saldo-value" id="saldo">Memuat...</div>
+    <div class="balance-card">
+      <div class="balance-label">Saldo saat ini</div>
+      <div class="balance-value" id="saldo">Memuat...</div>
     </div>
 
-    <label for="nominal">Nominal Top Up</label>
+    <div class="card">
+      <div class="field">
+        <label for="nominal">Nominal top up</label>
+        <input id="nominal" type="number" inputmode="numeric" min="1000" step="1000" placeholder="Contoh: 50000">
+      </div>
 
-    <select id="nominal">
-      <option value="10000">Rp10.000</option>
-      <option value="20000">Rp20.000</option>
-      <option value="50000">Rp50.000</option>
-      <option value="100000">Rp100.000</option>
-      <option value="200000">Rp200.000</option>
-      <option value="500000">Rp500.000</option>
-      <option value="1000000">Rp1.000.000</option>
-    </select>
+      <div class="qris-box">
+        <div class="qris-name">NOXERA ORGANIZATION</div>
+        <div class="qris-note">QRIS pembayaran • nominal bebas</div>
+        <img src="assets/qris-jaxgkv.jpg" alt="QRIS JaxGkv">
+        <div class="qris-note" style="margin-top:10px">Bayar tepat sesuai nominal yang kamu masukkan.</div>
+      </div>
 
-    <button id="submitBtn">
-      Ajukan Top Up
-    </button>
+      <div class="field">
+        <label for="bukti">Bukti pembayaran</label>
+        <input id="bukti" type="file" accept="image/jpeg,image/png,image/webp">
+        <div class="qris-note" style="margin-top:7px">JPG, PNG, atau WEBP • maksimal 5 MB.</div>
+        <div class="preview" id="preview"><img id="previewImg" alt="Preview bukti pembayaran"></div>
+      </div>
 
-    <div id="message" class="message"></div>
+      <div class="notice">
+        <b>Penting:</b> saldo belum bertambah saat request dibuat. Saldo hanya masuk setelah pembayaran diverifikasi admin.
+      </div>
 
-    <div class="info">
-      Setelah mengajukan top up, status akan menjadi
-      <b>Pending</b>. Saldo baru bertambah setelah
-      permintaan disetujui admin.
+      <div id="message" class="message"></div>
+
+      <div class="actions-row">
+        <button class="btn" id="submitBtn" type="button">Kirim Bukti & Ajukan Top Up</button>
+        <a class="btn secondary" href="riwayat-topup.html">Lihat Riwayat</a>
+      </div>
+
+      <div class="steps">
+        <div class="step"><b>1.</b> Masukkan nominal.</div>
+        <div class="step"><b>2.</b> Scan QRIS dan bayar sesuai nominal.</div>
+        <div class="step"><b>3.</b> Upload bukti pembayaran.</div>
+        <div class="step"><b>4.</b> Tunggu admin memverifikasi transaksi.</div>
+      </div>
     </div>
+  </section>
+</main>
 
-  </div>
-
-</div>
+<footer>© 2026 JaxGkv. All rights reserved.</footer>
 
 <script>
+const SUPABASE_URL = 'https://evuwahoflentgidcjmsx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const SUPABASE_URL =
-  'https://evuwahoflentgidcjmsx.supabase.co';
+const saldoEl = document.getElementById('saldo');
+const nominalEl = document.getElementById('nominal');
+const buktiEl = document.getElementById('bukti');
+const submitBtn = document.getElementById('submitBtn');
+const messageEl = document.getElementById('message');
+const previewEl = document.getElementById('preview');
+const previewImg = document.getElementById('previewImg');
 
-const SUPABASE_KEY =
-  'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
-
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-const saldoElement =
-  document.getElementById('saldo');
-
-const nominalElement =
-  document.getElementById('nominal');
-
-const submitBtn =
-  document.getElementById('submitBtn');
-
-const message =
-  document.getElementById('message');
-
-
-function rupiah(value) {
-
-  return new Intl.NumberFormat(
-    'id-ID',
-    {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0
-    }
-  ).format(value || 0);
-
+function rupiah(value){
+  return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(value)||0);
 }
-
-
-function showMessage(text, type) {
-
-  message.textContent = text;
-
-  message.className =
-    'message ' + type;
-
+function showMessage(text,type){
+  messageEl.textContent=text;
+  messageEl.className='message show '+type;
 }
-
-
-async function loadUser() {
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.auth.getUser();
-
-
-  if (error || !data.user) {
-
-    window.location.href =
-      'login.html';
-
-    return null;
-
-  }
-
-
+async function getUser(){
+  const {data,error}=await supabaseClient.auth.getUser();
+  if(error || !data.user){ window.location.href='login.html'; return null; }
   return data.user;
-
+}
+async function loadSaldo(user){
+  const {data,error}=await supabaseClient.from('profiles').select('saldo').eq('id',user.id).single();
+  if(error){ saldoEl.textContent='Rp0'; console.error(error); return; }
+  saldoEl.textContent=rupiah(data.saldo);
 }
 
+buktiEl.addEventListener('change',()=>{
+  const file=buktiEl.files[0];
+  previewEl.style.display='none';
+  if(!file)return;
+  if(file.size>5*1024*1024){
+    buktiEl.value='';
+    showMessage('Bukti terlalu besar. Maksimal 5 MB.','error');
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=e=>{previewImg.src=e.target.result;previewEl.style.display='block';};
+  reader.readAsDataURL(file);
+});
 
-async function loadSaldo(user) {
+submitBtn.addEventListener('click',async()=>{
+  submitBtn.disabled=true;
+  submitBtn.textContent='Memproses...';
+  try{
+    const user=await getUser();
+    if(!user)return;
+    const nominal=Math.floor(Number(nominalEl.value));
+    const file=buktiEl.files[0];
+    if(!Number.isFinite(nominal)||nominal<1000){throw new Error('Nominal minimal Rp1.000.');}
+    if(nominal>10000000){throw new Error('Nominal maksimal Rp10.000.000 per transaksi.');}
+    if(!file)throw new Error('Upload bukti pembayaran terlebih dahulu.');
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Format bukti harus JPG, PNG, atau WEBP.');
+    if(file.size>5*1024*1024)throw new Error('Bukti terlalu besar. Maksimal 5 MB.');
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from('profiles')
-      .select('saldo')
-      .eq('id', user.id)
-      .single();
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+    const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
+    showMessage('Mengupload bukti pembayaran...','success');
+    const {error:uploadError}=await supabaseClient.storage.from('topup-bukti').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
+    if(uploadError)throw new Error('Upload bukti gagal: '+uploadError.message);
 
+    const {data,error}=await supabaseClient.from('topup_request').insert({user_id:user.id,nominal,status:'pending',proof_path:path}).select('id').single();
+    if(error){
+      await supabaseClient.storage.from('topup-bukti').remove([path]);
+      throw new Error('Gagal membuat request: '+error.message);
+    }
 
-  if (error) {
-
-    saldoElement.textContent =
-      'Rp0';
-
+    nominalEl.value='';
+    buktiEl.value='';
+    previewEl.style.display='none';
+    showMessage('Request #'+data.id+' berhasil dibuat. Tunggu verifikasi admin.','success');
+  }catch(error){
     console.error(error);
-
-    return;
-
+    showMessage(error.message||'Terjadi kesalahan.','error');
+  }finally{
+    submitBtn.disabled=false;
+    submitBtn.textContent='Kirim Bukti & Ajukan Top Up';
   }
+});
 
-
-  saldoElement.textContent =
-    rupiah(data.saldo);
-
-}
-
-
-submitBtn.addEventListener(
-  'click',
-  async function() {
-
-    submitBtn.disabled = true;
-
-    showMessage(
-      '',
-      ''
-    );
-
-
-    const user =
-      await loadUser();
-
-
-    if (!user) {
-
-      return;
-
-    }
-
-
-    const nominal =
-      Number(
-        nominalElement.value
-      );
-
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from('Topup_request')
-        .insert({
-          user_id: user.id,
-          nominal: nominal,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-
-    if (error) {
-
-      console.error(error);
-
-      showMessage(
-        'Gagal membuat permintaan top up: ' +
-        error.message,
-        'error'
-      );
-
-      submitBtn.disabled = false;
-
-      return;
-
-    }
-
-
-    showMessage(
-      'Permintaan top up berhasil dibuat. Menunggu persetujuan admin.',
-      'success'
-    );
-
-
-    submitBtn.disabled = false;
-
-  }
-);
-
-
-async function init() {
-
-  const user =
-    await loadUser();
-
-
-  if (!user) {
-
-    return;
-
-  }
-
-
-  await loadSaldo(user);
-
-}
-
-
-init();
-
+(async()=>{
+  const user=await getUser();
+  if(user)await loadSaldo(user);
+})();
 </script>
-
 </body>
 </html>

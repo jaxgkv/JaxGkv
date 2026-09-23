@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Top Up — JaxGkv</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .admin-wrap{max-width:1050px;margin:auto}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.toolbar button{cursor:pointer}.filter{padding:10px 12px;border-radius:10px;border:1px solid #343440;background:#14141c;color:#fff}
+    .topup-item{background:#14141c;border:1px solid #292933;border-radius:16px;padding:18px;margin-bottom:14px}.topup-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.topup-id{font-size:13px;color:#aaa}.nominal{font-size:24px;font-weight:800;color:#e7b84b;margin:8px 0}.meta{display:grid;gap:6px;color:#bbb;font-size:14px;line-height:1.5}.meta b{color:#eee}.proof{margin-top:15px}.proof img{display:block;max-width:320px;max-height:320px;border-radius:12px;border:1px solid #343440}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.actions button{cursor:pointer}.approve{background:#1d8b4d;color:#fff}.reject{background:#9f2d35;color:#fff}.pending{background:#3a3118;color:#f3d77a}.approved{background:#173923;color:#9be3ae}.rejected{background:#3d1c1f;color:#ffabb1}.status{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}.message{display:none;padding:13px 15px;border-radius:12px;margin:15px 0}.message.show{display:block}.message.success{background:#14351f;color:#a8e6ba}.message.error{background:#3b1818;color:#ffb1b1}.empty{padding:30px;text-align:center;color:#aaa;border:1px dashed #333;border-radius:14px}.small{font-size:12px;color:#888}
+  </style>
+</head>
+<body>
+<header class="navbar">
+  <div class="logo">Jax<span>Gkv</span> Admin</div>
+  <nav><a href="admin-dashboard.html">Dashboard Admin</a><a href="admin.html">Admin Lama</a><a href="index.html">Beranda</a></nav>
+</header>
+<main class="hero">
+<section class="admin-wrap">
+  <p class="badge">ADMIN • TOP UP</p>
+  <h1>Verifikasi <span>Top Up</span></h1>
+  <p class="desc">Cek bukti pembayaran sebelum menyetujui penambahan saldo.</p>
+  <div id="message" class="message"></div>
+  <div class="toolbar">
+    <select id="filter" class="filter">
+      <option value="all">Semua status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
+    </select>
+    <button class="btn secondary" id="refreshBtn">🔄 Refresh</button>
+  </div>
+  <div id="list"><div class="empty">Memuat transaksi...</div></div>
+</section>
+</main>
+<footer>© 2026 JaxGkv Admin</footer>
+<script>
+const SUPABASE_URL='https://evuwahoflentgidcjmsx.supabase.co';
+const SUPABASE_KEY='sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const list=document.getElementById('list'),filter=document.getElementById('filter'),message=document.getElementById('message');
+function rupiah(v){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(v)||0)}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]))}
+function showMessage(t,type){message.textContent=t;message.className='message show '+type;}
+async function checkAdmin(){
+  const {data:{user},error}=await supabaseClient.auth.getUser();
+  if(error||!user){location.href='login.html';return null;}
+  const {data:profile,error:profileError}=await supabaseClient.from('profiles').select('role').eq('id',user.id).single();
+  if(profileError||profile?.role!=='admin'){showMessage('Akses hanya untuk admin.','error');return null;}
+  return user;
+}
+function statusHtml(status){
+  const s=String(status||'pending');return `<span class="status ${esc(s)}">${esc(s.toUpperCase())}</span>`;
+}
+async function getProofUrl(path){
+  if(!path)return '';
+  const {data,error}=await supabaseClient.storage.from('topup-bukti').createSignedUrl(path,600);
+  if(error){console.error(error);return '';}
+  return data?.signedUrl||'';
+}
+async function load(){
+  const user=await checkAdmin();if(!user)return;
+  list.innerHTML='<div class="empty">Memuat transaksi...</div>';
+  let query=supabaseClient.from('topup_request').select('id,user_id,nominal,status,proof_path,rejection_reason,created_at,reviewed_at').order('created_at',{ascending:false});
+  if(filter.value!=='all')query=query.eq('status',filter.value);
+  const {data,error}=await query;
+  if(error){list.innerHTML=`<div class="empty">Gagal memuat: ${esc(error.message)}</div>`;return;}
+  if(!data?.length){list.innerHTML='<div class="empty">Tidak ada transaksi pada filter ini.</div>';return;}
+  list.innerHTML='';
+  for(const item of data){
+    const card=document.createElement('article');card.className='topup-item';
+    let proof='';
+    if(item.proof_path){const url=await getProofUrl(item.proof_path);proof=url?`<div class="proof"><a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(url)}" alt="Bukti pembayaran"></a></div>`:'<div class="small">Bukti ada, tetapi tidak bisa dibuka.</div>'}
+    let actions='';
+    if(item.status==='pending')actions=`<div class="actions"><button class="btn approve" data-action="approve" data-id="${item.id}">✅ Approve & Tambah Saldo</button><button class="btn reject" data-action="reject" data-id="${item.id}">❌ Tolak</button></div>`;
+    card.innerHTML=`<div class="topup-head"><div><div class="topup-id">Request #${item.id}</div><div class="nominal">${rupiah(item.nominal)}</div></div><div>${statusHtml(item.status)}</div></div><div class="meta"><div><b>User ID:</b> ${esc(item.user_id)}</div><div><b>Dibuat:</b> ${new Date(item.created_at).toLocaleString('id-ID')}</div>${item.reviewed_at?`<div><b>Diproses:</b> ${new Date(item.reviewed_at).toLocaleString('id-ID')}</div>`:''}${item.rejection_reason?`<div><b>Alasan ditolak:</b> ${esc(item.rejection_reason)}</div>`:''}</div>${proof}${actions}`;
+    list.appendChild(card);
+  }
+}
+list.addEventListener('click',async e=>{
+  const btn=e.target.closest('button[data-action]');if(!btn)return;
+  const id=Number(btn.dataset.id);if(!id)return;
+  const action=btn.dataset.action;
+  if(action==='approve'){
+    if(!confirm(`Approve request #${id} dan tambahkan saldo ${rupiah(await getNominal(id))}?`))return;
+    btn.disabled=true;
+    const {error}=await supabaseClient.rpc('approve_topup',{request_id:id});
+    if(error)showMessage('Approve gagal: '+error.message,'error');else showMessage('Top up berhasil disetujui dan saldo ditambahkan.','success');
+    await load();return;
+  }
+  const reason=prompt('Alasan penolakan (wajib):');if(!reason?.trim())return;
+  btn.disabled=true;
+  const {error}=await supabaseClient.rpc('reject_topup',{request_id:id,reason:reason.trim()});
+  if(error)showMessage('Penolakan gagal: '+error.message,'error');else showMessage('Top up ditolak.','success');
+  await load();
+});
+async function getNominal(id){const {data}=await supabaseClient.from('topup_request').select('nominal').eq('id',id).single();return data?.nominal||0}
+filter.addEventListener('change',load);document.getElementById('refreshBtn').addEventListener('click',load);load();
+</script>
+</body>
+</html>
