@@ -23,7 +23,7 @@
       width: 100%;
       max-width: 950px;
       margin: auto;
-      padding: 25px 16px;
+      padding: 25px 16px 40px;
     }
 
     .brand {
@@ -102,15 +102,15 @@
       outline: none;
     }
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
     input:focus,
     textarea:focus,
     select:focus {
       border-color: #d4af37;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
     }
 
     button {
@@ -127,26 +127,26 @@
     }
 
     button:hover {
-      opacity: .85;
+      opacity: 0.85;
     }
 
     button:disabled {
-      opacity: .5;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
     .secondary {
       background: #333;
-      color: white;
+      color: #fff;
     }
 
     .danger {
       background: #991b1b;
-      color: white;
+      color: #fff;
     }
 
-    .topup,
-    .product {
+    .product,
+    .topup {
       background: #101010;
       border: 1px solid #292929;
       border-radius: 12px;
@@ -154,9 +154,18 @@
       margin-bottom: 14px;
     }
 
-    .topup:last-child,
-    .product:last-child {
+    .product:last-child,
+    .topup:last-child {
       margin-bottom: 0;
+    }
+
+    .product-image {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 9px;
+      margin-bottom: 12px;
+      border: 1px solid #292929;
     }
 
     .title {
@@ -178,7 +187,7 @@
 
     .nominal {
       color: #d4af37;
-      font-size: 21px;
+      font-size: 20px;
       font-weight: bold;
     }
 
@@ -206,7 +215,7 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .actions button {
@@ -234,6 +243,12 @@
       font-size: 12px;
       margin-top: 30px;
     }
+
+    .divider {
+      height: 1px;
+      background: #292929;
+      margin: 20px 0;
+    }
   </style>
 </head>
 
@@ -246,15 +261,15 @@
   <h1>Panel Admin</h1>
 
   <div class="subtitle">
-    Kelola top up dan produk JaxGkv.
+    Kelola produk dan top up JaxGkv.
   </div>
 
   <div id="message" class="message"></div>
 
 
-  <!-- =========================
+  <!-- =====================================================
        TAMBAH PRODUK
-  ========================== -->
+  ====================================================== -->
 
   <div class="section">
 
@@ -305,7 +320,8 @@
       placeholder="https://..."
     >
 
-    <label>Video</label>
+    <label>Video Produk</label>
+
     <input
       id="productVideo"
       type="file"
@@ -319,46 +335,51 @@
     <button
       type="button"
       id="addProductButton"
-      onclick="addProduct()">
+      onclick="addProduct()"
+    >
       Tambah Produk
     </button>
 
   </div>
 
 
-  <!-- =========================
-       DAFTAR PRODUK
-  ========================== -->
+  <!-- =====================================================
+       KELOLA PRODUK
+  ====================================================== -->
 
   <div class="section">
 
     <div class="section-title">
-      📦 Daftar Produk
+      📦 Kelola Produk
     </div>
 
     <div id="products">
+
       <div class="loading">
         Memuat produk...
       </div>
+
     </div>
 
   </div>
 
 
-  <!-- =========================
-       TOP UP
-  ========================== -->
+  <!-- =====================================================
+       KELOLA TOP UP
+  ====================================================== -->
 
   <div class="section">
 
     <div class="section-title">
-      💰 Pengajuan Top Up
+      💰 Kelola Top Up
     </div>
 
     <div id="requests">
+
       <div class="loading">
-        Memuat pengajuan...
+        Memuat pengajuan top up...
       </div>
+
     </div>
 
   </div>
@@ -386,9 +407,9 @@ const supabaseClient =
   );
 
 
-/* =========================
+/* =====================================================
    MESSAGE
-========================= */
+===================================================== */
 
 function showMessage(text, type) {
 
@@ -403,37 +424,51 @@ function showMessage(text, type) {
 }
 
 
-/* =========================
-   CEK ADMIN
-========================= */
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   CHECK ADMIN
+===================================================== */
 
 async function checkAdmin() {
 
   const {
     data: { user },
     error
-  } =
-    await supabaseClient.auth.getUser();
+  } = await supabaseClient.auth.getUser();
 
 
   if (error || !user) {
 
-    window.location.href =
-      "login.html";
+    window.location.href = "login.html";
 
     return false;
+
   }
 
 
   const {
     data: profile,
     error: profileError
-  } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+  } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
 
 
   if (
@@ -443,6 +478,7 @@ async function checkAdmin() {
   ) {
 
     document.body.innerHTML = `
+
       <div style="
         color:white;
         background:#0b0b0b;
@@ -454,24 +490,34 @@ async function checkAdmin() {
         font-family:Arial;
         padding:20px;
       ">
+
         <div>
+
           <h2>🚫 Akses Ditolak</h2>
-          <p>Halaman ini hanya dapat digunakan oleh admin.</p>
+
+          <p>
+            Halaman ini hanya dapat digunakan oleh admin.
+          </p>
+
         </div>
+
       </div>
+
     `;
 
     return false;
+
   }
 
 
   return true;
+
 }
 
 
-/* =========================
+/* =====================================================
    UPLOAD VIDEO
-========================= */
+===================================================== */
 
 async function uploadVideo(file) {
 
@@ -511,19 +557,18 @@ async function uploadVideo(file) {
 
   const {
     error
-  } =
-    await supabaseClient
-      .storage
-      .from("No 1")
-      .upload(
-        path,
-        file,
-        {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type
-        }
-      );
+  } = await supabaseClient
+    .storage
+    .from("No 1")
+    .upload(
+      path,
+      file,
+      {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type
+      }
+    );
 
 
   if (error) {
@@ -541,9 +586,9 @@ async function uploadVideo(file) {
 }
 
 
-/* =========================
+/* =====================================================
    TAMBAH PRODUK
-========================= */
+===================================================== */
 
 async function addProduct() {
 
@@ -554,49 +599,53 @@ async function addProduct() {
 
 
   const name =
-    document.getElementById(
-      "productName"
-    ).value.trim();
+    document
+      .getElementById("productName")
+      .value
+      .trim();
 
 
   const price =
     Number(
-      document.getElementById(
-        "productPrice"
-      ).value
+      document
+        .getElementById("productPrice")
+        .value
     );
 
 
   const description =
-    document.getElementById(
-      "productDescription"
-    ).value.trim();
+    document
+      .getElementById("productDescription")
+      .value
+      .trim();
 
 
   const category =
-    document.getElementById(
-      "productCategory"
-    ).value.trim();
+    document
+      .getElementById("productCategory")
+      .value
+      .trim();
 
 
   const stock =
     Number(
-      document.getElementById(
-        "productStock"
-      ).value
+      document
+        .getElementById("productStock")
+        .value
     );
 
 
   const imageUrl =
-    document.getElementById(
-      "productImage"
-    ).value.trim();
+    document
+      .getElementById("productImage")
+      .value
+      .trim();
 
 
   const videoFile =
-    document.getElementById(
-      "productVideo"
-    ).files[0];
+    document
+      .getElementById("productVideo")
+      .files[0];
 
 
   if (!name) {
@@ -607,10 +656,14 @@ async function addProduct() {
     );
 
     return;
+
   }
 
 
-  if (!Number.isFinite(price) || price < 0) {
+  if (
+    !Number.isFinite(price) ||
+    price < 0
+  ) {
 
     showMessage(
       "Harga tidak valid.",
@@ -618,10 +671,14 @@ async function addProduct() {
     );
 
     return;
+
   }
 
 
-  if (!Number.isFinite(stock) || stock < 0) {
+  if (
+    !Number.isFinite(stock) ||
+    stock < 0
+  ) {
 
     showMessage(
       "Stok tidak valid.",
@@ -629,6 +686,7 @@ async function addProduct() {
     );
 
     return;
+
   }
 
 
@@ -642,6 +700,8 @@ async function addProduct() {
 
     let videoPath = null;
 
+
+    /* UPLOAD VIDEO */
 
     if (videoFile) {
 
@@ -657,36 +717,37 @@ async function addProduct() {
     }
 
 
+    /* INSERT PRODUCT */
+
     button.textContent =
       "Menyimpan produk...";
 
 
     const {
       error
-    } =
-      await supabaseClient
-        .from("products")
-        .insert({
+    } = await supabaseClient
+      .from("products")
+      .insert({
 
-          name: name,
+        name: name,
 
-          price: price,
+        price: price,
 
-          description:
-            description || null,
+        description:
+          description || null,
 
-          category:
-            category || null,
+        category:
+          category || null,
 
-          image_url:
-            imageUrl || null,
+        image_url:
+          imageUrl || null,
 
-          stock: stock,
+        stock: stock,
 
-          video_url:
-            videoPath
+        video_url:
+          videoPath
 
-        });
+      });
 
 
     if (error) {
@@ -704,6 +765,8 @@ async function addProduct() {
       "success"
     );
 
+
+    /* RESET FORM */
 
     document.getElementById(
       "productName"
@@ -742,10 +805,11 @@ async function addProduct() {
 
     await loadProducts();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
-
 
     showMessage(
       error.message,
@@ -763,9 +827,9 @@ async function addProduct() {
 }
 
 
-/* =========================
+/* =====================================================
    LOAD PRODUCTS
-========================= */
+===================================================== */
 
 async function loadProducts() {
 
@@ -776,152 +840,259 @@ async function loadProducts() {
 
 
   container.innerHTML = `
+
     <div class="loading">
       Memuat produk...
     </div>
+
   `;
 
 
   const {
     data,
     error
-  } =
-    await supabaseClient
-      .from("products")
-      .select(`
-        id,
-        name,
-        price,
-        description,
-        category,
-        image_url,
-        stock,
-        video_url
-      `)
-      .order(
-        "id",
-        {
-          ascending: false
-        }
-      );
+  } = await supabaseClient
+    .from("products")
+    .select(`
+      id,
+      name,
+      price,
+      description,
+      category,
+      image_url,
+      stock,
+      video_url
+    `)
+    .order(
+      "id",
+      {
+        ascending: false
+      }
+    );
 
 
   if (error) {
 
     container.innerHTML = `
+
       <div class="empty">
-        ❌ Gagal memuat produk.<br><br>
-        ${error.message}
+
+        ❌ Gagal memuat produk.
+
+        <br><br>
+
+        ${escapeHTML(
+          error.message
+        )}
+
       </div>
+
     `;
 
     return;
+
   }
 
 
-  if (!data || data.length === 0) {
+  if (
+    !data ||
+    data.length === 0
+  ) {
 
     container.innerHTML = `
+
       <div class="empty">
+
         Belum ada produk.
+
       </div>
+
     `;
 
     return;
+
   }
 
 
   container.innerHTML = "";
 
 
-  data.forEach(function(product) {
+  data.forEach(
+    function(product) {
 
-    const item =
-      document.createElement("div");
+      const item =
+        document.createElement(
+          "div"
+        );
 
-    item.className =
-      "product";
+
+      item.className =
+        "product";
 
 
-    const videoStatus =
-      product.video_url
-        ? `
-          <div class="info video-ok">
-            🎬 Video: tersedia
-          </div>
-        `
-        : `
-          <div class="info video-none">
-            🎬 Video: belum ada
-          </div>
+      let imageHTML = "";
+
+
+      if (product.image_url) {
+
+        imageHTML = `
+
+          <img
+            class="product-image"
+            src="${escapeHTML(
+              product.image_url
+            )}"
+            alt="${escapeHTML(
+              product.name
+            )}"
+            onerror="this.style.display='none'"
+          >
+
         `;
 
-
-    item.innerHTML = `
-
-      <div class="title">
-        ${escapeHTML(product.name)}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          ID:
-        </span>
-        ${product.id}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Harga:
-        </span>
-        <span class="nominal">
-          Rp${Number(product.price)
-            .toLocaleString("id-ID")}
-        </span>
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Kategori:
-        </span>
-        ${escapeHTML(
-          product.category || "-"
-        )}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Stok:
-        </span>
-        ${product.stock}
-      </div>
-
-      ${videoStatus}
-
-      <div class="actions">
-
-        <button
-          type="button"
-          class="danger"
-          onclick="deleteProduct(${product.id})">
-          🗑️ Hapus
-        </button>
-
-      </div>
-
-    `;
+      }
 
 
-    container.appendChild(item);
+      const videoStatus =
+        product.video_url
 
-  });
+          ? `
+
+            <div class="info video-ok">
+
+              🎬 Video: tersedia
+
+            </div>
+
+          `
+
+          : `
+
+            <div class="info video-none">
+
+              🎬 Video: belum ada
+
+            </div>
+
+          `;
+
+
+      item.innerHTML = `
+
+        ${imageHTML}
+
+
+        <div class="title">
+
+          ${escapeHTML(
+            product.name
+          )}
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+            ID:
+          </span>
+
+          ${product.id}
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+            Harga:
+          </span>
+
+          <span class="nominal">
+
+            Rp${Number(
+              product.price
+            ).toLocaleString(
+              "id-ID"
+            )}
+
+          </span>
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+            Kategori:
+          </span>
+
+          ${escapeHTML(
+            product.category || "-"
+          )}
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+            Stok:
+          </span>
+
+          ${product.stock}
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+            Deskripsi:
+          </span>
+
+          <br>
+
+          ${escapeHTML(
+            product.description || "-"
+          )}
+
+        </div>
+
+
+        ${videoStatus}
+
+
+        <div class="actions">
+
+          <button
+            type="button"
+            class="danger"
+            onclick="deleteProduct(${product.id})"
+          >
+
+            🗑️ Hapus
+
+          </button>
+
+        </div>
+
+      `;
+
+
+      container.appendChild(
+        item
+      );
+
+    }
+  );
 
 }
 
 
-/* =========================
+/* =====================================================
    DELETE PRODUCT
-========================= */
+===================================================== */
 
 async function deleteProduct(id) {
 
@@ -939,11 +1110,10 @@ async function deleteProduct(id) {
 
   const {
     error
-  } =
-    await supabaseClient
-      .from("products")
-      .delete()
-      .eq("id", id);
+  } = await supabaseClient
+    .from("products")
+    .delete()
+    .eq("id", id);
 
 
   if (error) {
@@ -955,6 +1125,7 @@ async function deleteProduct(id) {
     );
 
     return;
+
   }
 
 
@@ -969,25 +1140,9 @@ async function deleteProduct(id) {
 }
 
 
-/* =========================
-   ESCAPE HTML
-========================= */
-
-function escapeHTML(value) {
-
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-
-/* =========================
-   TOP UP
-========================= */
+/* =====================================================
+   LOAD TOP UP
+===================================================== */
 
 async function loadRequests() {
 
@@ -998,168 +1153,266 @@ async function loadRequests() {
 
 
   container.innerHTML = `
+
     <div class="loading">
-      Memuat pengajuan...
+
+      Memuat pengajuan top up...
+
     </div>
+
   `;
 
 
   const {
     data,
     error
-  } =
-    await supabaseClient
-      .from("topup_request")
-      .select("*")
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
+  } = await supabaseClient
+    .from("topup_request")
+    .select("*")
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
 
 
   if (error) {
 
     container.innerHTML = `
+
       <div class="empty">
-        Gagal memuat data:<br><br>
-        ${error.message}
+
+        ❌ Gagal memuat data.
+
+        <br><br>
+
+        ${escapeHTML(
+          error.message
+        )}
+
       </div>
+
     `;
 
     return;
+
   }
 
 
-  if (!data || data.length === 0) {
+  if (
+    !data ||
+    data.length === 0
+  ) {
 
     container.innerHTML = `
+
       <div class="empty">
+
         Belum ada pengajuan top up.
+
       </div>
+
     `;
 
     return;
+
   }
 
 
   container.innerHTML = "";
 
 
-  data.forEach(function(req) {
+  data.forEach(
+    function(req) {
 
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "topup";
-
-
-    const nominal =
-      Number(req.nominal)
-        .toLocaleString("id-ID");
+      const item =
+        document.createElement(
+          "div"
+        );
 
 
-    const tanggal =
-      new Date(req.created_at)
-        .toLocaleString("id-ID");
+      item.className =
+        "topup";
 
 
-    let statusHTML = "";
+      const nominal =
+        Number(
+          req.nominal
+        ).toLocaleString(
+          "id-ID"
+        );
 
 
-    if (req.status === "pending") {
+      const tanggal =
+        new Date(
+          req.created_at
+        ).toLocaleString(
+          "id-ID"
+        );
 
-      statusHTML = `
-        <div class="pending">
-          🕐 Pending
+
+      let statusHTML = "";
+
+
+      if (
+        req.status === "pending"
+      ) {
+
+        statusHTML = `
+
+          <div class="pending">
+
+            🕐 Pending
+
+          </div>
+
+
+          <button
+            type="button"
+            onclick="approveTopup(
+              ${req.id},
+              this
+            )"
+          >
+
+            Approve Top Up
+
+          </button>
+
+        `;
+
+      }
+
+      else if (
+        req.status === "approved"
+      ) {
+
+        statusHTML = `
+
+          <div class="approved">
+
+            ✓ Sudah disetujui
+
+          </div>
+
+        `;
+
+      }
+
+      else {
+
+        statusHTML = `
+
+          <div>
+
+            Status:
+            ${escapeHTML(
+              req.status
+            )}
+
+          </div>
+
+        `;
+
+      }
+
+
+      item.innerHTML = `
+
+        <div class="title">
+
+          Top Up #${req.id}
+
         </div>
 
-        <button
-          type="button"
-          onclick="approveTopup(${req.id}, this)">
-          Approve Top Up
-        </button>
-      `;
 
-    } else if (req.status === "approved") {
+        <div class="info">
 
-      statusHTML = `
-        <div class="approved">
-          ✓ Sudah disetujui
+          <span class="label-text">
+
+            User ID:
+
+          </span>
+
+          <br>
+
+          ${escapeHTML(
+            req.user_id
+          )}
+
         </div>
-      `;
 
-    } else {
 
-      statusHTML = `
-        <div>
-          Status: ${escapeHTML(
+        <div class="info">
+
+          <span class="label-text">
+
+            Nominal:
+
+          </span>
+
+          <br>
+
+          <span class="nominal">
+
+            Rp${nominal}
+
+          </span>
+
+        </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+
+            Status:
+
+          </span>
+
+          <br>
+
+          ${escapeHTML(
             req.status
           )}
+
         </div>
+
+
+        <div class="info">
+
+          <span class="label-text">
+
+            Tanggal:
+
+          </span>
+
+          <br>
+
+          ${tanggal}
+
+        </div>
+
+
+        ${statusHTML}
+
       `;
 
+
+      container.appendChild(
+        item
+      );
+
     }
-
-
-    item.innerHTML = `
-
-      <div class="title">
-        Top Up #${req.id}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          User ID:
-        </span>
-        <br>
-        ${req.user_id}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Nominal:
-        </span>
-        <br>
-
-        <span class="nominal">
-          Rp${nominal}
-        </span>
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Status:
-        </span>
-        <br>
-        ${escapeHTML(req.status)}
-      </div>
-
-      <div class="info">
-        <span class="label-text">
-          Tanggal:
-        </span>
-        <br>
-        ${tanggal}
-      </div>
-
-      ${statusHTML}
-
-    `;
-
-
-    container.appendChild(item);
-
-  });
+  );
 
 }
 
 
-/* =========================
+/* =====================================================
    APPROVE TOP UP
-========================= */
+===================================================== */
 
 async function approveTopup(
   id,
@@ -1187,8 +1440,8 @@ async function approveTopup(
 
   const {
     error
-  } =
-    await supabaseClient.rpc(
+  } = await supabaseClient
+    .rpc(
       "approve_topup",
       {
         request_id: id
@@ -1217,6 +1470,7 @@ async function approveTopup(
       "Approve Top Up";
 
     return;
+
   }
 
 
@@ -1231,9 +1485,9 @@ async function approveTopup(
 }
 
 
-/* =========================
+/* =====================================================
    INIT
-========================= */
+===================================================== */
 
 async function init() {
 
