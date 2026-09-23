@@ -46,7 +46,7 @@
 
     .user {
       display: grid;
-      grid-template-columns: 1fr 1fr 120px 100px 180px;
+      grid-template-columns: 1fr 1fr 130px 190px 180px;
       gap: 15px;
       align-items: center;
     }
@@ -71,6 +71,7 @@
     }
 
     .role {
+      display: inline-block;
       padding: 6px 10px;
       border-radius: 20px;
       text-align: center;
@@ -79,9 +80,26 @@
       background: #eee;
     }
 
-    .admin {
+    .role.admin {
       background: #111;
       color: white;
+    }
+
+    .role-actions {
+      margin-top: 8px;
+    }
+
+    .role-button {
+      border: none;
+      padding: 7px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #eee;
+    }
+
+    .role-button:hover {
+      background: #ddd;
     }
 
     .date {
@@ -103,6 +121,17 @@
       margin-bottom: 15px;
     }
 
+    .refresh {
+      border: none;
+      background: #111;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
     @media (max-width: 800px) {
 
       .header {
@@ -114,11 +143,11 @@
       }
 
       .user > div {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
 
-      .user > div::before {
-        font-weight: bold;
+      .date {
+        margin-bottom: 0 !important;
       }
     }
   </style>
@@ -140,6 +169,12 @@
 <div class="container">
 
   <h1>👥 Kelola User</h1>
+
+  <button
+    class="refresh"
+    onclick="loadUsers()">
+    🔄 Refresh User
+  </button>
 
   <div id="error" class="error"></div>
 
@@ -192,14 +227,26 @@ async function checkAdmin() {
     .single();
 
   if (profileError || !profile) {
-    alert("Profile tidak ditemukan.");
-    window.location.href = "dashboard.html";
+
+    alert(
+      "Profile tidak ditemukan."
+    );
+
+    window.location.href =
+      "dashboard.html";
+
     return;
   }
 
   if (profile.role !== "admin") {
-    alert("Akses admin ditolak.");
-    window.location.href = "dashboard.html";
+
+    alert(
+      "Akses admin ditolak."
+    );
+
+    window.location.href =
+      "dashboard.html";
+
     return;
   }
 
@@ -213,6 +260,21 @@ async function checkAdmin() {
 
 async function loadUsers() {
 
+  const loading =
+    document.getElementById("loading");
+
+  const errorBox =
+    document.getElementById("error");
+
+  const userList =
+    document.getElementById("userList");
+
+  loading.style.display = "block";
+
+  errorBox.style.display = "none";
+
+  userList.innerHTML = "";
+
   const {
     data,
     error
@@ -220,16 +282,11 @@ async function loadUsers() {
     "admin_get_users"
   );
 
-  document.getElementById(
-    "loading"
-  ).style.display = "none";
+  loading.style.display = "none";
 
   if (error) {
 
     console.error(error);
-
-    const errorBox =
-      document.getElementById("error");
 
     errorBox.textContent =
       "Gagal memuat user: " +
@@ -239,9 +296,6 @@ async function loadUsers() {
 
     return;
   }
-
-  const userList =
-    document.getElementById("userList");
 
   if (!data || data.length === 0) {
 
@@ -254,7 +308,10 @@ async function loadUsers() {
     return;
   }
 
-  userList.innerHTML = "";
+
+  // ===============================
+  // HEADER
+  // ===============================
 
   const header =
     document.createElement("div");
@@ -272,6 +329,11 @@ async function loadUsers() {
 
   userList.appendChild(header);
 
+
+  // ===============================
+  // USERS
+  // ===============================
+
   data.forEach(user => {
 
     const div =
@@ -280,31 +342,83 @@ async function loadUsers() {
     div.className =
       "card user";
 
+
+    const role =
+      user.role || "user";
+
     const roleClass =
-      user.role === "admin"
+      role === "admin"
         ? "role admin"
         : "role";
+
+
+    let actionHtml = "";
+
+    if (role === "admin") {
+
+      actionHtml = `
+        <button
+          class="role-button"
+          onclick="changeRole(
+            '${user.id}',
+            'user'
+          )">
+          Ubah ke User
+        </button>
+      `;
+
+    } else {
+
+      actionHtml = `
+        <button
+          class="role-button"
+          onclick="changeRole(
+            '${user.id}',
+            'admin'
+          )">
+          Ubah ke Admin
+        </button>
+      `;
+
+    }
+
 
     div.innerHTML = `
 
       <div class="name">
-        ${escapeHtml(user.full_name || "-")}
+        ${escapeHtml(
+          user.full_name || "-"
+        )}
       </div>
 
       <div class="email">
-        ${escapeHtml(user.email || "-")}
+        ${escapeHtml(
+          user.email || "-"
+        )}
       </div>
 
       <div class="saldo">
-        Rp ${formatRupiah(user.saldo || 0)}
+        Rp ${formatRupiah(
+          user.saldo || 0
+        )}
       </div>
 
-      <div class="${roleClass}">
-        ${escapeHtml(user.role || "user")}
+      <div>
+
+        <div class="${roleClass}">
+          ${escapeHtml(role)}
+        </div>
+
+        <div class="role-actions">
+          ${actionHtml}
+        </div>
+
       </div>
 
       <div class="date">
-        ${formatDate(user.created_at)}
+        ${formatDate(
+          user.created_at
+        )}
       </div>
 
     `;
@@ -317,7 +431,68 @@ async function loadUsers() {
 
 
 // ===============================
-// FORMAT
+// UBAH ROLE
+// ===============================
+
+async function changeRole(
+  userId,
+  newRole
+) {
+
+  const roleName =
+    newRole === "admin"
+      ? "Admin"
+      : "User";
+
+  const yakin =
+    confirm(
+      "Yakin ubah role user menjadi " +
+      roleName +
+      "?"
+    );
+
+  if (!yakin) {
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient.rpc(
+    "admin_update_user_role",
+    {
+      p_user_id: userId,
+      p_role: newRole
+    }
+  );
+
+
+  if (error) {
+
+    console.error(error);
+
+    alert(
+      "Gagal mengubah role:\n\n" +
+      error.message
+    );
+
+    return;
+  }
+
+
+  alert(
+    "✅ Role berhasil diubah menjadi " +
+    roleName
+  );
+
+
+  loadUsers();
+}
+
+
+// ===============================
+// FORMAT RUPIAH
 // ===============================
 
 function formatRupiah(number) {
@@ -329,11 +504,19 @@ function formatRupiah(number) {
 }
 
 
+// ===============================
+// FORMAT TANGGAL
+// ===============================
+
 function formatDate(date) {
 
-  if (!date) return "-";
+  if (!date) {
+    return "-";
+  }
 
-  return new Date(date).toLocaleString(
+  return new Date(
+    date
+  ).toLocaleString(
     "id-ID",
     {
       dateStyle: "medium",
@@ -343,6 +526,10 @@ function formatDate(date) {
 
 }
 
+
+// ===============================
+// ESCAPE HTML
+// ===============================
 
 function escapeHtml(text) {
 
