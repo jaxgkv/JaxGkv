@@ -224,3 +224,61 @@ footer,.footer{background:transparent!important;color:#6f7580!important;border-t
     font-size: 12px !important;
   }
 }
+
+/* ===== HOMEPAGE MOBILE COMPACT ===== */
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .product-card {
+    border-radius: 10px !important;
+  }
+
+  .product-image,
+  .product-placeholder {
+    height: 115px !important;
+  }
+
+  .product-body {
+    padding: 10px !important;
+  }
+
+  .product-category {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .product-name {
+    font-size: 14px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .product-description {
+    font-size: 11px !important;
+    min-height: 30px !important;
+  }
+
+  .product-price {
+    font-size: 15px !important;
+    margin-top: 8px !important;
+  }
+
+  .product-stock {
+    font-size: 10px !important;
+    margin-top: 4px !important;
+  }
+
+  .product-actions {
+    gap: 5px !important;
+    margin-top: 9px !important;
+  }
+
+  .btn {
+    padding: 7px 4px !important;
+    font-size: 10px !important;
+    border-radius: 6px !important;
+  }
+}
+
