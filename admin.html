@@ -21,7 +21,7 @@
 
     .container {
       width: 100%;
-      max-width: 900px;
+      max-width: 950px;
       margin: auto;
       padding: 25px 16px;
     }
@@ -59,78 +59,6 @@
       margin-bottom: 18px;
     }
 
-    .topup {
-      background: #101010;
-      border: 1px solid #292929;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .topup:last-child {
-      margin-bottom: 0;
-    }
-
-    .topup-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #fff;
-    }
-
-    .info {
-      margin: 8px 0;
-      font-size: 14px;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .label {
-      color: #777;
-    }
-
-    .nominal {
-      color: #d4af37;
-      font-size: 21px;
-      font-weight: bold;
-    }
-
-    .pending {
-      color: #f0b90b;
-      font-weight: bold;
-    }
-
-    .approved {
-      color: #43d17b;
-      font-weight: bold;
-    }
-
-    .other {
-      color: #aaa;
-    }
-
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 9px;
-      padding: 12px;
-      margin-top: 15px;
-      background: #d4af37;
-      color: #000;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: .85;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
     .message {
       display: none;
       padding: 12px;
@@ -154,16 +82,150 @@
       color: #ff7373;
     }
 
-    .loading {
-      text-align: center;
-      color: #888;
-      padding: 25px;
+    label {
+      display: block;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 6px;
     }
 
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: #0f0f0f;
+      color: white;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 11px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #d4af37;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 9px;
+      padding: 12px;
+      margin-top: 5px;
+      background: #d4af37;
+      color: #000;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: .85;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #333;
+      color: white;
+    }
+
+    .danger {
+      background: #991b1b;
+      color: white;
+    }
+
+    .topup,
+    .product {
+      background: #101010;
+      border: 1px solid #292929;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .topup:last-child,
+    .product:last-child {
+      margin-bottom: 0;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .info {
+      margin: 7px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .label-text {
+      color: #777;
+    }
+
+    .nominal {
+      color: #d4af37;
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #f0b90b;
+      font-weight: bold;
+    }
+
+    .approved {
+      color: #43d17b;
+      font-weight: bold;
+    }
+
+    .video-ok {
+      color: #43d17b;
+      font-weight: bold;
+    }
+
+    .video-none {
+      color: #f0b90b;
+      font-weight: bold;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .actions button {
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .loading,
     .empty {
       text-align: center;
       color: #888;
       padding: 25px 10px;
+    }
+
+    .file-info {
+      color: #777;
+      font-size: 12px;
+      margin-top: -8px;
+      margin-bottom: 12px;
     }
 
     .footer {
@@ -184,15 +246,113 @@
   <h1>Panel Admin</h1>
 
   <div class="subtitle">
-    Kelola pengajuan top up pengguna.
+    Kelola top up dan produk JaxGkv.
   </div>
 
   <div id="message" class="message"></div>
 
+
+  <!-- =========================
+       TAMBAH PRODUK
+  ========================== -->
+
   <div class="section">
 
     <div class="section-title">
-      Pengajuan Top Up
+      ➕ Tambah Produk
+    </div>
+
+    <label>Nama Produk</label>
+    <input
+      id="productName"
+      type="text"
+      placeholder="Contoh: Vid 1"
+    >
+
+    <label>Harga</label>
+    <input
+      id="productPrice"
+      type="number"
+      min="0"
+      placeholder="Contoh: 20000"
+    >
+
+    <label>Deskripsi</label>
+    <textarea
+      id="productDescription"
+      placeholder="Deskripsi produk..."
+    ></textarea>
+
+    <label>Kategori</label>
+    <input
+      id="productCategory"
+      type="text"
+      placeholder="Contoh: Video"
+    >
+
+    <label>Stok</label>
+    <input
+      id="productStock"
+      type="number"
+      min="0"
+      value="1"
+    >
+
+    <label>URL Gambar / Thumbnail</label>
+    <input
+      id="productImage"
+      type="text"
+      placeholder="https://..."
+    >
+
+    <label>Video</label>
+    <input
+      id="productVideo"
+      type="file"
+      accept="video/*"
+    >
+
+    <div class="file-info">
+      Video akan diupload otomatis ke Storage bucket "No 1".
+    </div>
+
+    <button
+      type="button"
+      id="addProductButton"
+      onclick="addProduct()">
+      Tambah Produk
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       DAFTAR PRODUK
+  ========================== -->
+
+  <div class="section">
+
+    <div class="section-title">
+      📦 Daftar Produk
+    </div>
+
+    <div id="products">
+      <div class="loading">
+        Memuat produk...
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       TOP UP
+  ========================== -->
+
+  <div class="section">
+
+    <div class="section-title">
+      💰 Pengajuan Top Up
     </div>
 
     <div id="requests">
@@ -202,6 +362,7 @@
     </div>
 
   </div>
+
 
   <div class="footer">
     © 2026 JaxGkv. All rights reserved.
@@ -215,15 +376,8 @@
 const SUPABASE_URL =
   "https://evuwahoflentgidcjmsx.supabase.co";
 
-
-/*
-  PENTING:
-  Ganti nilai di bawah dengan Publishable Key
-  yang SAMA PERSIS dengan login.html dan register.html.
-*/
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
-
 
 const supabaseClient =
   window.supabase.createClient(
@@ -231,6 +385,10 @@ const supabaseClient =
     SUPABASE_PUBLISHABLE_KEY
   );
 
+
+/* =========================
+   MESSAGE
+========================= */
 
 function showMessage(text, type) {
 
@@ -244,6 +402,10 @@ function showMessage(text, type) {
 
 }
 
+
+/* =========================
+   CEK ADMIN
+========================= */
 
 async function checkAdmin() {
 
@@ -280,11 +442,22 @@ async function checkAdmin() {
     profile.role !== "admin"
   ) {
 
-    document.getElementById(
-      "requests"
-    ).innerHTML = `
-      <div class="empty">
-        Akses ditolak. Halaman ini khusus admin.
+    document.body.innerHTML = `
+      <div style="
+        color:white;
+        background:#0b0b0b;
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        text-align:center;
+        font-family:Arial;
+        padding:20px;
+      ">
+        <div>
+          <h2>🚫 Akses Ditolak</h2>
+          <p>Halaman ini hanya dapat digunakan oleh admin.</p>
+        </div>
       </div>
     `;
 
@@ -296,10 +469,532 @@ async function checkAdmin() {
 }
 
 
+/* =========================
+   UPLOAD VIDEO
+========================= */
+
+async function uploadVideo(file) {
+
+  if (!file) {
+    return null;
+  }
+
+
+  const extension =
+    file.name.includes(".")
+      ? file.name.split(".").pop()
+      : "mp4";
+
+
+  const safeName =
+    file.name
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9_-]/g, "_");
+
+
+  const uniqueName =
+    Date.now() +
+    "_" +
+    Math.random()
+      .toString(36)
+      .substring(2, 8);
+
+
+  const path =
+    "AdminUpload/" +
+    uniqueName +
+    "_" +
+    safeName +
+    "." +
+    extension;
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .storage
+      .from("No 1")
+      .upload(
+        path,
+        file,
+        {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        }
+      );
+
+
+  if (error) {
+
+    throw new Error(
+      "Upload video gagal: " +
+      error.message
+    );
+
+  }
+
+
+  return path;
+
+}
+
+
+/* =========================
+   TAMBAH PRODUK
+========================= */
+
+async function addProduct() {
+
+  const button =
+    document.getElementById(
+      "addProductButton"
+    );
+
+
+  const name =
+    document.getElementById(
+      "productName"
+    ).value.trim();
+
+
+  const price =
+    Number(
+      document.getElementById(
+        "productPrice"
+      ).value
+    );
+
+
+  const description =
+    document.getElementById(
+      "productDescription"
+    ).value.trim();
+
+
+  const category =
+    document.getElementById(
+      "productCategory"
+    ).value.trim();
+
+
+  const stock =
+    Number(
+      document.getElementById(
+        "productStock"
+      ).value
+    );
+
+
+  const imageUrl =
+    document.getElementById(
+      "productImage"
+    ).value.trim();
+
+
+  const videoFile =
+    document.getElementById(
+      "productVideo"
+    ).files[0];
+
+
+  if (!name) {
+
+    showMessage(
+      "Nama produk wajib diisi.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if (!Number.isFinite(price) || price < 0) {
+
+    showMessage(
+      "Harga tidak valid.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if (!Number.isFinite(stock) || stock < 0) {
+
+    showMessage(
+      "Stok tidak valid.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Memproses...";
+
+
+  try {
+
+    let videoPath = null;
+
+
+    if (videoFile) {
+
+      button.textContent =
+        "Mengupload video...";
+
+
+      videoPath =
+        await uploadVideo(
+          videoFile
+        );
+
+    }
+
+
+    button.textContent =
+      "Menyimpan produk...";
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("products")
+        .insert({
+
+          name: name,
+
+          price: price,
+
+          description:
+            description || null,
+
+          category:
+            category || null,
+
+          image_url:
+            imageUrl || null,
+
+          stock: stock,
+
+          video_url:
+            videoPath
+
+        });
+
+
+    if (error) {
+
+      throw new Error(
+        "Gagal menyimpan produk: " +
+        error.message
+      );
+
+    }
+
+
+    showMessage(
+      "✅ Produk berhasil ditambahkan.",
+      "success"
+    );
+
+
+    document.getElementById(
+      "productName"
+    ).value = "";
+
+
+    document.getElementById(
+      "productPrice"
+    ).value = "";
+
+
+    document.getElementById(
+      "productDescription"
+    ).value = "";
+
+
+    document.getElementById(
+      "productCategory"
+    ).value = "";
+
+
+    document.getElementById(
+      "productStock"
+    ).value = "1";
+
+
+    document.getElementById(
+      "productImage"
+    ).value = "";
+
+
+    document.getElementById(
+      "productVideo"
+    ).value = "";
+
+
+    await loadProducts();
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    showMessage(
+      error.message,
+      "error"
+    );
+
+  }
+
+
+  button.disabled = false;
+
+  button.textContent =
+    "Tambah Produk";
+
+}
+
+
+/* =========================
+   LOAD PRODUCTS
+========================= */
+
+async function loadProducts() {
+
+  const container =
+    document.getElementById(
+      "products"
+    );
+
+
+  container.innerHTML = `
+    <div class="loading">
+      Memuat produk...
+    </div>
+  `;
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("products")
+      .select(`
+        id,
+        name,
+        price,
+        description,
+        category,
+        image_url,
+        stock,
+        video_url
+      `)
+      .order(
+        "id",
+        {
+          ascending: false
+        }
+      );
+
+
+  if (error) {
+
+    container.innerHTML = `
+      <div class="empty">
+        ❌ Gagal memuat produk.<br><br>
+        ${error.message}
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if (!data || data.length === 0) {
+
+    container.innerHTML = `
+      <div class="empty">
+        Belum ada produk.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML = "";
+
+
+  data.forEach(function(product) {
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "product";
+
+
+    const videoStatus =
+      product.video_url
+        ? `
+          <div class="info video-ok">
+            🎬 Video: tersedia
+          </div>
+        `
+        : `
+          <div class="info video-none">
+            🎬 Video: belum ada
+          </div>
+        `;
+
+
+    item.innerHTML = `
+
+      <div class="title">
+        ${escapeHTML(product.name)}
+      </div>
+
+      <div class="info">
+        <span class="label-text">
+          ID:
+        </span>
+        ${product.id}
+      </div>
+
+      <div class="info">
+        <span class="label-text">
+          Harga:
+        </span>
+        <span class="nominal">
+          Rp${Number(product.price)
+            .toLocaleString("id-ID")}
+        </span>
+      </div>
+
+      <div class="info">
+        <span class="label-text">
+          Kategori:
+        </span>
+        ${escapeHTML(
+          product.category || "-"
+        )}
+      </div>
+
+      <div class="info">
+        <span class="label-text">
+          Stok:
+        </span>
+        ${product.stock}
+      </div>
+
+      ${videoStatus}
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="danger"
+          onclick="deleteProduct(${product.id})">
+          🗑️ Hapus
+        </button>
+
+      </div>
+
+    `;
+
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+/* =========================
+   DELETE PRODUCT
+========================= */
+
+async function deleteProduct(id) {
+
+  const confirmed =
+    confirm(
+      "Hapus produk ini?\n\n" +
+      "Data produk akan dihapus."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("products")
+      .delete()
+      .eq("id", id);
+
+
+  if (error) {
+
+    showMessage(
+      "Gagal menghapus produk: " +
+      error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "Produk berhasil dihapus.",
+    "success"
+  );
+
+
+  await loadProducts();
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================
+   TOP UP
+========================= */
+
 async function loadRequests() {
 
   const container =
-    document.getElementById("requests");
+    document.getElementById(
+      "requests"
+    );
 
 
   container.innerHTML = `
@@ -357,7 +1052,8 @@ async function loadRequests() {
     const item =
       document.createElement("div");
 
-    item.className = "topup";
+    item.className =
+      "topup";
 
 
     const nominal =
@@ -376,8 +1072,8 @@ async function loadRequests() {
     if (req.status === "pending") {
 
       statusHTML = `
-        <div class="status pending">
-          Pending
+        <div class="pending">
+          🕐 Pending
         </div>
 
         <button
@@ -390,7 +1086,7 @@ async function loadRequests() {
     } else if (req.status === "approved") {
 
       statusHTML = `
-        <div class="status approved">
+        <div class="approved">
           ✓ Sudah disetujui
         </div>
       `;
@@ -398,21 +1094,24 @@ async function loadRequests() {
     } else {
 
       statusHTML = `
-        <div class="status other">
-          Status: ${req.status}
+        <div>
+          Status: ${escapeHTML(
+            req.status
+          )}
         </div>
       `;
+
     }
 
 
     item.innerHTML = `
 
-      <div class="topup-title">
+      <div class="title">
         Top Up #${req.id}
       </div>
 
       <div class="info">
-        <span class="label">
+        <span class="label-text">
           User ID:
         </span>
         <br>
@@ -420,7 +1119,7 @@ async function loadRequests() {
       </div>
 
       <div class="info">
-        <span class="label">
+        <span class="label-text">
           Nominal:
         </span>
         <br>
@@ -431,15 +1130,15 @@ async function loadRequests() {
       </div>
 
       <div class="info">
-        <span class="label">
+        <span class="label-text">
           Status:
         </span>
         <br>
-        ${req.status}
+        ${escapeHTML(req.status)}
       </div>
 
       <div class="info">
-        <span class="label">
+        <span class="label-text">
           Tanggal:
         </span>
         <br>
@@ -457,6 +1156,10 @@ async function loadRequests() {
 
 }
 
+
+/* =========================
+   APPROVE TOP UP
+========================= */
 
 async function approveTopup(
   id,
@@ -481,14 +1184,6 @@ async function approveTopup(
   button.textContent =
     "Memproses...";
 
-
-  /*
-    PENTING:
-    Nama parameter HARUS "request_id"
-    karena fungsi SQL adalah:
-
-    approve_topup(request_id bigint)
-  */
 
   const {
     error
@@ -536,6 +1231,10 @@ async function approveTopup(
 }
 
 
+/* =========================
+   INIT
+========================= */
+
 async function init() {
 
   const isAdmin =
@@ -546,6 +1245,8 @@ async function init() {
     return;
   }
 
+
+  await loadProducts();
 
   await loadRequests();
 
