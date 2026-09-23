@@ -3,25 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Admin Produk - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       margin: 0;
       padding: 20px;
+      color: #111;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
 
-    h1 {
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
     }
 
     .box {
@@ -32,14 +47,29 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    input {
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 12px;
+      margin-bottom: 5px;
+    }
+
+    input,
+    textarea,
+    select {
       width: 100%;
       box-sizing: border-box;
       padding: 12px;
-      margin: 6px 0 12px;
+      margin-bottom: 5px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
     }
 
     button {
@@ -49,12 +79,23 @@
       cursor: pointer;
       font-size: 14px;
       margin-right: 6px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .add {
       background: #111;
       color: white;
       width: 100%;
+      margin-top: 18px;
     }
 
     .edit {
@@ -67,37 +108,129 @@
       color: white;
     }
 
-    .product {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 12px;
-    }
-
-    .product-name {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .price {
-      margin: 6px 0 12px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-
     .back {
       background: #ddd;
       color: #111;
     }
 
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .product-image {
+      width: 130px;
+      height: 130px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #eee;
+      flex-shrink: 0;
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .product-name {
+      font-size: 19px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .category {
+      display: inline-block;
+      background: #e5e7eb;
+      color: #374151;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 6px 0;
+    }
+
+    .description {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 8px 0;
+    }
+
+    .stock {
+      font-size: 14px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .stock-empty {
+      color: #dc2626;
+    }
+
+    .stock-ok {
+      color: #16a34a;
+    }
+
     .empty {
       color: #666;
+    }
+
+    .message {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .preview {
+      margin-top: 8px;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .box {
+        padding: 15px;
+      }
+
+      .product {
+        display: block;
+      }
+
+      .product-image {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 12px;
+      }
     }
   </style>
 </head>
@@ -108,44 +241,133 @@
 
   <div class="topbar">
     <h1>Admin Produk</h1>
-    <button class="back" onclick="location.href='admin.html'">
+
+    <button
+      class="back"
+      onclick="location.href='admin.html'">
       ← Admin
     </button>
   </div>
 
+
+  <!-- =========================
+       TAMBAH PRODUK
+  ========================== -->
+
   <div class="box">
-    <h2>Tambah Produk</h2>
+
+    <h2>➕ Tambah Produk</h2>
+
+    <label>Nama Produk</label>
 
     <input
       type="text"
       id="nama"
-      placeholder="Nama produk"
+      placeholder="Contoh: Pulsa 10.000"
+      maxlength="100"
     >
+
+
+    <label>Harga</label>
 
     <input
       type="number"
       id="harga"
-      placeholder="Harga"
+      placeholder="Contoh: 10000"
       min="1"
     >
 
-    <button class="add" onclick="tambahProduk()">
+
+    <label>Kategori</label>
+
+    <input
+      type="text"
+      id="kategori"
+      placeholder="Contoh: Pulsa"
+      value="Umum"
+      maxlength="50"
+    >
+
+
+    <label>Deskripsi</label>
+
+    <textarea
+      id="deskripsi"
+      placeholder="Deskripsi produk..."
+      maxlength="1000"
+    ></textarea>
+
+
+    <label>URL Gambar</label>
+
+    <input
+      type="url"
+      id="gambar"
+      placeholder="https://contoh.com/gambar.jpg"
+      oninput="previewGambar()"
+    >
+
+    <img
+      id="imagePreview"
+      class="preview"
+      alt="Preview gambar"
+    >
+
+
+    <label>Stok</label>
+
+    <input
+      type="number"
+      id="stok"
+      placeholder="Contoh: 10"
+      min="0"
+      value="0"
+    >
+
+
+    <button
+      id="addButton"
+      class="add"
+      onclick="tambahProduk()">
+
       + Tambah Produk
+
     </button>
+
+
+    <div
+      id="formMessage"
+      class="message">
+    </div>
+
   </div>
 
+
+  <!-- =========================
+       DAFTAR PRODUK
+  ========================== -->
+
   <div class="box">
-    <h2>Daftar Produk</h2>
-    <div id="produkList">Memuat produk...</div>
+
+    <h2>📦 Daftar Produk</h2>
+
+    <div id="produkList">
+      Memuat produk...
+    </div>
+
   </div>
 
 </div>
 
+
 <script>
-const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
 
 const SUPABASE_KEY =
   "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
 
 const supabaseClient =
   window.supabase.createClient(
@@ -154,106 +376,248 @@ const supabaseClient =
   );
 
 
+// =================================
+// CEK ADMIN
+// =================================
+
 async function cekAdmin() {
 
   const {
-    data: { session },
+    data: {
+      session
+    },
     error
   } = await supabaseClient.auth.getSession();
 
+
   if (error || !session) {
-    alert("Silakan login terlebih dahulu.");
-    location.href = "login.html";
+
+    alert(
+      "Silakan login terlebih dahulu."
+    );
+
+    location.href =
+      "login.html";
+
     return false;
   }
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
 
-  if (!profile || profile.role !== "admin") {
-    alert("Halaman ini khusus admin.");
-    location.href = "index.html";
+  const {
+    data: profile
+  } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq(
+      "id",
+      session.user.id
+    )
+    .single();
+
+
+  if (
+    !profile ||
+    profile.role !== "admin"
+  ) {
+
+    alert(
+      "Halaman ini khusus admin."
+    );
+
+    location.href =
+      "index.html";
+
     return false;
   }
+
 
   return true;
 }
 
 
+// =================================
+// FORMAT RUPIAH
+// =================================
+
 function formatRupiah(nominal) {
 
   return "Rp" +
-    Number(nominal).toLocaleString("id-ID");
+    Number(nominal)
+      .toLocaleString("id-ID");
 
 }
 
 
+// =================================
+// ESCAPE HTML
+// =================================
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text ?? "";
+
+  return div.innerHTML;
+}
+
+
+// =================================
+// LOAD PRODUCTS
+// =================================
+
 async function loadProducts() {
 
   const list =
-    document.getElementById("produkList");
+    document.getElementById(
+      "produkList"
+    );
 
-  list.innerHTML = "Memuat produk...";
+
+  list.innerHTML =
+    "Memuat produk...";
+
 
   const {
     data,
     error
   } = await supabaseClient
     .from("products")
-    .select("id, name, price")
-    .order("id", { ascending: true });
+    .select(`
+      id,
+      name,
+      price,
+      description,
+      category,
+      image_url,
+      stock
+    `)
+    .order(
+      "id",
+      {
+        ascending: true
+      }
+    );
+
 
   if (error) {
+
     list.innerHTML =
       "<p>Gagal memuat produk.</p>";
+
     console.error(error);
+
     return;
   }
 
-  if (!data || data.length === 0) {
+
+  if (
+    !data ||
+    data.length === 0
+  ) {
+
     list.innerHTML =
       "<p class='empty'>Belum ada produk.</p>";
+
     return;
   }
 
+
   list.innerHTML = "";
+
 
   data.forEach(product => {
 
     const div =
       document.createElement("div");
 
-    div.className = "product";
+    div.className =
+      "product";
+
+
+    const imageUrl =
+      product.image_url ||
+      "";
+
+
+    const imageHTML =
+      imageUrl
+        ? `
+          <img
+            class="product-image"
+            src="${escapeHtml(imageUrl)}"
+            alt="${escapeHtml(product.name)}"
+            onerror="this.style.display='none'"
+          >
+        `
+        : "";
+
+
+    const stockClass =
+      Number(product.stock) > 0
+        ? "stock-ok"
+        : "stock-empty";
+
+
+    const stockText =
+      Number(product.stock) > 0
+        ? `📦 Stok: ${Number(product.stock)}`
+        : "❌ Stok habis";
+
 
     div.innerHTML = `
-      <div class="product-name">
-        ${escapeHtml(product.name)}
+
+      ${imageHTML}
+
+      <div class="product-info">
+
+        <div class="product-name">
+          ${escapeHtml(product.name)}
+        </div>
+
+        <div class="category">
+          🏷️ ${escapeHtml(product.category || "Umum")}
+        </div>
+
+        <div class="price">
+          ${formatRupiah(product.price)}
+        </div>
+
+        <div class="description">
+          ${
+            escapeHtml(
+              product.description ||
+              "Tidak ada deskripsi."
+            )
+          }
+        </div>
+
+        <div class="stock ${stockClass}">
+          ${stockText}
+        </div>
+
+        <button
+          class="edit"
+          onclick="editProduk(${product.id})">
+
+          ✏️ Edit
+
+        </button>
+
+        <button
+          class="delete"
+          onclick="hapusProduk(${product.id})">
+
+          🗑️ Hapus
+
+        </button>
+
       </div>
 
-      <div class="price">
-        ${formatRupiah(product.price)}
-      </div>
-
-      <button
-        class="edit"
-        onclick="editProduk(
-          ${product.id},
-          '${escapeJs(product.name)}',
-          ${product.price}
-        )">
-        ✏️ Edit
-      </button>
-
-      <button
-        class="delete"
-        onclick="hapusProduk(${product.id})">
-        🗑️ Hapus
-      </button>
     `;
+
 
     list.appendChild(div);
 
@@ -262,26 +626,173 @@ async function loadProducts() {
 }
 
 
+// =================================
+// PREVIEW GAMBAR
+// =================================
+
+function previewGambar() {
+
+  const url =
+    document.getElementById(
+      "gambar"
+    ).value.trim();
+
+
+  const preview =
+    document.getElementById(
+      "imagePreview"
+    );
+
+
+  if (!url) {
+
+    preview.style.display =
+      "none";
+
+    return;
+  }
+
+
+  preview.src = url;
+
+  preview.style.display =
+    "block";
+
+
+  preview.onerror =
+    function() {
+
+      preview.style.display =
+        "none";
+
+    };
+
+}
+
+
+// =================================
+// MESSAGE
+// =================================
+
+function showMessage(
+  text,
+  type
+) {
+
+  const box =
+    document.getElementById(
+      "formMessage"
+    );
+
+
+  box.textContent =
+    text;
+
+
+  box.className =
+    "message " + type;
+
+}
+
+
+// =================================
+// TAMBAH PRODUK
+// =================================
+
 async function tambahProduk() {
 
   const nama =
-    document.getElementById("nama")
-      .value.trim();
+    document.getElementById(
+      "nama"
+    ).value.trim();
+
 
   const harga =
     Number(
-      document.getElementById("harga").value
+      document.getElementById(
+        "harga"
+      ).value
     );
 
+
+  const kategori =
+    document.getElementById(
+      "kategori"
+    ).value.trim() ||
+    "Umum";
+
+
+  const deskripsi =
+    document.getElementById(
+      "deskripsi"
+    ).value.trim();
+
+
+  const gambar =
+    document.getElementById(
+      "gambar"
+    ).value.trim();
+
+
+  const stok =
+    Number(
+      document.getElementById(
+        "stok"
+      ).value
+    );
+
+
   if (!nama) {
-    alert("Nama produk wajib diisi.");
+
+    showMessage(
+      "Nama produk wajib diisi.",
+      "error"
+    );
+
     return;
   }
 
-  if (!harga || harga <= 0) {
-    alert("Harga harus lebih dari 0.");
+
+  if (
+    !harga ||
+    harga <= 0
+  ) {
+
+    showMessage(
+      "Harga harus lebih dari 0.",
+      "error"
+    );
+
     return;
   }
+
+
+  if (
+    !Number.isInteger(stok) ||
+    stok < 0
+  ) {
+
+    showMessage(
+      "Stok harus berupa angka 0 atau lebih.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const button =
+    document.getElementById(
+      "addButton"
+    );
+
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Menyimpan...";
+
 
   const {
     data,
@@ -289,104 +800,336 @@ async function tambahProduk() {
   } = await supabaseClient.rpc(
     "admin_add_product",
     {
-      p_name: nama,
-      p_price: harga
+      p_name:
+        nama,
+
+      p_price:
+        harga,
+
+      p_description:
+        deskripsi,
+
+      p_category:
+        kategori,
+
+      p_image_url:
+        gambar,
+
+      p_stock:
+        stok
     }
   );
 
+
+  button.disabled =
+    false;
+
+  button.textContent =
+    "+ Tambah Produk";
+
+
   if (error) {
-    alert("Gagal: " + error.message);
-    console.error(error);
-    return;
-  }
 
-  if (!data || !data.success) {
-    alert(
-      data?.message ||
-      "Gagal menambahkan produk."
+    showMessage(
+      "Gagal: " +
+      error.message,
+      "error"
     );
+
+    console.error(error);
+
     return;
   }
 
-  alert("Produk berhasil ditambahkan.");
 
-  document.getElementById("nama").value = "";
-  document.getElementById("harga").value = "";
+  if (
+    !data ||
+    !data.success
+  ) {
+
+    showMessage(
+      data?.message ||
+      "Gagal menambahkan produk.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "✅ Produk berhasil ditambahkan.",
+    "success"
+  );
+
+
+  document.getElementById(
+    "nama"
+  ).value = "";
+
+
+  document.getElementById(
+    "harga"
+  ).value = "";
+
+
+  document.getElementById(
+    "kategori"
+  ).value = "Umum";
+
+
+  document.getElementById(
+    "deskripsi"
+  ).value = "";
+
+
+  document.getElementById(
+    "gambar"
+  ).value = "";
+
+
+  document.getElementById(
+    "stok"
+  ).value = "0";
+
+
+  document.getElementById(
+    "imagePreview"
+  ).style.display =
+    "none";
+
 
   loadProducts();
+
 }
 
 
-async function editProduk(
-  id,
-  namaLama,
-  hargaLama
-) {
+// =================================
+// EDIT PRODUK
+// =================================
 
-  const namaBaru =
+async function editProduk(id) {
+
+  const {
+    data: product,
+    error
+  } = await supabaseClient
+    .from("products")
+    .select(`
+      id,
+      name,
+      price,
+      description,
+      category,
+      image_url,
+      stock
+    `)
+    .eq(
+      "id",
+      id
+    )
+    .single();
+
+
+  if (error || !product) {
+
+    alert(
+      "Produk tidak ditemukan."
+    );
+
+    return;
+  }
+
+
+  const nama =
     prompt(
       "Nama produk:",
-      namaLama
+      product.name
     );
 
-  if (namaBaru === null) {
+
+  if (nama === null) {
     return;
   }
 
-  const hargaBaru =
+
+  const hargaInput =
     prompt(
       "Harga produk:",
-      hargaLama
+      product.price
     );
 
-  if (hargaBaru === null) {
+
+  if (hargaInput === null) {
     return;
   }
+
+
+  const kategori =
+    prompt(
+      "Kategori:",
+      product.category || "Umum"
+    );
+
+
+  if (kategori === null) {
+    return;
+  }
+
+
+  const deskripsi =
+    prompt(
+      "Deskripsi produk:",
+      product.description || ""
+    );
+
+
+  if (deskripsi === null) {
+    return;
+  }
+
+
+  const gambar =
+    prompt(
+      "URL gambar:",
+      product.image_url || ""
+    );
+
+
+  if (gambar === null) {
+    return;
+  }
+
+
+  const stokInput =
+    prompt(
+      "Stok:",
+      product.stock
+    );
+
+
+  if (stokInput === null) {
+    return;
+  }
+
 
   const harga =
-    Number(hargaBaru);
+    Number(hargaInput);
 
-  if (!namaBaru.trim()) {
-    alert("Nama produk tidak boleh kosong.");
+
+  const stok =
+    Number(stokInput);
+
+
+  if (!nama.trim()) {
+
+    alert(
+      "Nama produk tidak boleh kosong."
+    );
+
     return;
   }
 
-  if (!harga || harga <= 0) {
-    alert("Harga tidak valid.");
+
+  if (
+    !harga ||
+    harga <= 0
+  ) {
+
+    alert(
+      "Harga tidak valid."
+    );
+
     return;
   }
+
+
+  if (
+    !Number.isInteger(stok) ||
+    stok < 0
+  ) {
+
+    alert(
+      "Stok tidak valid."
+    );
+
+    return;
+  }
+
 
   const {
     data,
-    error
+    error: updateError
   } = await supabaseClient.rpc(
     "admin_update_product",
     {
-      p_id: id,
-      p_name: namaBaru.trim(),
-      p_price: harga
+      p_id:
+        id,
+
+      p_name:
+        nama.trim(),
+
+      p_price:
+        harga,
+
+      p_description:
+        deskripsi.trim(),
+
+      p_category:
+        kategori.trim() ||
+        "Umum",
+
+      p_image_url:
+        gambar.trim(),
+
+      p_stock:
+        stok
     }
   );
 
-  if (error) {
-    alert("Gagal: " + error.message);
-    console.error(error);
+
+  if (updateError) {
+
+    alert(
+      "Gagal: " +
+      updateError.message
+    );
+
+    console.error(
+      updateError
+    );
+
     return;
   }
 
-  if (!data || !data.success) {
+
+  if (
+    !data ||
+    !data.success
+  ) {
+
     alert(
       data?.message ||
       "Gagal mengubah produk."
     );
+
     return;
   }
 
-  alert("Produk berhasil diubah.");
+
+  alert(
+    "✅ Produk berhasil diubah."
+  );
+
 
   loadProducts();
+
 }
 
+
+// =================================
+// HAPUS PRODUK
+// =================================
 
 async function hapusProduk(id) {
 
@@ -395,9 +1138,11 @@ async function hapusProduk(id) {
       "Yakin ingin menghapus produk ini?"
     );
 
+
   if (!yakin) {
     return;
   }
+
 
   const {
     data,
@@ -405,66 +1150,68 @@ async function hapusProduk(id) {
   } = await supabaseClient.rpc(
     "admin_delete_product",
     {
-      p_id: id
+      p_id:
+        id
     }
   );
 
+
   if (error) {
-    alert("Gagal: " + error.message);
+
+    alert(
+      "Gagal: " +
+      error.message
+    );
+
     console.error(error);
+
     return;
   }
 
-  if (!data || !data.success) {
+
+  if (
+    !data ||
+    !data.success
+  ) {
+
     alert(
       data?.message ||
       "Gagal menghapus produk."
     );
+
     return;
   }
 
-  alert("Produk berhasil dihapus.");
+
+  alert(
+    "🗑️ Produk berhasil dihapus."
+  );
+
 
   loadProducts();
-}
-
-
-function escapeHtml(text) {
-
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 
 }
 
 
-function escapeJs(text) {
-
-  return String(text)
-    .replace(/\\/g, "\\\\")
-    .replace(/'/g, "\\'")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r");
-
-}
-
+// =================================
+// START
+// =================================
 
 (async function() {
 
   const isAdmin =
     await cekAdmin();
 
+
   if (!isAdmin) {
     return;
   }
 
+
   loadProducts();
 
 })();
+
 </script>
 
 </body>
