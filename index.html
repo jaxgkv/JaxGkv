@@ -3,82 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JaxGkv — Beranda</title>
 
-  <link rel="stylesheet" href="css/style.css">
+  <title>JaxGkv</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* =========================
-       BANNER
-    ========================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    nav {
+      background: #111827;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    nav .links {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: #d1d5db;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 0 15px;
+    }
+
+    /* STORE INFO */
+
+    .store-info {
+      background: white;
+      padding: 28px 20px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .store-name {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .store-description {
+      color: #666;
+      max-width: 700px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    .store-contact {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* BANNER */
 
     .banner-section {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 0 20px;
+      margin-top: 25px;
     }
 
     .banner-container {
       position: relative;
       overflow: hidden;
-      border-radius: 18px;
+      border-radius: 16px;
       background: #111827;
-      min-height: 260px;
+      min-height: 220px;
     }
 
     .banner-slide {
       display: none;
       position: relative;
-      min-height: 260px;
+      min-height: 220px;
+      padding: 35px;
+      color: white;
     }
 
     .banner-slide.active {
-      display: block;
+      display: flex;
+      align-items: center;
     }
 
-    .banner-slide img {
+    .banner-image {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      height: 300px;
+      height: 100%;
       object-fit: cover;
-      display: block;
+      opacity: 0.4;
     }
 
     .banner-overlay {
       position: absolute;
       inset: 0;
-      display: flex;
-      align-items: center;
-      padding: 35px;
-      background: linear-gradient(
-        90deg,
-        rgba(0,0,0,0.75),
-        rgba(0,0,0,0.25),
-        rgba(0,0,0,0)
-      );
-      color: white;
+      background: rgba(0,0,0,0.35);
     }
 
     .banner-content {
-      max-width: 550px;
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
     }
 
-    .banner-content h2 {
-      margin: 0 0 10px;
+    .banner-title {
       font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
-    .banner-content p {
-      margin: 0 0 18px;
+    .banner-description {
       line-height: 1.6;
+      margin-bottom: 18px;
     }
 
     .banner-button {
       display: inline-block;
-      padding: 10px 18px;
-      border-radius: 8px;
       background: white;
       color: #111827;
+      padding: 10px 16px;
+      border-radius: 8px;
       text-decoration: none;
       font-weight: bold;
     }
@@ -86,10 +164,12 @@
     .banner-dots {
       position: absolute;
       bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       display: flex;
+      justify-content: center;
       gap: 7px;
+      z-index: 5;
     }
 
     .banner-dot {
@@ -97,573 +177,993 @@
       height: 9px;
       border-radius: 50%;
       background: rgba(255,255,255,0.5);
-      cursor: pointer;
     }
 
     .banner-dot.active {
       background: white;
     }
 
-    .banner-empty {
-      padding: 50px 20px;
+    .no-banner {
+      padding: 40px;
       text-align: center;
       color: #777;
-      background: #f5f5f5;
-      border-radius: 15px;
+    }
+
+    /* HERO */
+
+    .hero {
+      text-align: center;
+      padding: 45px 15px 30px;
+    }
+
+    .hero h1 {
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .hero p {
+      color: #666;
+      margin: 0;
+    }
+
+    /* PRODUCTS */
+
+    .products-section {
+      padding: 15px 0 40px;
+    }
+
+    .section-title {
+      font-size: 23px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #e5e7eb;
+      display: block;
+    }
+
+    .product-placeholder {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #e5e7eb;
+      color: #777;
+      font-size: 45px;
+    }
+
+    .product-body {
+      padding: 18px;
+    }
+
+    .product-category {
+      color: #2563eb;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .product-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 42px;
+    }
+
+    .product-price {
+      font-size: 19px;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .product-stock {
+      color: #666;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .btn-detail {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-buy {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-buy:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-disabled {
+      background: #d1d5db;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 35px;
+      color: #666;
+    }
+
+    .empty {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      color: #777;
+    }
+
+    /* FOOTER */
+
+    footer {
+      background: #111827;
+      color: #d1d5db;
+      padding: 30px 15px;
+      margin-top: 30px;
+    }
+
+    .footer-content {
+      max-width: 1100px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .footer-store {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .footer-description {
+      margin-bottom: 8px;
+    }
+
+    .footer-contact {
+      margin-bottom: 12px;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 850px) {
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 600px) {
-
-      .banner-slide,
-      .banner-container {
-        min-height: 220px;
+      nav {
+        align-items: flex-start;
       }
 
-      .banner-slide img {
-        height: 220px;
+      nav .links {
+        gap: 10px;
       }
 
-      .banner-overlay {
-        padding: 22px;
+      .banner-slide {
+        padding: 25px;
+        min-height: 230px;
       }
 
-      .banner-content h2 {
-        font-size: 22px;
+      .banner-title {
+        font-size: 24px;
       }
 
-      .banner-content p {
-        font-size: 14px;
+      .products-grid {
+        grid-template-columns: 1fr;
       }
 
+      .store-name {
+        font-size: 26px;
+      }
+
+      .hero h1 {
+        font-size: 27px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header class="navbar">
+<nav>
 
-  <div class="logo">
-    Jax<span>Gkv</span>
+  <div class="brand" id="navStoreName">
+    JaxGkv
   </div>
 
-  <nav>
+  <div class="links">
 
-    <a href="index.html">Dashboard</a>
+    <a href="index.html">Beranda</a>
 
     <a href="produk.html">Produk</a>
 
-    <span id="guestMenu">
-      <a href="login.html">Login</a>
-      <a class="btn" href="register.html">Daftar</a>
+    <a href="keranjang.html">🛒 Keranjang</a>
+
+    <a href="riwayat-pembelian.html">
+      Pesanan
+    </a>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <span id="userInfo" class="user-info">
+      Memuat...
     </span>
-
-    <span id="userMenu" style="display:none;">
-
-      <span id="userEmail" style="margin-right:10px;"></span>
-
-      <span id="userSaldo" style="margin-right:10px;">
-        Saldo: Rp0
-      </span>
-
-      <a
-        href="topup.html"
-        class="btn primary"
-        style="margin-right:10px;"
-      >
-        Top Up
-      </a>
-
-      <a
-        href="riwayat-topup.html"
-        class="btn secondary"
-        style="margin-right:10px;"
-      >
-        Riwayat
-      </a>
-
-      <button id="logoutBtn" class="btn">
-        Logout
-      </button>
-
-    </span>
-
-  </nav>
-
-</header>
-
-
-<!-- =========================
-     BANNER
-========================= -->
-
-<section class="banner-section">
-
-  <div id="bannerContainer" class="banner-container">
-
-    <div class="banner-empty">
-      Memuat banner...
-    </div>
 
   </div>
+
+</nav>
+
+
+<!-- STORE INFO -->
+
+<section class="store-info">
+
+  <div class="store-name" id="storeName">
+    JaxGkv
+  </div>
+
+  <div
+    class="store-description"
+    id="storeDescription"
+  >
+    Toko digital JaxGkv
+  </div>
+
+  <div
+    class="store-contact"
+    id="storeContact"
+  ></div>
 
 </section>
 
 
-<main class="hero">
+<div class="container">
 
-  <section>
+  <!-- BANNER -->
 
-    <p class="badge">
-      JAXGKV • DIGITAL STORE
-    </p>
+  <section class="banner-section">
 
-    <h1>
-      Selamat datang di <span>JaxGkv</span>
-    </h1>
+    <div
+      id="bannerContainer"
+      class="banner-container"
+    >
 
-    <p class="desc">
-      Platform digital sederhana untuk menampilkan produk,
-      layanan, dan informasi JaxGkv.
-    </p>
-
-    <div class="actions">
-
-      <a class="btn primary" href="produk.html">
-        Lihat Produk
-      </a>
-
-      <a
-        id="registerButton"
-        class="btn secondary"
-        href="register.html"
-      >
-        Buat Akun
-      </a>
-
-      <a
-        class="btn secondary"
-        href="topup.html"
-      >
-        Top Up Saldo
-      </a>
-
-      <a
-        class="btn secondary"
-        href="riwayat-topup.html"
-      >
-        Riwayat Top Up
-      </a>
+      <div class="loading">
+        Memuat banner...
+      </div>
 
     </div>
 
   </section>
 
-</main>
 
+  <!-- HERO -->
 
-<section class="cards">
+  <section class="hero">
 
-  <div class="card">
-    <b>Produk Digital</b>
-    <p>
-      Kelola dan tampilkan produk dengan rapi.
+    <h1 id="heroTitle">
+      Selamat Datang di JaxGkv
+    </h1>
+
+    <p id="heroDescription">
+      Temukan produk digital pilihan kami.
     </p>
-  </div>
 
-  <div class="card">
-    <b>Akun Pengguna</b>
-    <p>
-      Sistem login dan register menggunakan Supabase.
-    </p>
-  </div>
+  </section>
 
-  <div class="card">
-    <b>Saldo Pengguna</b>
-    <p>
-      Saldo pengguna tersimpan di database.
-    </p>
-  </div>
 
-</section>
+  <!-- PRODUCTS -->
 
+  <section class="products-section">
+
+    <div class="section-title">
+      Produk Terbaru
+    </div>
+
+    <div
+      id="productsContainer"
+      class="products-grid"
+    >
+
+      <div class="loading">
+        Memuat produk...
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- FOOTER -->
 
 <footer>
-  © 2026 JaxGkv. All rights reserved.
+
+  <div class="footer-content">
+
+    <div
+      id="footerStore"
+      class="footer-store"
+    >
+      JaxGkv
+    </div>
+
+    <div
+      id="footerDescription"
+      class="footer-description"
+    >
+      Toko digital JaxGkv
+    </div>
+
+    <div
+      id="footerContact"
+      class="footer-contact"
+    ></div>
+
+    <div
+      id="footerText"
+      class="footer-copy"
+    >
+      © 2026 JaxGkv
+    </div>
+
+  </div>
+
 </footer>
 
 
 <script>
 
-const SUPABASE_URL =
-  "https://evuwahoflentgidcjmsx.supabase.co";
+  const SUPABASE_URL =
+    'https://evuwahoflentgidcjmsx.supabase.co';
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+  const SUPABASE_KEY =
+    'sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3';
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-
-/* =========================
-   USER
-========================= */
-
-async function checkUser() {
-
-  const {
-    data: { session }
-  } = await supabaseClient.auth.getSession();
-
-  const guestMenu =
-    document.getElementById("guestMenu");
-
-  const userMenu =
-    document.getElementById("userMenu");
-
-  const userEmail =
-    document.getElementById("userEmail");
-
-  const userSaldo =
-    document.getElementById("userSaldo");
-
-  const registerButton =
-    document.getElementById("registerButton");
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-  if (session && session.user) {
+  function escapeHtml(value) {
 
-    const user = session.user;
-
-    guestMenu.style.display = "none";
-
-    userMenu.style.display = "inline-flex";
-
-    userEmail.textContent = user.email;
-
-    registerButton.style.display = "none";
-
-
-    const {
-      data: profile,
-      error
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select("saldo")
-        .eq("id", user.id)
-        .single();
-
-
-    if (!error && profile) {
-
-      const saldo =
-        Number(profile.saldo || 0);
-
-      userSaldo.textContent =
-        "Saldo: Rp" +
-        saldo.toLocaleString("id-ID");
-
-    }
-
-  } else {
-
-    guestMenu.style.display = "inline";
-
-    userMenu.style.display = "none";
-
-    registerButton.style.display =
-      "inline-block";
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
   }
 
-}
+
+  function formatRupiah(value) {
+
+    return new Intl.NumberFormat(
+      'id-ID',
+      {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0
+      }
+    ).format(value || 0);
+
+  }
 
 
-/* =========================
-   BANNER
-========================= */
+  async function loadStoreSettings() {
 
-let banners = [];
-let currentBanner = 0;
-let bannerTimer = null;
-
-
-async function loadBanners() {
-
-  const container =
-    document.getElementById("bannerContainer");
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from('store_settings')
+      .select('*')
+      .limit(1)
+      .single();
 
 
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("banners")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", {
+    if (error || !data) {
+      console.log(
+        'Pengaturan toko belum tersedia:',
+        error
+      );
+
+      return;
+    }
+
+
+    const name =
+      data.store_name || 'JaxGkv';
+
+    const description =
+      data.store_description ||
+      'Toko digital JaxGkv';
+
+    const contact =
+      data.contact || '';
+
+    const footer =
+      data.footer_text ||
+      '© 2026 JaxGkv';
+
+
+    document.title =
+      name;
+
+
+    document.getElementById(
+      'navStoreName'
+    ).textContent =
+      name;
+
+
+    document.getElementById(
+      'storeName'
+    ).textContent =
+      name;
+
+
+    document.getElementById(
+      'storeDescription'
+    ).textContent =
+      description;
+
+
+    document.getElementById(
+      'heroTitle'
+    ).textContent =
+      'Selamat Datang di ' + name;
+
+
+    document.getElementById(
+      'heroDescription'
+    ).textContent =
+      description;
+
+
+    document.getElementById(
+      'footerStore'
+    ).textContent =
+      name;
+
+
+    document.getElementById(
+      'footerDescription'
+    ).textContent =
+      description;
+
+
+    document.getElementById(
+      'footerText'
+    ).textContent =
+      footer;
+
+
+    const contactElement =
+      document.getElementById(
+        'storeContact'
+      );
+
+
+    const footerContact =
+      document.getElementById(
+        'footerContact'
+      );
+
+
+    if (contact) {
+
+      contactElement.textContent =
+        '📞 ' + contact;
+
+      footerContact.textContent =
+        '📞 ' + contact;
+
+    } else {
+
+      contactElement.textContent =
+        '';
+
+      footerContact.textContent =
+        '';
+
+    }
+
+  }
+
+
+  async function loadUser() {
+
+    const {
+      data: {
+        session
+      }
+    } = await supabaseClient.auth.getSession();
+
+
+    const userInfo =
+      document.getElementById(
+        'userInfo'
+      );
+
+
+    if (!session) {
+
+      userInfo.innerHTML =
+        '<a href="login.html">Login</a>';
+
+      return;
+
+    }
+
+
+    const name =
+      session.user.user_metadata?.full_name ||
+      session.user.email ||
+      'User';
+
+
+    userInfo.textContent =
+      '👤 ' + name;
+
+  }
+
+
+  async function loadBanners() {
+
+    const container =
+      document.getElementById(
+        'bannerContainer'
+      );
+
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', {
         ascending: false
       });
 
 
-  if (error) {
+    if (error) {
 
-    console.error(
-      "Gagal memuat banner:",
-      error
-    );
-
-    container.innerHTML = `
-      <div class="banner-empty">
-        Banner belum tersedia.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  banners = data || [];
-
-
-  if (banners.length === 0) {
-
-    container.innerHTML = `
-      <div class="banner-empty">
-        Belum ada banner aktif.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  container.innerHTML = "";
-
-
-  banners.forEach((banner, index) => {
-
-    const slide =
-      document.createElement("div");
-
-    slide.className =
-      "banner-slide" +
-      (index === 0 ? " active" : "");
-
-
-    let imageHTML = "";
-
-    if (banner.image_url) {
-
-      imageHTML = `
-        <img
-          src="${escapeHtml(banner.image_url)}"
-          alt="${escapeHtml(banner.title)}"
-          onerror="this.style.display='none'"
-        >
+      container.innerHTML = `
+        <div class="no-banner">
+          Banner tidak dapat dimuat.
+        </div>
       `;
+
+      return;
 
     }
 
 
-    let buttonHTML = "";
+    if (!data || data.length === 0) {
 
-    if (banner.link_url) {
-
-      buttonHTML = `
-        <a
-          class="banner-button"
-          href="${escapeHtml(banner.link_url)}"
-        >
-          Lihat Selengkapnya
-        </a>
+      container.innerHTML = `
+        <div class="no-banner">
+          Belum ada banner aktif.
+        </div>
       `;
+
+      return;
 
     }
 
 
-    slide.innerHTML = `
+    let html = '';
 
-      ${imageHTML}
 
-      <div class="banner-overlay">
+    data.forEach((banner, index) => {
 
-        <div class="banner-content">
+      const image =
+        banner.image_url || '';
 
-          <h2>
-            ${escapeHtml(banner.title)}
-          </h2>
 
-          <p>
-            ${escapeHtml(banner.description)}
-          </p>
+      const title =
+        escapeHtml(
+          banner.title
+        );
 
-          ${buttonHTML}
+
+      const description =
+        escapeHtml(
+          banner.description
+        );
+
+
+      const link =
+        banner.link_url || '';
+
+
+      html += `
+
+        <div
+          class="banner-slide ${
+            index === 0
+              ? 'active'
+              : ''
+          }"
+        >
+
+          ${
+            image
+              ? `
+                <img
+                  class="banner-image"
+                  src="${escapeHtml(image)}"
+                  alt="${title}"
+                >
+              `
+              : ''
+          }
+
+          <div class="banner-overlay"></div>
+
+          <div class="banner-content">
+
+            <div class="banner-title">
+              ${title}
+            </div>
+
+            ${
+              description
+                ? `
+                  <div class="banner-description">
+                    ${description}
+                  </div>
+                `
+                : ''
+            }
+
+            ${
+              link
+                ? `
+                  <a
+                    class="banner-button"
+                    href="${escapeHtml(link)}"
+                  >
+                    Lihat Selengkapnya
+                  </a>
+                `
+                : ''
+            }
+
+          </div>
 
         </div>
-
-      </div>
-
-    `;
-
-
-    container.appendChild(slide);
-
-  });
-
-
-  if (banners.length > 1) {
-
-    const dots =
-      document.createElement("div");
-
-    dots.className =
-      "banner-dots";
-
-
-    banners.forEach((banner, index) => {
-
-      const dot =
-        document.createElement("div");
-
-      dot.className =
-        "banner-dot" +
-        (index === 0 ? " active" : "");
-
-
-      dot.addEventListener(
-        "click",
-        () => showBanner(index)
-      );
-
-
-      dots.appendChild(dot);
+      `;
 
     });
 
 
-    container.appendChild(dots);
+    if (data.length > 1) {
+
+      html += `
+        <div class="banner-dots">
+      `;
 
 
-    startBannerAutoPlay();
+      data.forEach((banner, index) => {
 
-  }
+        html += `
+          <div
+            class="banner-dot ${
+              index === 0
+                ? 'active'
+                : ''
+            }"
+          ></div>
+        `;
 
-}
-
-
-function showBanner(index) {
-
-  const slides =
-    document.querySelectorAll(
-      ".banner-slide"
-    );
-
-  const dots =
-    document.querySelectorAll(
-      ".banner-dot"
-    );
+      });
 
 
-  if (!slides.length) {
-    return;
-  }
-
-
-  slides.forEach(
-    slide =>
-      slide.classList.remove("active")
-  );
-
-
-  dots.forEach(
-    dot =>
-      dot.classList.remove("active")
-  );
-
-
-  slides[index].classList.add("active");
-
-  if (dots[index]) {
-    dots[index].classList.add("active");
-  }
-
-
-  currentBanner = index;
-
-}
-
-
-function startBannerAutoPlay() {
-
-  clearInterval(bannerTimer);
-
-
-  bannerTimer =
-    setInterval(() => {
-
-      if (!banners.length) {
-        return;
-      }
-
-
-      const next =
-        (currentBanner + 1) %
-        banners.length;
-
-
-      showBanner(next);
-
-    }, 5000);
-
-}
-
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-checkUser();
-
-loadBanners();
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-document
-  .getElementById("logoutBtn")
-  .addEventListener(
-    "click",
-    async function () {
-
-      await supabaseClient.auth.signOut();
-
-      window.location.href =
-        "login.html";
+      html += `
+        </div>
+      `;
 
     }
-  );
+
+
+    container.innerHTML =
+      html;
+
+
+    if (data.length > 1) {
+
+      let current =
+        0;
+
+
+      const slides =
+        container.querySelectorAll(
+          '.banner-slide'
+        );
+
+
+      const dots =
+        container.querySelectorAll(
+          '.banner-dot'
+        );
+
+
+      setInterval(() => {
+
+        slides[
+          current
+        ].classList.remove(
+          'active'
+        );
+
+
+        dots[
+          current
+        ].classList.remove(
+          'active'
+        );
+
+
+        current =
+          (current + 1) %
+          slides.length;
+
+
+        slides[
+          current
+        ].classList.add(
+          'active'
+        );
+
+
+        dots[
+          current
+        ].classList.add(
+          'active'
+        );
+
+      }, 5000);
+
+    }
+
+  }
+
+
+  async function loadProducts() {
+
+    const container =
+      document.getElementById(
+        'productsContainer'
+      );
+
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from('products')
+      .select(
+        'id,name,price,description,category,image_url,stock'
+      )
+      .order('id', {
+        ascending: false
+      })
+      .limit(6);
+
+
+    if (error) {
+
+      container.innerHTML = `
+        <div class="empty">
+          Gagal memuat produk.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    if (!data || data.length === 0) {
+
+      container.innerHTML = `
+        <div class="empty">
+          Belum ada produk.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    let html = '';
+
+
+    data.forEach(product => {
+
+      const image =
+        product.image_url || '';
+
+
+      const stock =
+        Number(product.stock || 0);
+
+
+      html += `
+
+        <div class="product-card">
+
+          ${
+            image
+              ? `
+                <img
+                  class="product-image"
+                  src="${escapeHtml(image)}"
+                  alt="${escapeHtml(product.name)}"
+                >
+              `
+              : `
+                <div class="product-placeholder">
+                  📦
+                </div>
+              `
+          }
+
+          <div class="product-body">
+
+            <div class="product-category">
+              ${escapeHtml(
+                product.category || 'Umum'
+              )}
+            </div>
+
+            <div class="product-name">
+              ${escapeHtml(
+                product.name
+              )}
+            </div>
+
+            <div class="product-description">
+              ${escapeHtml(
+                product.description || ''
+              )}
+            </div>
+
+            <div class="product-price">
+              ${formatRupiah(
+                product.price
+              )}
+            </div>
+
+            <div class="product-stock">
+              ${
+                stock > 0
+                  ? 'Stok: ' + stock
+                  : 'Stok habis'
+              }
+            </div>
+
+            <div class="product-actions">
+
+              <a
+                class="btn btn-detail"
+                href="detail-produk.html?id=${
+                  product.id
+                }"
+              >
+                Detail
+              </a>
+
+              ${
+                stock > 0
+                  ? `
+                    <a
+                      class="btn btn-buy"
+                      href="detail-produk.html?id=${
+                        product.id
+                      }"
+                    >
+                      Beli
+                    </a>
+                  `
+                  : `
+                    <span
+                      class="btn btn-disabled"
+                    >
+                      Habis
+                    </span>
+                  `
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+    });
+
+
+    container.innerHTML =
+      html;
+
+  }
+
+
+  async function init() {
+
+    await Promise.all([
+      loadStoreSettings(),
+      loadUser(),
+      loadBanners(),
+      loadProducts()
+    ]);
+
+  }
+
+
+  init();
 
 </script>
 
