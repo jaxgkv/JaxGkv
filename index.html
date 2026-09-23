@@ -53,6 +53,18 @@
       text-decoration: underline;
     }
 
+    .admin-link {
+      background: #7c3aed;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .admin-link:hover {
+      background: #6d28d9;
+      text-decoration: none;
+    }
+
     .user-info {
       font-size: 14px;
       color: #d1d5db;
@@ -63,8 +75,6 @@
       margin: auto;
       padding: 0 15px;
     }
-
-    /* STORE INFO */
 
     .store-info {
       background: white;
@@ -91,8 +101,6 @@
       font-size: 14px;
       color: #555;
     }
-
-    /* BANNER */
 
     .banner-section {
       margin-top: 25px;
@@ -189,8 +197,6 @@
       color: #777;
     }
 
-    /* HERO */
-
     .hero {
       text-align: center;
       padding: 45px 15px 30px;
@@ -205,8 +211,6 @@
       color: #666;
       margin: 0;
     }
-
-    /* PRODUCTS */
 
     .products-section {
       padding: 15px 0 40px;
@@ -338,8 +342,6 @@
       color: #777;
     }
 
-    /* FOOTER */
-
     footer {
       background: #111827;
       color: #d1d5db;
@@ -436,6 +438,16 @@
       Dashboard
     </a>
 
+    <!-- Hanya muncul untuk admin -->
+    <a
+      href="admin-dashboard.html"
+      id="adminLink"
+      class="admin-link"
+      style="display:none;"
+    >
+      ⚙️ Admin
+    </a>
+
     <span id="userInfo" class="user-info">
       Memuat...
     </span>
@@ -444,8 +456,6 @@
 
 </nav>
 
-
-<!-- STORE INFO -->
 
 <section class="store-info">
 
@@ -470,8 +480,6 @@
 
 <div class="container">
 
-  <!-- BANNER -->
-
   <section class="banner-section">
 
     <div
@@ -488,8 +496,6 @@
   </section>
 
 
-  <!-- HERO -->
-
   <section class="hero">
 
     <h1 id="heroTitle">
@@ -502,8 +508,6 @@
 
   </section>
 
-
-  <!-- PRODUCTS -->
 
   <section class="products-section">
 
@@ -526,8 +530,6 @@
 
 </div>
 
-
-<!-- FOOTER -->
 
 <footer>
 
@@ -616,7 +618,6 @@
       .limit(1)
       .single();
 
-
     if (error || !data) {
       console.log(
         'Pengaturan toko belum tersedia:',
@@ -625,7 +626,6 @@
 
       return;
     }
-
 
     const name =
       data.store_name || 'JaxGkv';
@@ -641,70 +641,58 @@
       data.footer_text ||
       '© 2026 JaxGkv';
 
-
     document.title =
       name;
-
 
     document.getElementById(
       'navStoreName'
     ).textContent =
       name;
 
-
     document.getElementById(
       'storeName'
     ).textContent =
       name;
-
 
     document.getElementById(
       'storeDescription'
     ).textContent =
       description;
 
-
     document.getElementById(
       'heroTitle'
     ).textContent =
       'Selamat Datang di ' + name;
-
 
     document.getElementById(
       'heroDescription'
     ).textContent =
       description;
 
-
     document.getElementById(
       'footerStore'
     ).textContent =
       name;
-
 
     document.getElementById(
       'footerDescription'
     ).textContent =
       description;
 
-
     document.getElementById(
       'footerText'
     ).textContent =
       footer;
-
 
     const contactElement =
       document.getElementById(
         'storeContact'
       );
 
-
     const footerContact =
       document.getElementById(
         'footerContact'
       );
-
 
     if (contact) {
 
@@ -735,11 +723,22 @@
       }
     } = await supabaseClient.auth.getSession();
 
-
     const userInfo =
       document.getElementById(
         'userInfo'
       );
+
+    const adminLink =
+      document.getElementById(
+        'adminLink'
+      );
+
+    /*
+     * Default:
+     * Admin link disembunyikan.
+     */
+    adminLink.style.display =
+      'none';
 
 
     if (!session) {
@@ -761,6 +760,31 @@
     userInfo.textContent =
       '👤 ' + name;
 
+
+    /*
+     * Cek role user dari tabel profiles.
+     */
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+
+    if (
+      !error &&
+      profile &&
+      profile.role === 'admin'
+    ) {
+
+      adminLink.style.display =
+        'inline-block';
+
+    }
+
   }
 
 
@@ -770,7 +794,6 @@
       document.getElementById(
         'bannerContainer'
       );
-
 
     const {
       data,
@@ -818,18 +841,15 @@
       const image =
         banner.image_url || '';
 
-
       const title =
         escapeHtml(
           banner.title
         );
 
-
       const description =
         escapeHtml(
           banner.description
         );
-
 
       const link =
         banner.link_url || '';
@@ -934,12 +954,10 @@
       let current =
         0;
 
-
       const slides =
         container.querySelectorAll(
           '.banner-slide'
         );
-
 
       const dots =
         container.querySelectorAll(
@@ -955,25 +973,21 @@
           'active'
         );
 
-
         dots[
           current
         ].classList.remove(
           'active'
         );
 
-
         current =
           (current + 1) %
           slides.length;
-
 
         slides[
           current
         ].classList.add(
           'active'
         );
-
 
         dots[
           current
@@ -994,7 +1008,6 @@
       document.getElementById(
         'productsContainer'
       );
-
 
     const {
       data,
@@ -1043,7 +1056,6 @@
 
       const image =
         product.image_url || '';
-
 
       const stock =
         Number(product.stock || 0);
