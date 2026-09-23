@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Tonton Video - JaxGkv</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    nav {
+      background: #111;
+      color: white;
+      padding: 15px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .video-wrapper {
+      width: 100%;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      max-height: 650px;
+      background: #000;
+    }
+
+    .loading,
+    .error,
+    .locked {
+      padding: 30px;
+      text-align: center;
+      border-radius: 12px;
+    }
+
+    .loading {
+      color: #666;
+    }
+
+    .error,
+    .locked {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 11px 16px;
+      background: #111;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+
+    .product-info {
+      color: #666;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">🏠 Beranda</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="produk.html">🛍️ Produk</a>
+  <a href="riwayat-pembelian.html">📦 Riwayat Pembelian</a>
+  <a href="topup.html">💳 Top Up</a>
+  <a href="profil.html">👤 Profil</a>
+  <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+
+  <div id="content" class="card">
+    <div class="loading">
+      Memeriksa akses video...
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+  "https://evuwahoflentgidcjmsx.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const content =
+  document.getElementById("content");
+
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+const productId =
+  Number(
+    params.get("id")
+  );
+
+
+// =================================
+// CEK AKSES
+// =================================
+
+async function checkAccess() {
+
+  if (
+    !productId ||
+    productId <= 0
+  ) {
+
+    showError(
+      "ID produk tidak valid."
+    );
+
+    return;
+  }
+
+
+  // Cek login
+  const {
+    data: {
+      user
+    }
+  } =
+    await supabaseClient.auth.getUser();
+
+
+  if (!user) {
+
+    window.location.href =
+      "login.html";
+
+    return;
+  }
+
+
+  // Cek apakah user punya order
+  const {
+    data: orders,
+    error: orderError
+  } =
+    await supabaseClient
+      .from("orders")
+      .select("id, product_id, status, price, created_at")
+      .eq("user_id", user.id)
+      .eq("product_id", productId)
+      .eq("status", "paid")
+      .limit(1);
+
+
+  if (orderError) {
+
+    console.error(orderError);
+
+    showError(
+      "Gagal memeriksa pembelian: " +
+      orderError.message
+    );
+
+    return;
+  }
+
+
+  if (
+    !orders ||
+    orders.length === 0
+  ) {
+
+    content.innerHTML = `
+      <div class="locked">
+
+        <h2>🔒 Video Terkunci</h2>
+
+        <p>
+          Lu belum membeli produk ini.
+        </p>
+
+        <a
+          class="back"
+          href="produk.html">
+
+          🛍️ Kembali ke Produk
+
+        </a>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  // =================================
+  // USER SUDAH BELI
+  // =================================
+
+  const {
+    data: product,
+    error: productError
+  } =
+    await supabaseClient
+      .from("products")
+      .select(`
+        id,
+        name,
+        description,
+        video_url
+      `)
+      .eq("id", productId)
+      .single();
+
+
+  if (productError) {
+
+    console.error(productError);
+
+    showError(
+      "Gagal mengambil data produk: " +
+      productError.message
+    );
+
+    return;
+  }
+
+
+  if (
+    !product.video_url
+  ) {
+
+    showError(
+      "Video untuk produk ini belum tersedia."
+    );
+
+    return;
+  }
+
+
+  // =================================
+  // TAMPILKAN VIDEO
+  // =================================
+
+  content.innerHTML = `
+
+    <h1>
+      🎬 ${escapeHtml(product.name)}
+    </h1>
+
+    <div class="product-info">
+      ${escapeHtml(
+        product.description ||
+        "Video produk."
+      )}
+    </div>
+
+    <div class="video-wrapper">
+
+      <video
+        controls
+        controlsList="nodownload"
+        playsinline
+        preload="metadata">
+
+        <source
+          src="${escapeHtml(
+            product.video_url
+          )}"
+        >
+
+        Browser lu tidak mendukung
+        pemutar video.
+
+      </video>
+
+    </div>
+
+    <a
+      class="back"
+      href="riwayat-pembelian.html">
+
+      ← Kembali ke Riwayat Pembelian
+
+    </a>
+
+  `;
+
+}
+
+
+// =================================
+// ERROR
+// =================================
+
+function showError(message) {
+
+  content.innerHTML = `
+
+    <div class="error">
+
+      ❌ ${escapeHtml(message)}
+
+      <br><br>
+
+      <a
+        class="back"
+        href="produk.html">
+
+        Kembali
+
+      </a>
+
+    </div>
+
+  `;
+
+}
+
+
+// =================================
+// ESCAPE HTML
+// =================================
+
+function escapeHtml(text) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text ?? "";
+
+  return div.innerHTML;
+
+}
+
+
+// =================================
+// LOGOUT
+// =================================
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href =
+    "login.html";
+
+}
+
+
+// =================================
+// START
+// =================================
+
+checkAccess();
+
+</script>
+
+</body>
+</html>
