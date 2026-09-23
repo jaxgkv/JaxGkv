@@ -8,72 +8,148 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #0b0b0b;
-      color: white;
-      padding: 20px;
+      color: #fff;
     }
 
     .container {
       max-width: 900px;
       margin: auto;
+      padding: 25px 16px;
+    }
+
+    .header {
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      color: #d4af37;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
     }
 
     h1 {
-      color: #d4af37;
+      margin: 8px 0;
+      color: #fff;
+    }
+
+    .subtitle {
+      color: #999;
+      font-size: 14px;
     }
 
     .box {
       background: #151515;
       border: 1px solid #292929;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 18px;
       margin-bottom: 15px;
     }
 
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
+    .topup-title {
+      color: #d4af37;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .info {
+      margin: 8px 0;
+      font-size: 14px;
+      color: #ddd;
+      word-break: break-word;
+    }
+
+    .label {
+      color: #888;
     }
 
     .nominal {
-      color: #d4af37;
-      font-size: 20px;
+      font-size: 21px;
       font-weight: bold;
+      color: #d4af37;
     }
 
     .status {
-      color: #aaa;
+      margin-top: 10px;
       font-size: 14px;
     }
 
+    .pending {
+      color: #f0b90b;
+    }
+
+    .approved {
+      color: #42d392;
+    }
+
     button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
+      border-radius: 9px;
       background: #d4af37;
       color: #000;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
     }
 
     button:hover {
-      opacity: 0.85;
+      opacity: .85;
     }
 
-    .empty {
-      color: #999;
-      text-align: center;
-      padding: 30px;
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 9px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 14px;
     }
 
     .error {
-      color: #ff5555;
+      background: #351515;
+      color: #ff7777;
+      border: 1px solid #572222;
+    }
+
+    .success {
+      background: #12351f;
+      color: #65dc91;
+      border: 1px solid #205c35;
+    }
+
+    .empty {
+      text-align: center;
+      color: #888;
+      padding: 35px 15px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 30px;
+    }
+
+    .footer {
+      text-align: center;
+      color: #555;
+      font-size: 12px;
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -82,27 +158,58 @@
 
 <div class="container">
 
-  <h1>Admin Panel</h1>
+  <div class="header">
+    <div class="brand">JAXGKV • ADMIN</div>
+    <h1>Panel Admin</h1>
+    <div class="subtitle">
+      Kelola pengajuan top up pengguna.
+    </div>
+  </div>
 
-  <div id="message"></div>
+  <div id="message" class="message"></div>
 
-  <div id="requests">
-    Memuat request...
+  <div class="box">
+    <div class="topup-title">Pengajuan Top Up</div>
+    <div id="requests" class="loading">
+      Memuat pengajuan...
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 JaxGkv. All rights reserved.
   </div>
 
 </div>
 
 <script>
+
 const SUPABASE_URL =
   "https://evuwahoflentgidcjmsx.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "GANTI_DENGAN_PUBLISHABLE_KEY_YANG_SAMA_DENGAN_LOGIN";
+  "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+function showMessage(text, type) {
+
+  const message =
+    document.getElementById("message");
+
+  message.textContent = text;
+
+  message.className =
+    "message " + type;
+
+  message.style.display = "block";
+
+}
+
 
 async function checkAdmin() {
 
@@ -112,20 +219,31 @@ async function checkAdmin() {
   } = await supabaseClient.auth.getUser();
 
   if (error || !user) {
+
     window.location.href = "login.html";
+
     return false;
   }
 
-  const { data: profile, error: profileError } =
-    await supabaseClient
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
 
-  if (profileError || !profile || profile.role !== "admin") {
+  const {
+    data: profile,
+    error: profileError
+  } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin"
+  ) {
+
     document.getElementById("requests").innerHTML =
-      '<div class="box error">Akses ditolak. Halaman ini khusus admin.</div>';
+      '<div class="empty">Akses ditolak. Halaman ini khusus admin.</div>';
 
     return false;
   }
@@ -136,106 +254,209 @@ async function checkAdmin() {
 
 async function loadRequests() {
 
-  const container = document.getElementById("requests");
+  const container =
+    document.getElementById("requests");
 
-  const { data, error } =
-    await supabaseClient
-      .from("topup_request")
-      .select("*")
-      .eq("status", "pending")
-      .order("created_at", { ascending: false });
+  container.innerHTML =
+    '<div class="loading">Memuat pengajuan...</div>';
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("topup_request")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
+
 
   if (error) {
+
     container.innerHTML =
-      `<div class="box error">Gagal memuat data: ${error.message}</div>`;
+      `<div class="empty">
+        Gagal memuat data:<br>
+        ${error.message}
+      </div>`;
+
     return;
   }
 
+
   if (!data || data.length === 0) {
+
     container.innerHTML =
-      '<div class="box empty">Tidak ada top-up pending.</div>';
+      '<div class="empty">Belum ada pengajuan top up.</div>';
+
     return;
   }
+
 
   container.innerHTML = "";
 
+
   data.forEach(req => {
 
-    const box = document.createElement("div");
+    const box =
+      document.createElement("div");
+
     box.className = "box";
 
-    box.innerHTML = `
-      <div class="row">
 
-        <div>
-          <div class="nominal">
-            Rp${Number(req.nominal).toLocaleString("id-ID")}
-          </div>
+    const nominal =
+      Number(req.nominal)
+        .toLocaleString("id-ID");
 
-          <div class="status">
-            ID Request: ${req.id}
-          </div>
 
-          <div class="status">
-            User ID: ${req.user_id}
-          </div>
+    const tanggal =
+      new Date(req.created_at)
+        .toLocaleString("id-ID");
 
-          <div class="status">
-            ${new Date(req.created_at).toLocaleString("id-ID")}
-          </div>
-        </div>
 
-        <button onclick="approveTopup(${req.id}, this)">
-          Approve
+    let action = "";
+
+
+    if (req.status === "pending") {
+
+      action = `
+        <button
+          onclick="approveTopup(${req.id}, this)">
+          Approve Top Up
         </button>
+      `;
 
+    } else if (req.status === "approved") {
+
+      action = `
+        <div class="status approved">
+          ✓ Sudah disetujui
+        </div>
+      `;
+
+    } else {
+
+      action = `
+        <div class="status">
+          Status: ${req.status}
+        </div>
+      `;
+    }
+
+
+    box.innerHTML = `
+
+      <div class="topup-title">
+        Top Up #${req.id}
       </div>
+
+      <div class="info">
+        <span class="label">User ID:</span><br>
+        ${req.user_id}
+      </div>
+
+      <div class="info">
+        <span class="label">Nominal:</span><br>
+        <span class="nominal">
+          Rp${nominal}
+        </span>
+      </div>
+
+      <div class="info">
+        <span class="label">Status:</span><br>
+        ${req.status}
+      </div>
+
+      <div class="info">
+        <span class="label">Tanggal:</span><br>
+        ${tanggal}
+      </div>
+
+      ${action}
+
     `;
 
+
     container.appendChild(box);
+
   });
+
 }
 
 
 async function approveTopup(id, button) {
 
-  if (!confirm("Approve top-up ini?")) {
+  const konfirmasi =
+    confirm(
+      "Approve top-up ini?\n\n" +
+      "Saldo user akan bertambah sesuai nominal."
+    );
+
+
+  if (!konfirmasi) {
     return;
   }
+
 
   button.disabled = true;
   button.textContent = "Memproses...";
 
-  const { error } =
-    await supabaseClient.rpc("approve_topup", {
+
+  const {
+    error
+  } = await supabaseClient.rpc(
+    "approve_topup",
+    {
       request_id: id
-    });
+    }
+  );
+
 
   if (error) {
 
-    alert("Gagal approve:\n" + error.message);
+    console.error(
+      "Approve error:",
+      error
+    );
+
+    showMessage(
+      "Gagal approve: " + error.message,
+      "error"
+    );
 
     button.disabled = false;
-    button.textContent = "Approve";
+    button.textContent =
+      "Approve Top Up";
 
     return;
   }
 
-  alert("Top-up berhasil di-approve.");
 
-  loadRequests();
+  showMessage(
+    "Top-up berhasil disetujui.",
+    "success"
+  );
+
+
+  await loadRequests();
+
 }
 
 
 (async function() {
 
-  const isAdmin = await checkAdmin();
+  const isAdmin =
+    await checkAdmin();
+
 
   if (isAdmin) {
-    loadRequests();
+
+    await loadRequests();
+
   }
 
 })();
+
 </script>
 
 </body>
