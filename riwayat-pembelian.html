@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Riwayat Pembelian - JaxGkv</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -59,7 +60,7 @@
       border-radius: 14px;
       padding: 18px;
       margin-bottom: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
     }
 
     .order-header {
@@ -155,70 +156,163 @@
 
 <div class="container">
 
-  <a class="back" href="produk.html">← Kembali ke Produk</a>
+  <a class="back" href="produk.html">
+    ← Kembali ke Produk
+  </a>
 
   <div id="content">
-    <div class="loading">Memuat riwayat pembelian...</div>
+    <div class="loading">
+      Memuat riwayat pembelian...
+    </div>
   </div>
 
 </div>
 
 <script>
-  const SUPABASE_URL = "https://evuwahoflentgidcjmsx.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
 
-  const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+  /* =========================
+     SUPABASE
+  ========================= */
 
-  const content = document.getElementById("content");
+  const SUPABASE_URL =
+    "https://evuwahoflentgidcjmsx.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_77o85YPI70oY-d7GJ6Yi2A_HGg4afR3";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  const content =
+    document.getElementById("content");
+
+
+  /* =========================
+     FORMAT RUPIAH
+  ========================= */
 
   function formatRupiah(number) {
+
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0
-    }).format(number || 0);
+    }).format(Number(number) || 0);
+
   }
+
+
+  /* =========================
+     FORMAT TANGGAL
+  ========================= */
 
   function formatDate(dateString) {
-    if (!dateString) return "-";
 
-    return new Date(dateString).toLocaleString("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "short"
-    });
+    if (!dateString) {
+      return "-";
+    }
+
+    return new Date(dateString).toLocaleString(
+      "id-ID",
+      {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }
+    );
+
   }
 
+
+  /* =========================
+     ESCAPE HTML
+  ========================= */
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  /* =========================
+     LOAD HISTORY
+  ========================= */
+
   async function loadHistory() {
+
     try {
+
+      /* =========================
+         CEK LOGIN
+      ========================= */
+
       const {
         data: {
           session
-        }
+        },
+        error: sessionError
       } = await supabaseClient.auth.getSession();
 
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+
       if (!session) {
+
         content.innerHTML = `
+
           <div class="error">
+
             <h3>Belum login</h3>
-            <p>Silakan login terlebih dahulu.</p>
-            <a class="btn btn-detail" href="login.html">Login</a>
+
+            <p>
+              Silakan login terlebih dahulu.
+            </p>
+
+            <a
+              class="btn btn-detail"
+              href="login.html"
+            >
+              Login
+            </a>
+
           </div>
+
         `;
+
         return;
       }
 
-      const user = session.user;
+
+      const user =
+        session.user;
+
+
+      /* =========================
+         AMBIL DATA PURCHASES
+      ========================= */
 
       const {
         data,
         error
       } = await supabaseClient
+
         .from("purchases")
+
         .select(`
           id,
+          user_id,
           order_code,
           product_id,
           product_name,
@@ -227,238 +321,454 @@
           status,
           created_at
         `)
-        .eq("user_id", user.id)
-        .order("created_at", {
-          ascending: false
-        });
+
+        .eq(
+          "user_id",
+          user.id
+        )
+
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
+
 
       if (error) {
-        console.error(error);
+
+        console.error(
+          "SUPABASE ERROR:",
+          error
+        );
 
         content.innerHTML = `
+
           <div class="error">
-            ❌ Gagal memuat riwayat.<br><br>
-            ${error.message}
+
+            ❌ Gagal memuat riwayat.
+
+            <br><br>
+
+            ${escapeHtml(
+              error.message
+            )}
+
           </div>
+
         `;
 
         return;
       }
+
+
+      /* =========================
+         TIDAK ADA DATA
+      ========================= */
 
       if (!data || data.length === 0) {
+
         content.innerHTML = `
+
           <div class="empty">
+
             Belum ada riwayat pembelian.
+
           </div>
+
         `;
 
         return;
       }
 
-      /*
-        PEMBENTUKAN GROUP
 
-        Jika order_code ADA:
-          group berdasarkan order_code.
-
-        Jika order_code KOSONG:
-          setiap purchase dianggap sebagai pesanan sendiri.
-
-        Contoh:
-          ID 12, order_code kosong
-          => PURCHASE-12
-      */
+      /* =========================
+         GROUP DATA
+      ========================= */
 
       const groups = {};
 
+
       data.forEach(item => {
+
+        const hasOrderCode =
+          item.order_code &&
+          String(item.order_code).trim() !== "";
+
 
         let groupKey;
 
-        if (
-          item.order_code &&
-          String(item.order_code).trim() !== ""
-        ) {
-          groupKey = "ORDER-" + item.order_code;
+
+        if (hasOrderCode) {
+
+          /*
+           * Pesanan yang punya
+           * order_code asli
+           */
+
+          groupKey =
+            "ORDER-" +
+            String(item.order_code);
+
         } else {
-          groupKey = "PURCHASE-" + item.id;
+
+          /*
+           * Pesanan lama / individual
+           *
+           * Setiap purchase ID
+           * menjadi group sendiri.
+           */
+
+          groupKey =
+            "PURCHASE-" +
+            String(item.id);
+
         }
+
 
         if (!groups[groupKey]) {
+
           groups[groupKey] = [];
+
         }
 
+
         groups[groupKey].push(item);
+
       });
+
+
+      /* =========================
+         RENDER
+      ========================= */
 
       let html = "";
 
-      Object.keys(groups).forEach(groupKey => {
 
-        const items = groups[groupKey];
+      Object.keys(groups).forEach(
+        groupKey => {
 
-        const firstItem = items[0];
+          const items =
+            groups[groupKey];
 
-        const hasOrderCode =
-          firstItem.order_code &&
-          String(firstItem.order_code).trim() !== "";
 
-        /*
-          KODE YANG DITAMPILKAN
+          const firstItem =
+            items[0];
 
-          Ini hanya untuk tampilan.
 
-          Jangan digunakan sebagai parameter ?order
-          kalau order_code sebenarnya kosong.
-        */
+          const hasOrderCode =
+            firstItem.order_code &&
+            String(
+              firstItem.order_code
+            ).trim() !== "";
 
-        const displayOrderCode = hasOrderCode
-          ? firstItem.order_code
-          : "PURCHASE-" + firstItem.id;
 
-        /*
-          INI BAGIAN PENTING
+          /* =========================
+             KODE TAMPILAN
+          ========================= */
 
-          Kalau order_code ada:
-            detail-pesanan.html?order=JX-000003
+          const displayOrderCode =
+            hasOrderCode
+
+              ? String(
+                  firstItem.order_code
+                )
+
+              : "PURCHASE-" +
+                String(
+                  firstItem.id
+                );
+
+
+          /* =========================
+             URL DETAIL
+          =========================
+
+          PENTING:
+
+          Kalau ada order_code:
+          ?order=JX-000003
 
           Kalau order_code kosong:
-            detail-pesanan.html?purchase=12
+          ?purchase=12
 
-          Jadi PURCHASE-12 TIDAK dikirim sebagai order_code.
-        */
+          PURCHASE-12 HANYA UNTUK
+          TAMPILAN, BUKAN PARAMETER
+          order.
+          */
 
-        let detailUrl;
 
-        if (hasOrderCode) {
-          detailUrl =
-            "detail-pesanan.html?order=" +
-            encodeURIComponent(firstItem.order_code);
-        } else {
-          detailUrl =
-            "detail-pesanan.html?purchase=" +
-            encodeURIComponent(firstItem.id);
-        }
+          let detailUrl;
 
-        let firstDate = firstItem.created_at;
 
-        let itemsHtml = "";
+          if (hasOrderCode) {
 
-        items.forEach(item => {
+            detailUrl =
+              "detail-pesanan.html?order=" +
+              encodeURIComponent(
+                String(
+                  firstItem.order_code
+                )
+              );
 
-          const quantity = Number(item.quantity || 1);
-          const price = Number(item.price || 0);
-          const subtotal = price * quantity;
+          } else {
 
-          const statusClass =
-            String(item.status || "").toLowerCase();
+            detailUrl =
+              "detail-pesanan.html?purchase=" +
+              encodeURIComponent(
+                String(
+                  firstItem.id
+                )
+              );
 
-          itemsHtml += `
-            <div class="item">
+          }
 
-              <div class="product-name">
-                ${escapeHtml(item.product_name || "Produk")}
+
+          console.log(
+            "DETAIL URL:",
+            detailUrl
+          );
+
+
+          /* =========================
+             ITEM HTML
+          ========================= */
+
+          let itemsHtml = "";
+
+
+          items.forEach(item => {
+
+            const quantity =
+              Number(
+                item.quantity || 1
+              );
+
+
+            const price =
+              Number(
+                item.price || 0
+              );
+
+
+            const subtotal =
+              price * quantity;
+
+
+            const statusClass =
+              String(
+                item.status || ""
+              ).toLowerCase();
+
+
+            itemsHtml += `
+
+              <div class="item">
+
+                <div class="product-name">
+
+                  ${escapeHtml(
+                    item.product_name ||
+                    "Produk"
+                  )}
+
+                </div>
+
+
+                <div class="info">
+
+                  Harga:
+                  ${formatRupiah(
+                    price
+                  )}
+
+                  <br>
+
+                  Jumlah:
+                  ${quantity}
+
+                  <br>
+
+                  Subtotal:
+                  ${formatRupiah(
+                    subtotal
+                  )}
+
+                </div>
+
+
+                <div>
+
+                  <span
+                    class="status ${escapeHtml(
+                      statusClass
+                    )}"
+                  >
+
+                    ${escapeHtml(
+                      item.status ||
+                      "-"
+                    )}
+
+                  </span>
+
+                </div>
+
+
+                <div class="actions">
+
+
+                  <!--
+                    DETAIL PER ITEM
+
+                    SELALU PAKAI
+                    PURCHASE ID.
+                  -->
+
+                  <a
+                    class="btn btn-detail"
+                    href="detail-pesanan.html?purchase=${encodeURIComponent(
+                      String(item.id)
+                    )}"
+                  >
+                    Detail
+                  </a>
+
+
+                  ${
+                    item.status === "completed" &&
+                    item.product_id
+
+                      ? `
+
+                        <a
+                          class="btn btn-video"
+                          href="video.html?id=${encodeURIComponent(
+                            String(
+                              item.product_id
+                            )
+                          )}"
+                        >
+                          🎬 Tonton Video
+                        </a>
+
+                      `
+
+                      : ""
+                  }
+
+
+                </div>
+
               </div>
 
-              <div class="info">
-                Harga: ${formatRupiah(price)}<br>
-                Jumlah: ${quantity}<br>
-                Subtotal: ${formatRupiah(subtotal)}
+            `;
+
+          });
+
+
+          /* =========================
+             ORDER CARD
+          ========================= */
+
+          html += `
+
+            <div class="order">
+
+
+              <div class="order-header">
+
+                <div>
+
+                  <div class="order-code">
+
+                    ${escapeHtml(
+                      displayOrderCode
+                    )}
+
+                  </div>
+
+
+                  <div class="date">
+
+                    ${formatDate(
+                      firstItem.created_at
+                    )}
+
+                  </div>
+
+                </div>
+
               </div>
 
-              <div>
-                <span class="status ${statusClass}">
-                  ${escapeHtml(item.status || "-")}
-                </span>
-              </div>
+
+              ${itemsHtml}
+
 
               <div class="actions">
 
+                <!--
+                  TOMBOL UTAMA DETAIL
+                -->
+
                 <a
                   class="btn btn-detail"
-                  href="detail-pesanan.html?purchase=${encodeURIComponent(item.id)}"
+                  href="${detailUrl}"
                 >
-                  Detail
+                  Lihat Detail Pesanan
                 </a>
 
-                ${
-                  item.status === "completed" && item.product_id
-                    ? `
-                      <a
-                        class="btn btn-video"
-                        href="video.html?id=${encodeURIComponent(item.product_id)}"
-                      >
-                        🎬 Tonton Video
-                      </a>
-                    `
-                    : ""
-                }
-
               </div>
 
+
             </div>
+
           `;
-        });
 
-        html += `
-          <div class="order">
+        }
+      );
 
-            <div class="order-header">
 
-              <div>
-                <div class="order-code">
-                  ${escapeHtml(displayOrderCode)}
-                </div>
+      content.innerHTML =
+        html;
 
-                <div class="date">
-                  ${formatDate(firstDate)}
-                </div>
-              </div>
-
-            </div>
-
-            ${itemsHtml}
-
-            <div class="actions">
-
-              <a
-                class="btn btn-detail"
-                href="${detailUrl}"
-              >
-                Lihat Detail Pesanan
-              </a>
-
-            </div>
-
-          </div>
-        `;
-      });
-
-      content.innerHTML = html;
 
     } catch (err) {
 
-      console.error(err);
+      console.error(
+        "JAXGKV HISTORY ERROR:",
+        err
+      );
+
 
       content.innerHTML = `
+
         <div class="error">
-          ❌ Terjadi kesalahan.<br><br>
-          ${escapeHtml(err.message || String(err))}
+
+          ❌ Terjadi kesalahan.
+
+          <br><br>
+
+          ${escapeHtml(
+            err.message ||
+            String(err)
+          )}
+
         </div>
+
       `;
+
     }
+
   }
 
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+
+  /* =========================
+     START
+  ========================= */
 
   loadHistory();
+
 </script>
 
 </body>
